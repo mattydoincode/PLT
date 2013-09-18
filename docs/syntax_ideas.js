@@ -41,7 +41,7 @@
 	square = (x) => {
 		x*x;
 	};
-	
+
 	// calling
 	seven = add(5,2);
 
@@ -53,45 +53,42 @@
 // IO
 // ********
 
-	// read from stdin
-	input << stdin;
+	// read
+	input = read; // stdin
+	input = read 'path/to/file.txt';
 
-	// write to stdin
-	output >> stdout;
-	print output;
+	// write
+	print output; // stdout
+	print output 'path/to/file.txt';
 
-	// read from file
-	input << 'path/to/file.txt';
+// ********
+// PARALLEL
+// ********
 
-	// write to file
-	output >> 'path/to/file.txt';
+	// define task function 
+	noSideEffects (input) => {
+		// long process here
+	};
+
+	// distribute workload
+	distribute
+
+
+	
 
 // *******
 // WEB
 // *******
 
-// Example 1 - fitbit needs to check on 4 sites
+	// Example 1 - fitbit needs to check on 4 sites
 
-pages <- ['amazon.com', 'bestbuy.com', 'radioshack.com', 'target.com'];
-
-
-
-amazon <- 'amazon.com';
-bestbuy <- 'bestbuy.com';
-radioshack <- 'radioshack.com';
+	pages <- ['amazon.com', 'bestbuy.com', 'radioshack.com', 'target.com'];
 
 
+	// Example 2 - get 100 XKCD comics
 
 
-// Example 2 - get 100 XKCD comics
-
-
-// Example 3 - build a reddit bot
-
-
-
-
-
+	// Example 3 - build a reddit bot
 
 
 
