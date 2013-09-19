@@ -1,5 +1,3 @@
-// this is a comment
-
 // ********
 // TYPES
 // ********
@@ -22,23 +20,28 @@
 		p1: 'hey',
 		p2: {
 			p3: 7
-		}
+		},
+		myFunc: (x,y) => x + y
 	};
+	
+	// object access
+	thisIsHey = o2.p2;
+	alsoHey = o2['p2'];
 
 	// list
 	l1 = [];
 	l2 = [1,2,3,4,5,6];
 	one = l2[0];
-	oneTwoThree = l2[0..2];
-	copyL2 = l2[..];
+	oneTwoThree = l2[0:2];
+	copyL2 = l2[:];
 
 // ********
 // FUNCTIONS
 // ********
 
 	// declaration
-	add = (x,y) => x+y;
-	square = (x) => {
+	add(x,y) -> x+y;
+	square(x) -> {
 		x*x;
 	};
 
@@ -60,10 +63,20 @@
 	// write
 	print output; // stdout
 	print output 'path/to/file.txt';
+	
+	// open slave
+	open('192.168.4.03');
+	open(['192.168.4.01', '192.168.4.02', '192.168.4.03']);
 
 // ********
 // PARALLEL
 // ********
+
+	results = [1, 2, 3, 4].distribute(x -> square(x));
+	
+	filtered = results.where(x -> {
+		x % 2 == 0;
+	});
 
 	// define task function 
 	noSideEffects (input) => {
@@ -74,23 +87,8 @@
 	distribute
 
 
-	
-
-// *******
-// WEB
-// *******
-
-	// Example 1 - fitbit needs to check on 4 sites
-
-	pages <- ['amazon.com', 'bestbuy.com', 'radioshack.com', 'target.com'];
-
-
-	// Example 2 - get 100 XKCD comics
-
-
-	// Example 3 - build a reddit bot
-
-
-
+// ********
+// COMMENTS
+// ********
 
 
