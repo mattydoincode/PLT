@@ -1,0 +1,14 @@
+pubCrawl is a distributed systems programming language with a focus on 
+list operations. Given some number of networked slave computers, it will
+automatically split work up among them, requiring the developer only to specify
+whether a function should distribute work or not. In implementing it, we
+will also attempt to implement redundant processing, so that processed data is 
+not lost in the case of an unstable network.
+
+To accomplish this, the developer will specify the IP addresses of the slave 
+computers, which will be running a slave server utility. At compile time, the 
+compiler sends to each of these machines a list of all the functions that can 
+be called as a part of this program. It then passes the data to each slave 
+computer as the functions are called, and refers to the functions by a unique 
+hash name that is assigned at compilation time. This is done with blocking- the
+program does not continue until all the results have been received. 
