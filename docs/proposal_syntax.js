@@ -13,6 +13,7 @@
 		// totally work
 	*/
 
+
 	/* this will break though /* */
 
 // ********
@@ -113,7 +114,7 @@
 			return num*num;
 		}
 		return 7; // return statement REQUIRED if braces
-	} // no semi-colon needed to end funciton if braces
+	} // no semi-colon needed to end function if braces
 
 	// calling
 	seven = add(5,2);
@@ -215,3 +216,56 @@
 		}
 		return newList;
 	}
+
+
+//##########what matt thought of!#################
+
+//array stuff
+array.length?
+
+array.count?
+
+//string stuff?
+"hey"[1];?
+"hey".contains("ey");
+"hey".indexOf("ey");
+"hey whatsup".split(" ");
+"http://xkcd.com/" + id //does this work?
+substring?
+//etc..
+
+//operators.. what's defined?
+i++
+i+=
+i-= 
+%
+//etc..
+
+//is return statement required?? do we pass by value??
+//what if i want to sort a list? but like just the original list?
+
+//negative values
+null?
+undefined?
+0
+false
+//we should be more clear is all
+
+//should we add a random? or a math? i guess we could build math? but we could just hook into java...
+
+//what if we print a list or an object? how does it handle that?
+print([1,2,3]); //1, 2, 3 ??
+
+//escape characters?
+//aka i want to print: and then he said "hello"
+
+print("and then he said \"hello\""); //??
+
+
+//other list extensions ?
+.any();
+.first();
+.last();
+//etc
+
+//exceptions???
