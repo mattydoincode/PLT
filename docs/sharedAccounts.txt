@@ -1,0 +1,14 @@
+//########EMAIL############
+
+username: pubcrawlplt@gmail.com
+password: pubCrawl
+name: Matt Dean
+phone: 603-770-6406
+birthday: Oct 14 1991
+
+
+//########WRITE LATEX##########
+
+name: pub crawl
+email: pubcrawlplt@gmail.com
+password: pubCrawl
