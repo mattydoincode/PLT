@@ -1,14 +1,19 @@
 pubCrawl is a distributed systems programming language with a focus on 
 list operations. Given some number of networked slave computers, it will
 automatically split work up among them, requiring the developer only to specify
-whether a function should distribute work or not. In implementing it, we
-will also attempt to implement redundant processing, so that processed data is 
+whether a function should distribute work or not. To create a robust platform, we
+will also implement redundant processing, so that processed data is 
 not lost in the case of an unstable network.
 
-To accomplish this, the developer will specify the IP addresses of the slave 
-computers, which will be running a slave server utility. At compile time, the 
-compiler sends to each of these machines a list of all the functions that can 
-be called as a part of this program. It then passes the data to each slave 
-computer as the functions are called, and refers to the functions by a unique 
-hash name that is assigned at compilation time. This is done with blocking- the
-program does not continue until all the results have been received. 
+To distribute work, the developer will specify the IP addresses of the slave 
+computers, which will be running a slave server utility. When the output program is run, 
+it sends compiled and serialized functions to the remote servers. It then passes data to each slave 
+computer as the functions are called. This is blocking - the
+program does not continue until all the results have been received.
+
+What problems can PubCrawl solve and how should it be used?
+
+PubCrawl is a language designed to solve problems where you have a lot of data. Unlike multi-core processing, Pubcrawl helps you distribute your computationally extensive problem across multiple machines in a cluster. Those machines will be able to chip away at their portion of the problem, and then send the results back to the master machine. A simple analogy for this type of problem would be counting the number of books in the library. It would be much faster to have two people counting (one person counts the even numbered shelves, and the other counting the odd shelves). When finished, they just combine their numbers to produce the result.
+
+One concrete example may be counting the appearance of each word in a large set of HTML pages. With PubCrawl, you would easily be able to have each node fetch certain URL's, count the number of word appearences, and return them to the master for further computation. 
+  

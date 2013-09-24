@@ -9,19 +9,21 @@
 	*/
 
 	/*
-		/* nested comments */
+		/* totally breaks */
 		// totally work
 	*/
 
-	/* this will break though /* */
+
+	/* this will break too /* */
 
 // ********
 // TYPES
 // ********
 
-	// string
+	// string, single quotes
 	name = 'Alden';
 	hiThere = 'Hi, my name is {{name}}'; // built in formatting
+	hereisaquote = '\''; // backslash escape
 
 	// number
 	n1 = 4;  
@@ -80,7 +82,7 @@
 	if (bool) {
 		// do stuff here
 	}
-	else if (otherBool) {
+	elif (otherBool) {
 		// more stuff here
 	}
 	else {
@@ -113,7 +115,7 @@
 			return num*num;
 		}
 		return 7; // return statement REQUIRED if braces
-	} // no semi-colon needed to end funciton if braces
+	} // no semi-colon needed to end function if braces
 
 	// calling
 	seven = add(5,2);
@@ -125,9 +127,13 @@
 // IO
 // ********
 
+	
+
 	// read
 	input = read(); // stdin
-	input = read('path/to/file.txt');
+	input = read('path/to/file.txt'); //returns list of strings, each being a line
+
+	output = "Hello World";
 
 	// write
 	print(output); // stdout
@@ -137,26 +143,13 @@
 // PARALLEL
 // ********
 
-	// open slave
-	open('192.168.4.03');
-	open(['192.168.4.01', '192.168.4.02', '192.168.4.03']);
 
-	// close slave
-	close('192.168.4.03');
-	close(['192.168.4.01', '192.168.4.02', '192.168.4.03']);
-
-	// two magic functions, distribute and collect
+	// one magic function, distribute
 
 	urls = ['google.com', 'apple.com', 'amazon.com'];
 
-	toCollect = urls.distribute(x -> getPageTitle(x));
+	results = urls.distribute(x -> getPageTitle(x));
 	// getPageTitle is definted somewhere else as getPageTitle(url) -> // download page, etc.
-
-	// toCollect is a special object that must be collected
-	results = toCollect.collect();
-
-	// could also be one-liner urls.distribute(x -> getPageTitle(x)).collect();
-	// also equivalent to collect(distribute(urls, x -> getPageTitle(x)));
 
 	// results is a list of special objects
 	firstResult = results[0];
@@ -215,3 +208,46 @@
 		}
 		return newList;
 	}
+
+
+	list utilities :
+
+	find = indexof
+	contains?
+	any?
+	split?
+
+
+//##########what matt thought of!#################
+
+//array stuff
+array.length
+
+//string stuff?
+substrings handled like arrays
+
+"http://xkcd.com/" + id //does this work?
+
+
+//etc..
+
+//operators.. what's defined?
+i++ //only fucking thing defined
+//maybe more math??
+% //yeah iguess we have mod
+//etc..
+
+//always pass by value bitches
+
+//negative values
+null// is falsy cuz it's nice ??? maybe if everything goes well
+0// is zero and it's not falsey, numbers don't work as bools
+false, true// are only bool things
+
+
+//what if we print a list or an object? how does it handle that?
+print([1,2,3]); //1, 2, 3 ??
+
+//boom
+
+//exceptions
