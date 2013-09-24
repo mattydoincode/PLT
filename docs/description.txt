@@ -10,3 +10,10 @@ computers, which will be running a slave server utility. When the output program
 it sends compiled and serialized functions to the remote servers. It then passes data to each slave 
 computer as the functions are called. This is blocking - the
 program does not continue until all the results have been received.
+
+What problems can PubCrawl solve and how should it be used?
+
+PubCrawl is a language designed to solve problems where you have a lot of data. Unlike multi-core processing, Pubcrawl helps you distribute your computationally extensive problem across multiple machines in a cluster. Those machines will be able to chip away at their portion of the problem, and then send the results back to the master machine. A simple analogy for this type of problem would be counting the number of books in the library. It would be much faster to have two people counting (one person counts the even numbered shelves, and the other counting the odd shelves). When finished, they just combine their numbers to produce the result.
+
+One concrete example may be counting the appearance of each word in a large set of HTML pages. With PubCrawl, you would easily be able to have each node fetch certain URL's, count the number of word appearences, and return them to the master for further computation. 
+  
