@@ -15,11 +15,11 @@ bubble(values) -> {
 		  	}
 		}
 	}
-	//return statement??
+	return values;
 }
 
 mylist = [7, 4, 5, 2, 9, 1];
-mylist.bubble();
+mylist = mylist.bubble();
 print(mylist); // ??
 
 
@@ -31,8 +31,7 @@ getComic (id) -> {
 	wholeSite = download("http://xkcd.com/" + id);
 	imgChunk = wholeSite.split('<').where(x->x.contains("imgs.xkcd.com/comics"));
 	if(imgChunk.length!=1){
-		//throw error!
-		//this should count as a return essentially
+		return null;
 	}
 	else{
 
@@ -64,7 +63,6 @@ for(result in pics){
 
 
 getPrimes (max) -> {
-
 	myPrimes = [2,3,5,7,11,13,17,19,23,29,31,37,41,43,47,53,59,61,67,71,73,79,83,
 				89,97,101,103,107,109,113,127,131,137,139,149,151,157,163,167,173,179,181,
 				191,193,197,199,211,223,227,229,233,239,241,251,257,263,269,271,277,281,283,293,
@@ -78,11 +76,11 @@ getPrimes (max) -> {
 }
 
 trial_division(n) ->{
-    """Return a list of the prime factors for a natural number."""
+    //Return a list of the prime factors for a natural number
     if(n == 1){
     	return [1];
     }
-    primes = getPrimes(sqrt(n) + 1); //sqrt??
+    primes = getPrimes(n/2 + 1); //sqrt??
     prime_factors = [];
 
     for(p in primes) {
@@ -92,11 +90,11 @@ trial_division(n) ->{
         }
     }
     if (n > 1){ 
-    	prime_factors.add(n)
+    	prime_factors.add(n);
     }
-    return prime_factors
+    return prime_factors;
 }
 
 // prime factorize every number up to 1000
 
-print(range(1000).distribute(trial_division).collect().select(x=>x.output + "\n"));//can we shortcut function calling?
+range(1000).distribute(trial_division).map(x=>print(x ": " + x.output + "\n"));//can we shortcut function calling?
