@@ -1,0 +1,16 @@
+
+1. Project Plan
+	- timeline - MATT
+	- roles for each team member - MATT
+	- project log - SIREESH
+2. Finalized Use Cases - NO ONE YET
+	- more extensive than proposal
+3. Objects and Functions
+	- functions are first order in our language, how to put in Java?
+	- store objects as java hashmaps?
+4. Lists and Strings - KEVIN
+	- same in our language, how to put in Java?
+5. IO - ALDEN
+	- how to put in Java?
+6. Write utilities - ALDEN
+	- where, map, concat
