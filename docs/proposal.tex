@@ -7,6 +7,7 @@
 \usepackage[colorinlistoftodos]{todonotes}
 \usepackage[framemethod=tikz]{mdframed}
 \usepackage{fancyvrb}
+\usepackage{margin= 1 in}{geometry}
 \DefineVerbatimEnvironment{code}{Verbatim}{fontsize=\small}
 \DefineVerbatimEnvironment{example}{Verbatim}{fontsize=\small}
 
@@ -174,7 +175,7 @@ Functions are a big part of what makes pubCrawl great. We have super simple func
 
 \begin{mdframed}[hidealllines=true,backgroundcolor=gray!10,skipbelow=1em,skipabove=.5em]
 \begin{code}
-/ declaration
+// declaration
 add(x,y) -> x+y; //notice no brackets = no return statement
 square(num) -> {
 	if (true) {
