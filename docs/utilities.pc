@@ -1,0 +1,94 @@
+
+// ********
+// WHERE
+// ********
+where(list, predicate) -> {
+	if (!list) {
+		return null;
+	}
+	newList = [];
+	for (item in list) {
+		if (predicate(item)) {
+			newList.add(item);
+		}
+	}
+	return newList;
+}
+
+// ********
+// MAP
+// ********
+map(list, selector) -> {
+	if (!list) {
+		return null;
+	}
+	newList = [];
+	for (item in list) {
+		newList.add(selector(item));
+	}
+	return newList;
+}
+
+// ********
+// FIND
+// ********
+find(source, val) -> {
+	if (!source || !val) {
+		return -1;
+	}
+	if (source.length == 0 && val.length == 0) {
+		return 0;
+	}
+	for (i = 0; i < source.length; i++) {
+		srcIdx = i;
+		for (valIdx = 0; valIdx < val.length; valIdx++) {
+			if (source[srcIdx] != value[validx]) {
+				break;
+			}
+			if (valIdx == val.length - 1) {
+				return i;
+			}
+			srcIdx++;
+		}
+	}
+	return -1;
+}
+
+// ********
+// CONTAINS
+// ********
+contains(s, value) -> {
+	return find(s, value) != -1;
+}
+
+// ********
+// SPLIT
+// ********
+split(source, token) -> {
+	parts = [];
+	idx = find(source, token);
+	while (idx != -1) {
+		parts.add(source[0:idx]);
+		source = source[idx+token.length:];
+		idx = find(source, token);
+	}
+	if (s && s.length > 0) {
+		parts.add(source);
+	}
+	return parts;
+}
+
+// ********
+// RANGE
+// ********
+range(min, max) -> {
+	list = [];
+	while (min <= max) {
+		list.add(min++);
+	}
+	return list;
+}
+
+range(max) -> {
+	return range(0, max);
+}

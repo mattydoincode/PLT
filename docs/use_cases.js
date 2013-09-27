@@ -1,6 +1,5 @@
 //#############USE CASE 1, NON DISTRIBUTED, JUST SHOWING STUFF #############
 
-
 //bubble sort
 bubble(values) -> {
 	swapped = true;
@@ -20,12 +19,11 @@ bubble(values) -> {
 
 mylist = [7, 4, 5, 2, 9, 1];
 mylist = mylist.bubble();
-print(mylist); // ??
-
+print(mylist); // TODO this will break
 
 
 //#############USE CASE 2, DISTRIBUTED NETWORKING ################
-//open??
+// TODO need to pass ips in cmd line
 
 getComic (id) -> {
 	wholeSite = download("http://xkcd.com/" + id);
@@ -34,33 +32,19 @@ getComic (id) -> {
 		return null;
 	}
 	else{
-
-		httpStart = imgChunk.getIndexOf("http");
-		jpgEnd = imgChunk.getIndexOf("jpg") + 3;
-		return download(imgChunk.substring(httpStart, jpgEnd)); //should we handle substring differently?
-		//alternate imgChunk[httpStart:jpgEnd] ??
+		httpStart = imgChunk.find("http");
+		jpgEnd = imgChunk.find("jpg") + 3;
+		return download(imgChunk[httpStart:jpgEnd]);
 	}
 }
 
-range (count) -> {
-	mylist = [];
-	for(var i = 0; i < count; i ++){
-		list.add(i);
-	}
-	return list;
-}
-
-pics = range(100).distribute(x - > getComic(x)).collect();
-count = 0;
+pics = range(1, 100).distribute(x -> getComic(x));
 for(result in pics){
-	pic = results.output;
-	print(pic, "xkcdimg" + count++ + ".jpg"); //would this work? for a couple of questions
+	print(result.output, "xkcdimg" + result.input + ".jpg");
 }
 
-//close??
 
 //########## USE CASE 3, DISTRIBUTED MATH? ###########
-
 
 getPrimes (max) -> {
 	myPrimes = [2,3,5,7,11,13,17,19,23,29,31,37,41,43,47,53,59,61,67,71,73,79,83,
@@ -80,11 +64,11 @@ trial_division(n) ->{
     if(n == 1){
     	return [1];
     }
-    primes = getPrimes(n/2 + 1); //sqrt??
+    primes = getPrimes(n/2 + 1);
     prime_factors = [];
 
     for(p in primes) {
-        while n % p == 0{
+        while (n % p == 0) {
             prime_factors.add(p);
             n = n/p;
         }
@@ -96,5 +80,5 @@ trial_division(n) ->{
 }
 
 // prime factorize every number up to 1000
-
-range(1000).distribute(trial_division).map(x=>print(x ": " + x.output + "\n"));//can we shortcut function calling?
+range(1000).distribute(trial_division)
+           .map(x=>print(x ": " + x.output + "\n"));
