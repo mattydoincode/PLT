@@ -1,4 +1,4 @@
-package cs4115.pubCrawl.io;
+package pubCrawl.io;
 
 import java.io.*;
 import java.util.ArrayList;

@@ -1,4 +1,4 @@
-package cs4115.pubCrawl.io;
+package pubCrawl.io;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
