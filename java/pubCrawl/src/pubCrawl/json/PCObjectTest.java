@@ -2,6 +2,9 @@ package pubCrawl.json;
 
 import org.junit.Test;
 import org.junit.Assert;
+
+import java.util.concurrent.Callable;
+
 /**
  * Created with IntelliJ IDEA.
  * User: Matt
@@ -12,13 +15,14 @@ import org.junit.Assert;
 public class PCObjectTest {
 
     @Test
-    public void BasicObjectCreation(){
+    public void BasicObjectCreationFuncCall(){
     /*
         mynum = 5;
         mystring = "hey";
         myobject = {
             'a': 5,
             'b': 'testing',
+            'c': (x,y) -> x + y,
             'd': {
                 'x': 5',
                 'y': 'hey'
@@ -30,10 +34,23 @@ public class PCObjectTest {
         PCObject myObject = new PCObject();
         myObject.Set("a", 5);
         myObject.Set("b", "testing");
+        class func1 {
+            public PCObject call(PCObject x, PCObject y) {
+                return new PCObject(x.<Double>GetBase() + y.<Double>GetBase());
+            }
+        }
+        myObject.Set("c",new func1());
         PCObject __d = new PCObject();
         __d.Set("x", 5);
         __d.Set("y", "hey");
         myObject.Set("d", __d);
+
+        //calling c....
+        //myObject.c(4,5); //9
+        //TODO oh god this is ambiguous because x.add(y) could be add(x,y) or x has a property function add....
+        func1 func1instance1 = myObject.<func1>GetCast("c"); //how do we know it's func1? We mapped c to func1...fun
+        PCObject ans = func1instance1.call(new PCObject(4), new PCObject(5));
+        System.out.println(ans.<Double>GetBase());
     }
 
     @Test
