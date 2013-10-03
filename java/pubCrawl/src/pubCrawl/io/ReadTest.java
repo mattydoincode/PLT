@@ -6,16 +6,10 @@ import java.util.ArrayList;
 import org.junit.Assert;
 import org.junit.Test;
 
-/**
- * Created with IntelliJ IDEA.
- * User: Matt
- * Date: 9/30/13
- * Time: 8:29 PM
- * To change this template use File | Settings | File Templates.
- */
 public class ReadTest {
 
     private final String EXISTING_FILE = "C:\\src\\columbia\\PLT\\README.md";
+
     @Test
     public void TestReadFromFile() {
         System.out.println("Read.FromFile starting.");
@@ -30,6 +24,7 @@ public class ReadTest {
             Assert.fail();
         }
     }
+
     //@Test
     public void TestReadromStdIn() {
         System.out.println("Read.FromStdIn starting.");
@@ -44,4 +39,5 @@ public class ReadTest {
             Assert.fail();
         }
     }
+
 }

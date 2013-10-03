@@ -3,43 +3,43 @@ package pubCrawl.core;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PCList {
-    private ArrayList<PCObject> _List = new ArrayList<PCObject>();
+public class PCList extends PCObject {
 
-    public PCList(){
+    private final ArrayList<PCObject> _list = new ArrayList<PCObject>();
+
+    public PCList() {
 
     }
 
-    public PCList(List<PCObject> l){
-        for(int i = 0; i < l.size(); i++){
-            _List.add(l.get(i));
+    public PCList(List<PCObject> items) {
+        for (PCObject item : items) {
+            _list.add(item);
         }
     }
 
-    public int Length(){
-        return _List.size();
+    public int size() {
+        return _list.size();
     }
 
-    public PCObject Get(int idx){
-        return _List.get(idx);
+    public PCObject get(int idx) {
+        return _list.get(idx);
     }
 
-    public void Set(int idx, PCObject val){
-        _List.set(idx,val);
+    public void set(int idx, PCObject val) {
+        _list.set(idx, val);
     }
 
-    public void Add(PCObject val){
-        _List.add(val);
+    public void add(PCObject val) {
+        _list.add(val);
     }
 
     //  TODO update docs for removeAt
-    public void RemoveAt(int idx){
-        _List.remove(idx);
+    public void removeAt(int idx) {
+        _list.remove(idx);
     }
 
-    public PCList SubList(int start, int end){
-        return new PCList(_List.subList(start,end));
+    public PCList subList(int start, int end) {
+        return new PCList(_list.subList(start, end));
     }
-
 
 }

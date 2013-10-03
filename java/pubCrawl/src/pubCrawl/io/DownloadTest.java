@@ -5,17 +5,7 @@ import org.junit.Test;
 
 import java.io.IOException;
 
-/**
- * Created with IntelliJ IDEA.
- * User: Matt
- * Date: 9/30/13
- * Time: 8:19 PM
- * To change this template use File | Settings | File Templates.
- */
 public class DownloadTest {
-
-    private final String EXISTING_FILE = "C:\\src\\columbia\\PLT\\README.md";
-
 
     @Test
     public void TestDownloadGetString(){
@@ -46,6 +36,5 @@ public class DownloadTest {
             Assert.fail();
         }
     }
-
 
 }
