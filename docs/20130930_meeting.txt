@@ -1,0 +1,67 @@
+
+public class JsonObject {
+
+    /* ####### GOAL ###########
+
+    myObject = {
+        'a': 5,
+        'b': 'testing',
+        'c': (x,y) -> x + y,
+        'd': {
+            'x': 5,
+            'y': 'hey'
+        }
+    }
+    
+    /* COMPILED JAVA CODE: 
+
+    JsonObject myObject = new JsonObject();
+    myObject.Set("a", 5);
+    myObject.Set("b", "testing");
+    JsonObject __d = new JsonObject();
+    __d.Set("x", 5);
+    __d.Set("y", "hey");
+    myObject.Set("d", __d);
+    myObject.Set("c", new Callable<Object>() {
+        private Ojbect _x;
+        private Object _y;
+        public Callable(Object x, Object y) {
+            _x = x;
+            _y = y;
+        }
+        @Override
+        public Object call() {
+            if (x is String)
+                return (String)x + (String)y;
+            else if (x is int)
+                return (int)_x + (int)_y;
+            else
+                return _x + _y;
+        }
+    });
+
+    */
+    
+    //let's manually split it up
+    private HashMap<String, Object> Map = new HashMap<String, Object>();
+    // has a key called "_____________base"
+
+    public Object GetBase() {
+        return Get("___________base");
+    }
+
+    public Set<String> GetKeys(){
+        return Map.keySet();
+    }
+
+    public void Set(String key, Object value){
+        Map.put(key,value);
+    }
+
+    public Object Get(String key){
+        if(!Map.containsKey(key)){
+            return null;
+        }
+        return Map.get(key);
+    }
+}
