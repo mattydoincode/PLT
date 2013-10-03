@@ -10,16 +10,26 @@ import java.util.*;
 public class PCList {
     private ArrayList<PCObject> _List = new ArrayList<PCObject>();
 
+    public PCList(){
+
+    }
+
     public PCList(List<PCObject> l){
-        _List = (ArrayList<PCObject>) l;
+        for(int i = 0; i < l.size(); i++){
+            _List.add(l.get(i));
+        }
     }
 
     public int Length(){
         return _List.size();
     }
-    
+
     public PCObject Get(int idx){
         return _List.get(idx);
+    }
+
+    public void Set(int idx, PCObject val){
+        _List.set(idx,val);
     }
 
     public void Add(PCObject val){

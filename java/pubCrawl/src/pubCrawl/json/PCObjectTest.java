@@ -61,10 +61,29 @@ public class PCObjectTest {
     //Therefore we know bubble must take a pclist!
 
         PCList values = new PCList(); //this was passed in with some values
-
-
-
-
+        values.Add(new PCObject(5)); //so for now i'll just put em in here
+        values.Add(new PCObject(8));
+        values.Add(new PCObject(2));
+        values.Add(new PCObject(4));
+        values.Add(new PCObject(7));
+        values.Add(new PCObject(3));
+        //at this point we're writing the code that would be written to represent the function
+        PCObject swapped = new PCObject(true);
+        while(swapped.<Boolean>GetBase()){ //we know that a while loop needs a boolean, so swapped must be a boolean
+            swapped = new PCObject(false);
+            for(int i = 0; i < values.Length()-1; i++){ //if i was already declared, ideally we can use it, but "int" goes away
+                if(values.Get(i).<Double>GetBase() > values.Get(i+1).<Double>GetBase()) { // > only with nums yo
+                    PCObject temp = values.Get(i);
+                    values.Set(i,values.Get(i+1));
+                    values.Set(i+1, temp);
+                    swapped = new PCObject(true);
+                }
+            }
+        }
+        //FOR OUR PURPOSES, LET'S PRINT THIS OUT TO MAKE SURE IT WORKS
+        for(int j = 0; j < values.Length(); j++){
+            System.out.println(values.Get(j).<Double>GetBase());
+        }
     }
 
 
