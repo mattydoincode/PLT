@@ -1,14 +1,7 @@
-package pubCrawl.json;
+package pubCrawl.core;
 
 import java.util.HashMap;
 
-/**
- * Created with IntelliJ IDEA.
- * User: Matt
- * Date: 10/3/13
- * Time: 1:16 PM
- * To change this template use File | Settings | File Templates.
- */
 public class PCObject {
 
     private HashMap<String, Object> _Map = new HashMap<String, Object>();

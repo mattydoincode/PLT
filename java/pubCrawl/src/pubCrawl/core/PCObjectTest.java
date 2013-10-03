@@ -1,17 +1,7 @@
-package pubCrawl.json;
+package pubCrawl.core;
 
 import org.junit.Test;
-import org.junit.Assert;
 
-import java.util.concurrent.Callable;
-
-/**
- * Created with IntelliJ IDEA.
- * User: Matt
- * Date: 10/3/13
- * Time: 1:37 PM
- * To change this template use File | Settings | File Templates.
- */
 public class PCObjectTest {
 
     @Test

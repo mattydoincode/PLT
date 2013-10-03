@@ -1,12 +1,8 @@
-package pubCrawl.json;
-import java.util.*;
-/**
- * Created with IntelliJ IDEA.
- * User: Matt
- * Date: 10/3/13
- * Time: 1:53 PM
- * To change this template use File | Settings | File Templates.
- */
+package pubCrawl.core;
+
+import java.util.ArrayList;
+import java.util.List;
+
 public class PCList {
     private ArrayList<PCObject> _List = new ArrayList<PCObject>();
 
