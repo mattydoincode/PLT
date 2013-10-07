@@ -27,5 +27,4 @@ public final class Download {
         HttpGet get = new HttpGet(url);
         return client.execute(get);
     }
-
 }
