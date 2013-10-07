@@ -1,0 +1,26 @@
+
+######### Sept 25th --  Proposal  #########
+
+Oct 7th - pubCrawl syntax finalized
+
+Oct 14th - Scanner/Parser due
+Oct 14th - Java Code ready
+
+Oct 21st - LRM first draft (i.e. in pieces)
+
+######### October 28th -- Language Reference Manual #########
+
+Nov 11th - Architechural Design
+
+Nov 25th - Compiler works, all tests pass
+
+Dec 2nd - Raspberry Pi's up and running ??
+
+Dec 9th - Final Project Report
+
+Dec 16th - Final Project Slides
+
+######### December 20th -- Final Project (Slides + Report) #########
+
+
+

@@ -1,0 +1,4 @@
+Matt - President, parser and compiler backend
+Alden - Scheduler, parser and compiler backend
+Sireesh - Logger, java code generation, use case executor
+Kevin - Latex expert, java code generation, use case executor
