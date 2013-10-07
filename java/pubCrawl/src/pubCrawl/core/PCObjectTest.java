@@ -48,59 +48,6 @@ public class PCObjectTest {
     }
 
     @Test
-    public void bubbleSort(){
-    /*
-1         bubble(values) -> {
-2             swapped = true;
-3             while(swapped) {
-4                 swapped = false;
-5                 for(i = 0; i < values.length-1; i++) {
-6                     if (values[i] > values[i+1]) {
-7                         temp = values[i];
-8                         values[i] = values[i+1];
-9                         values[i+1] = temp;
-10                        swapped = true;
-11                    }
-12                }
-13            }
-14            return values;
-15        }
-     */
-
-        // HERE IS WHAT THE COMPILER WOULD THINK
-        //at line 5, we know that values must be a PCObject with a property 'length'
-        //at line 5, we know that i is an integer
-        //at line 6 we know that values must be a PCList (:PCObject) because of index notation WITH INTEGER
-        //Therefore we know bubble must take a pclist!
-
-        PCList values = new PCList(); //this was passed in with some values
-        values.add(new PCObject(5)); //so for now i'll just put em in here
-        values.add(new PCObject(8));
-        values.add(new PCObject(2));
-        values.add(new PCObject(4));
-        values.add(new PCObject(7));
-        values.add(new PCObject(3));
-
-        //at this point we're writing the code that would be written to represent the function
-        PCObject swapped = new PCObject(true);
-        while (swapped.<Boolean>getBase()) { //we know that a while loop needs a boolean, so swapped must be a boolean
-            swapped = new PCObject(false);
-            for(int i = 0; i < values.size()-1; i++){ //if i was already declared, ideally we can use it, but "int" goes away
-                if(values.get(i).<Double>getBase() > values.get(i + 1).<Double>getBase()) { // > only with nums yo
-                    PCObject temp = values.get(i);
-                    values.set(i, values.get(i + 1));
-                    values.set(i + 1, temp);
-                    swapped = new PCObject(true);
-                }
-            }
-        }
-        //FOR OUR PURPOSES, LET'S PRINT THIS OUT TO MAKE SURE IT WORKS
-        for(int j = 0; j < values.size(); j++){
-            System.out.println(values.get(j).<Double>getBase());
-        }
-    }
-
-    @Test
     public void bubbleSortAlden() {
 
         // HERE IS THE PUBCRAWL CODE:
@@ -176,6 +123,7 @@ public class PCObjectTest {
 
         // call the method
         PCObject resultObj = bubble.call(values);
+
         PCList result = (PCList)resultObj;
 
         // new list should be [2,2,3,5,7,8]
