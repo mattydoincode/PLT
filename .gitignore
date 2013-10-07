@@ -6,6 +6,7 @@
 
 # IntelliJ
 *workspace.xml
+*misc.xml
 *.iws
 
 # Mac
