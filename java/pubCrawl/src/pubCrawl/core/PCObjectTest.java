@@ -186,5 +186,4 @@ public class PCObjectTest {
         Assert.assertEquals(7.0, result.get(4).getBase());
         Assert.assertEquals(8.0, result.get(5).getBase());
     }
-
 }

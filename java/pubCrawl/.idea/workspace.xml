@@ -76,8 +76,19 @@
       <file leaf-file-name="Download.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/pubCrawl/io/Download.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="30" column="0" selection-start="1041" selection-end="1041" vertical-scroll-proportion="0.0">
+            <state line="20" column="49" selection-start="748" selection-end="748" vertical-scroll-proportion="0.0">
               <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="DownloadTest.java" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/pubCrawl/io/DownloadTest.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="22" column="5" selection-start="639" selection-end="639" vertical-scroll-proportion="0.65499127">
+              <folding>
+                <element signature="imports" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -85,7 +96,7 @@
       <file leaf-file-name="PCList.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/pubCrawl/core/PCList.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="20" column="28" selection-start="398" selection-end="398" vertical-scroll-proportion="0.0">
+            <state line="11" column="5" selection-start="218" selection-end="218" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
@@ -94,17 +105,21 @@
       <file leaf-file-name="PCObject.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/pubCrawl/core/PCObject.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="6" column="77" selection-start="147" selection-end="153" vertical-scroll-proportion="0.0">
-              <folding />
+            <state line="11" column="5" selection-start="294" selection-end="294" vertical-scroll-proportion="0.0">
+              <folding>
+                <element signature="e#138#154#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="PCObjectTest.java" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="PCObjectTest.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/pubCrawl/core/PCObjectTest.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="100" column="5" selection-start="3686" selection-end="3686" vertical-scroll-proportion="0.7740806">
-              <folding />
+            <state line="151" column="19" selection-start="5690" selection-end="5690" vertical-scroll-proportion="0.0">
+              <folding>
+                <element signature="e#5151#5160#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -128,7 +143,6 @@
   <component name="IdeDocumentHistory">
     <option name="changedFiles">
       <list>
-        <option value="$PROJECT_DIR$/src/io/Download.java" />
         <option value="$PROJECT_DIR$/src/io/DownloadTest.groovy" />
         <option value="$PROJECT_DIR$/src/io/Read.java" />
         <option value="$PROJECT_DIR$/src/io/Write.java" />
@@ -144,6 +158,7 @@
         <option value="$PROJECT_DIR$/src/pubCrawl/json/PCFunc.java" />
         <option value="$PROJECT_DIR$/src/pubCrawl/json/PCObjectTest.java" />
         <option value="$PROJECT_DIR$/src/pubCrawl/io/Download.java" />
+        <option value="$PROJECT_DIR$/src/pubCrawl/core/PCObjectTest.java" />
       </list>
     </option>
   </component>
@@ -207,7 +222,33 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
-              <option name="myItemId" value=".idea" />
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="pubCrawl" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="pubCrawl" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="pubCrawl" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="pubCrawl" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="io" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -247,29 +288,7 @@
       <recent name="" />
     </key>
   </component>
-  <component name="RunManager" selected="JUnit.PCObjectTest.BasicObjectCreationFuncCall">
-    <configuration default="false" name="DownloadTest.TestDownloadGetString" type="JUnit" factoryName="JUnit" temporary="true">
-      <module name="pubCrawl" />
-      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
-      <option name="ALTERNATIVE_JRE_PATH" />
-      <option name="PACKAGE_NAME" value="pubCrawl.io" />
-      <option name="MAIN_CLASS_NAME" value="pubCrawl.io.DownloadTest" />
-      <option name="METHOD_NAME" value="TestDownloadGetString" />
-      <option name="TEST_OBJECT" value="method" />
-      <option name="VM_PARAMETERS" value="-ea" />
-      <option name="PARAMETERS" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="ENV_VARIABLES" />
-      <option name="PASS_PARENT_ENVS" value="true" />
-      <option name="TEST_SEARCH_SCOPE">
-        <value defaultName="moduleWithDependencies" />
-      </option>
-      <envs />
-      <patterns />
-      <RunnerSettings RunnerId="Run" />
-      <ConfigurationWrapper RunnerId="Run" />
-      <method />
-    </configuration>
+  <component name="RunManager" selected="JUnit.pubCrawl in pubCrawl">
     <configuration default="false" name="DownloadTest" type="JUnit" factoryName="JUnit" temporary="true">
       <module name="pubCrawl" />
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
@@ -350,6 +369,28 @@
       <option name="MAIN_CLASS_NAME" value="pubCrawl.json.PCObjectTest" />
       <option name="METHOD_NAME" value="BasicObjectCreationFuncCall" />
       <option name="TEST_OBJECT" value="method" />
+      <option name="VM_PARAMETERS" value="-ea" />
+      <option name="PARAMETERS" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="ENV_VARIABLES" />
+      <option name="PASS_PARENT_ENVS" value="true" />
+      <option name="TEST_SEARCH_SCOPE">
+        <value defaultName="moduleWithDependencies" />
+      </option>
+      <envs />
+      <patterns />
+      <RunnerSettings RunnerId="Run" />
+      <ConfigurationWrapper RunnerId="Run" />
+      <method />
+    </configuration>
+    <configuration default="false" name="pubCrawl in pubCrawl" type="JUnit" factoryName="JUnit" temporary="true">
+      <module name="pubCrawl" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
+      <option name="PACKAGE_NAME" value="pubCrawl" />
+      <option name="MAIN_CLASS_NAME" />
+      <option name="METHOD_NAME" />
+      <option name="TEST_OBJECT" value="package" />
       <option name="VM_PARAMETERS" value="-ea" />
       <option name="PARAMETERS" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
@@ -453,19 +494,19 @@
       <method />
     </configuration>
     <list size="5">
-      <item index="0" class="java.lang.String" itemvalue="JUnit.DownloadTest.TestDownloadGetString" />
-      <item index="1" class="java.lang.String" itemvalue="JUnit.DownloadTest" />
-      <item index="2" class="java.lang.String" itemvalue="JUnit.pubCrawl.io in pubCrawl" />
-      <item index="3" class="java.lang.String" itemvalue="JUnit.PCObjectTest.InnerBubbleSort" />
-      <item index="4" class="java.lang.String" itemvalue="JUnit.PCObjectTest.BasicObjectCreationFuncCall" />
+      <item index="0" class="java.lang.String" itemvalue="JUnit.DownloadTest" />
+      <item index="1" class="java.lang.String" itemvalue="JUnit.pubCrawl.io in pubCrawl" />
+      <item index="2" class="java.lang.String" itemvalue="JUnit.PCObjectTest.InnerBubbleSort" />
+      <item index="3" class="java.lang.String" itemvalue="JUnit.PCObjectTest.BasicObjectCreationFuncCall" />
+      <item index="4" class="java.lang.String" itemvalue="JUnit.pubCrawl in pubCrawl" />
     </list>
     <recent_temporary>
       <list size="5">
-        <item index="0" class="java.lang.String" itemvalue="JUnit.PCObjectTest.BasicObjectCreationFuncCall" />
-        <item index="1" class="java.lang.String" itemvalue="JUnit.PCObjectTest.InnerBubbleSort" />
-        <item index="2" class="java.lang.String" itemvalue="JUnit.pubCrawl.io in pubCrawl" />
-        <item index="3" class="java.lang.String" itemvalue="JUnit.DownloadTest" />
-        <item index="4" class="java.lang.String" itemvalue="JUnit.DownloadTest.TestDownloadGetString" />
+        <item index="0" class="java.lang.String" itemvalue="JUnit.pubCrawl in pubCrawl" />
+        <item index="1" class="java.lang.String" itemvalue="JUnit.PCObjectTest.BasicObjectCreationFuncCall" />
+        <item index="2" class="java.lang.String" itemvalue="JUnit.PCObjectTest.InnerBubbleSort" />
+        <item index="3" class="java.lang.String" itemvalue="JUnit.pubCrawl.io in pubCrawl" />
+        <item index="4" class="java.lang.String" itemvalue="JUnit.DownloadTest" />
       </list>
     </recent_temporary>
     <configuration name="&lt;template&gt;" type="WebApp" default="true" selected="false">
@@ -521,7 +562,7 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1378" height="754" extended-state="0" />
-    <editor active="false" />
+    <editor active="true" />
     <layout>
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="JetGradle" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32954547" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
@@ -531,16 +572,16 @@
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32998326" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32998326" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32998326" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.25" sideWeight="0.6566164" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.25" sideWeight="0.6566164" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.34338358" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32998326" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
     </layout>
@@ -679,15 +720,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/pubCrawl/io/DownloadTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="2" column="0" selection-start="22" selection-end="69" vertical-scroll-proportion="0.05954466">
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/pubCrawl/io/ReadTest.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="15" column="15" selection-start="295" selection-end="295" vertical-scroll-proportion="0.44658494">
@@ -697,10 +729,19 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/pubCrawl/io/Download.java">
+    <entry file="file://$PROJECT_DIR$/src/pubCrawl/core/PCList.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="30" column="0" selection-start="1041" selection-end="1041" vertical-scroll-proportion="0.0">
+        <state line="11" column="5" selection-start="218" selection-end="218" vertical-scroll-proportion="0.0">
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/pubCrawl/core/PCObject.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="11" column="5" selection-start="294" selection-end="294" vertical-scroll-proportion="0.0">
+          <folding>
+            <element signature="e#138#154#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -711,24 +752,28 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/pubCrawl/core/PCList.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="20" column="28" selection-start="398" selection-end="398" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/pubCrawl/core/PCObject.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="6" column="77" selection-start="147" selection-end="153" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/pubCrawl/core/PCObjectTest.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="100" column="5" selection-start="3686" selection-end="3686" vertical-scroll-proportion="0.7740806">
+        <state line="151" column="19" selection-start="5690" selection-end="5690" vertical-scroll-proportion="0.0">
+          <folding>
+            <element signature="e#5151#5160#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/pubCrawl/io/Download.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="20" column="49" selection-start="748" selection-end="748" vertical-scroll-proportion="0.0">
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/pubCrawl/io/DownloadTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="22" column="5" selection-start="639" selection-end="639" vertical-scroll-proportion="0.65499127">
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>

@@ -3,9 +3,10 @@
 
 Oct 7th - pubCrawl syntax finalized
 
-Oct 14th - Scanner/Parser due
+Oct 14th - Scanner/UnAmbiguityParser due
 Oct 14th - Java Code ready
 
+Oct 21st - Distribute ready
 Oct 21st - LRM first draft (i.e. in pieces)
 
 ######### October 28th -- Language Reference Manual #########
