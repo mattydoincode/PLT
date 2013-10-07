@@ -5,7 +5,7 @@
 .settings/
 
 # IntelliJ
-*/.idea/workspace.xml
+*workspace.xml
 *.iws
 
 # Mac
