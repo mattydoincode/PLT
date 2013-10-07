@@ -1,0 +1,64 @@
+//////////////////////////////////
+// pubCrawl
+
+a = [];
+
+// Java
+
+ArrayList a = new ArrayList();
+//////////////////////////////////
+
+
+
+
+//////////////////////////////////
+// pubCrawl
+
+b = [1, 2, 3, 4, 5, 6];
+
+// Java
+
+ArrayList b = new ArrayList(6);
+b.add(1);
+b.add(2);
+b.add(3);
+b.add(4);
+b.add(5);
+b.add(6);
+//////////////////////////////////
+
+
+
+//////////////////////////////////
+// pubCrawl
+
+five = a[4];
+oneTwoThree = a[0:2];
+copyOfL2 = a[:];
+
+
+// Java
+
+int five = a[4];
+
+ArrayList oneTwoThree = new ArrayList();
+for(int i = 0; i <= 2; i++){
+    oneTwoThree.add(a[i]);
+}
+
+ArrayList copyOfL2 = a.clone();
+//////////////////////////////////
+
+
+
+//////////////////////////////////
+//pubCrawl
+
+oneTwoThree.add(4);
+oneTwoThree.remove(2);
+// oneTwoThree is now [1,3,4]
+
+// Java
+
+oneTwoThree.add(4);
+remove 2 or 3? typo?
