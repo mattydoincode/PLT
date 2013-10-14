@@ -3,17 +3,23 @@
 rule token = parse
   [' ' '\t' '\r' '\n'] { token lexbuf } (* Whitespace *)
 | "/*"     { comment lexbuf }           (* Comments *)
+| "//"	   { singlelinecom lexbuf}
 | '('      { LPAREN }
 | ')'      { RPAREN }
+| '['	   { LBRACK }
+| ']'	   { RBRACK }
 | '{'      { LBRACE }
 | '}'      { RBRACE }
 | ';'      { SEMI }
+| ':' 		{COLON}
+| "->"	   { ARROW }
 | ','      { COMMA }
 | '+'      { PLUS }
 | '-'      { MINUS }
 | '*'      { TIMES }
 | '/'      { DIVIDE }
 | '='      { ASSIGN }
+| '^' 		{ CONCAT }
 | "=="     { EQ }
 | "!="     { NEQ }
 | '<'      { LT }
@@ -21,11 +27,11 @@ rule token = parse
 | ">"      { GT }
 | ">="     { GEQ }
 | "if"     { IF }
+| "elif"   { ELIF }
 | "else"   { ELSE }
 | "for"    { FOR }
 | "while"  { WHILE }
 | "return" { RETURN }
-| "int"    { INT }
 | ['0'-'9']+ as lxm { LITERAL(int_of_string lxm) }
 | ['a'-'z' 'A'-'Z']['a'-'z' 'A'-'Z' '0'-'9' '_']* as lxm { ID(lxm) }
 | eof { EOF }
@@ -34,3 +40,7 @@ rule token = parse
 and comment = parse
   "*/" { token lexbuf }
 | _    { comment lexbuf }
+
+and singlelinecom = parse
+  "\n" {token lexbuf}
+| _	   { singlelinecom lexbuf}
