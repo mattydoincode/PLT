@@ -32,14 +32,15 @@ program:
   stmt_list { $1 }
 
 stmt_list:
-   /* nothing */    { "" }
- | stmt_list stmt   { $1 ^ " " ^ $2 }
+   /* nothing */  { "" }
+ | stmt_list stmt { $1 ^ " " ^ $2 }
 
 body:
    LBRACE stmt_list RBRACE { "\n{\n" ^ $2 ^ "\n}\n" }
 
 stmt:
     assignment SEMI                                             { " " ^ $1 ^ ";\n"  }
+  | func_call SEMI                                              { " " ^ $1 ^ ";\n"  }
   | FOR LPAREN expr_opt SEMI expr_opt SEMI expr_opt RPAREN body { "FOR " ^ $3 ^ ";" ^ $5 ^ ";" ^ $7 ^ $9 }
   | WHILE LPAREN expr RPAREN body                               { "WHILE " ^ $3 ^ $5 }
   | IF LPAREN expr RPAREN body elifs else                       { "IF " ^ $3 ^ " THEN " ^ $5 ^ $6 ^ $7 }
@@ -56,6 +57,8 @@ expr:
     LITERAL            { "'" ^ (string_of_int $1) ^ "'" }
   | ID                 { $1 }
   | func_create        { $1 }
+  | func_call          { $1 }
+  | access             { $1 }
   | LPAREN expr RPAREN { "(" ^ $2 ^ ")" }
   | expr CONCAT expr   { $1 ^ " ^ "  ^ $3 }
   | expr PLUS   expr   { $1 ^ " + "  ^ $3 }
@@ -69,8 +72,19 @@ expr:
   | expr GT     expr   { $1 ^ " > "  ^ $3 }
   | expr GEQ    expr   { $1 ^ " >= " ^ $3 }
 
+elifs:
+    /* nothing */                      { " " }
+  | ELIF LPAREN expr RPAREN body elifs { "ELIF (" ^ $3 ^ ")" ^ $5 }
+
+else:
+    /* nothing*/ { " " }
+  | ELSE body    { "ELSE " ^ $2 }
+
+/***************
+    FUNCTIONS 
+***************/
+
 /* 
-  function can be:
   1. () -> body
   2. x -> body
   4. (x,y,z) -> body 
@@ -91,12 +105,21 @@ formal_list:
     ID                   { $1 }
   | formal_list COMMA ID { $3 ^ ", " ^ $1 }
 
+func_call:
+  expr LPAREN actuals_opt RPAREN {$1 ^ "(" ^ $3 ^ ")" }
 
-elifs:
-    /*nothing */                       { " " }
-  | ELIF LPAREN expr RPAREN body elifs { "ELIF (" ^ $3 ^ ")" ^ $5 }
+actuals_opt:
+    /* nothing */ { " " }
+  | actuals_list  { $1 }
 
-else:
-    /*nothing*/ { " " }
-  | ELSE body   { "ELSE " ^ $2 }
+actuals_list:
+    expr                    { $1 }
+  | actuals_list COMMA expr { $3 ^ ", " ^ $1 }
 
+/***************
+    OBJECTS 
+***************/
+
+access: 
+    expr LBRACK expr RBRACK                    { $1 ^ "[" ^ $3 ^ "]"}
+  | expr LBRACK expr_opt COLON expr_opt RBRACK { $1 ^ "[" ^ $3 ^ ":" ^ $5 ^ "]" }
