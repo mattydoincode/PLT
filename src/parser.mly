@@ -39,12 +39,16 @@ body:
    LBRACE stmt_list RBRACE { "\n{\n" ^ $2 ^ "\n}\n" }
 
 stmt:
-    assignment SEMI                                             { " " ^ $1 ^ ";\n"  }
-  | func_call SEMI                                              { " " ^ $1 ^ ";\n"  }
-  | FOR LPAREN expr_opt SEMI expr_opt SEMI expr_opt RPAREN body { "FOR " ^ $3 ^ ";" ^ $5 ^ ";" ^ $7 ^ $9 }
-  | WHILE LPAREN expr RPAREN body                               { "WHILE " ^ $3 ^ $5 }
-  | IF LPAREN expr RPAREN body elifs else_opt                   { "IF " ^ $3 ^ " THEN " ^ $5 ^ $6 ^ $7 }
-  | RETURN expr SEMI                                            { "RETURN " ^ $2 }
+    assignment SEMI                                                 { " " ^ $1 ^ ";\n"  }
+  | func_call SEMI                                                  { " " ^ $1 ^ ";\n"  }
+  | FOR LPAREN assign_opt SEMI expr_opt SEMI assign_opt RPAREN body { "FOR " ^ $3 ^ ";" ^ $5 ^ ";" ^ $7 ^ $9 }
+  | WHILE LPAREN expr RPAREN body                                   { "WHILE " ^ $3 ^ $5 }
+  | IF LPAREN expr RPAREN body elifs else_opt                       { "IF " ^ $3 ^ " THEN " ^ $5 ^ $6 ^ $7 }
+  | RETURN expr SEMI                                                { "RETURN " ^ $2 }
+
+assign_opt:
+    /* nothing */ { " " }
+  | assignment    { $1 }
 
 assignment:
   ID ASSIGN expr { $1 ^ " = " ^ $3 }
@@ -91,13 +95,9 @@ else_opt:
   4. (x,y,z) -> body 
 */
 func_create:
-    LPAREN RPAREN ARROW func_body               { "() -> " ^ $4 }
-  | ID ARROW func_body                          { $1 ^ " -> " ^ $3 }
-  | LPAREN mult_formals RPAREN ARROW func_body { "(" ^ $2 ^ ") -> " ^ $5 }
-
-func_body:
-    LBRACE stmt_list RBRACE { " {\n" ^ $2 ^ "\n}\n" }
-  | expr SEMI               { $1 ^ ";\n" }
+    LPAREN RPAREN ARROW body               { "() -> " ^ $4 }
+  | ID ARROW body                          { $1 ^ " -> " ^ $3 }
+  | LPAREN mult_formals RPAREN ARROW body  { "(" ^ $2 ^ ") -> " ^ $5 }
 
 mult_formals:
   formal_list COMMA ID { $1 ^ ", " ^ $3 }
@@ -124,6 +124,11 @@ actuals_list:
 access: 
     expr LBRACK expr RBRACK                    { $1 ^ "[" ^ $3 ^ "]"}
   | expr LBRACK expr_opt COLON expr_opt RBRACK { $1 ^ "[" ^ $3 ^ ":" ^ $5 ^ "]" }
+  | expr ACCESS ID                             { $1 ^ "." ^ $3 }
 
 list_creation:
-  LBRACK actuals_opt RBRACK { "[" ^ $2 ^ "]"}
+  LBRACK actuals_opt RBRACK { "[" ^ $2 ^ "]" }
+
+
+
+
