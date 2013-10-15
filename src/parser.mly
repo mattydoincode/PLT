@@ -59,6 +59,8 @@ expr:
   | func_create        { $1 }
   | func_call          { $1 }
   | access             { $1 }
+  | list_creation      { $1 }
+  | obj_creation       { $1 }
   | LPAREN expr RPAREN { "(" ^ $2 ^ ")" }
   | expr CONCAT expr   { $1 ^ " ^ "  ^ $3 }
   | expr PLUS   expr   { $1 ^ " + "  ^ $3 }
@@ -123,3 +125,6 @@ actuals_list:
 access: 
     expr LBRACK expr RBRACK                    { $1 ^ "[" ^ $3 ^ "]"}
   | expr LBRACK expr_opt COLON expr_opt RBRACK { $1 ^ "[" ^ $3 ^ ":" ^ $5 ^ "]" }
+
+list_creation:
+  LBRACK actuals_opt RBRACK { "[" ^ $2 ^ "]"}
