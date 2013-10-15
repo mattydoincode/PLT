@@ -43,7 +43,7 @@ stmt:
   | func_call SEMI                                              { " " ^ $1 ^ ";\n"  }
   | FOR LPAREN expr_opt SEMI expr_opt SEMI expr_opt RPAREN body { "FOR " ^ $3 ^ ";" ^ $5 ^ ";" ^ $7 ^ $9 }
   | WHILE LPAREN expr RPAREN body                               { "WHILE " ^ $3 ^ $5 }
-  | IF LPAREN expr RPAREN body elifs else                       { "IF " ^ $3 ^ " THEN " ^ $5 ^ $6 ^ $7 }
+  | IF LPAREN expr RPAREN body elifs else_opt                   { "IF " ^ $3 ^ " THEN " ^ $5 ^ $6 ^ $7 }
   | RETURN expr SEMI                                            { "RETURN " ^ $2 }
 
 assignment:
@@ -60,7 +60,6 @@ expr:
   | func_call          { $1 }
   | access             { $1 }
   | list_creation      { $1 }
-  | obj_creation       { $1 }
   | LPAREN expr RPAREN { "(" ^ $2 ^ ")" }
   | expr CONCAT expr   { $1 ^ " ^ "  ^ $3 }
   | expr PLUS   expr   { $1 ^ " + "  ^ $3 }
@@ -78,9 +77,9 @@ elifs:
     /* nothing */                      { " " }
   | ELIF LPAREN expr RPAREN body elifs { "ELIF (" ^ $3 ^ ")" ^ $5 }
 
-else:
-    /* nothing*/ { " " }
-  | ELSE body    { "ELSE " ^ $2 }
+else_opt:
+    /* nothing */ { " " }
+  | ELSE body     { "ELSE " ^ $2 }
 
 /***************
     FUNCTIONS 
@@ -101,11 +100,11 @@ func_body:
   | expr SEMI               { $1 ^ ";\n" }
 
 mult_formals:
-  formal_list COMMA ID { $3 ^ ", " ^ $1 }
+  formal_list COMMA ID { $1 ^ ", " ^ $3 }
 
 formal_list:
     ID                   { $1 }
-  | formal_list COMMA ID { $3 ^ ", " ^ $1 }
+  | formal_list COMMA ID { $1 ^ ", " ^ $3 }
 
 func_call:
   expr LPAREN actuals_opt RPAREN {$1 ^ "(" ^ $3 ^ ")" }
@@ -116,7 +115,7 @@ actuals_opt:
 
 actuals_list:
     expr                    { $1 }
-  | actuals_list COMMA expr { $3 ^ ", " ^ $1 }
+  | actuals_list COMMA expr { $1 ^ ", " ^ $3 }
 
 /***************
     OBJECTS 

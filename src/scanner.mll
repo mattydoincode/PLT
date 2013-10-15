@@ -12,7 +12,7 @@ rule token = parse
 | '}'                  { RBRACE }
 | ';'                  { SEMI }
 | ':'                  { COLON }
-| "=>"                 { ARROW }
+| "->"                 { ARROW }
 | ','                  { COMMA }
 | '.'                  { ACCESS }
 | '+'                  { PLUS }
