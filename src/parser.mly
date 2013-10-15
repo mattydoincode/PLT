@@ -35,12 +35,22 @@ stmt_list:
    /* nothing */    { "" }
  | stmt_list stmt   { $1 ^ " " ^ $2 }
 
+body:
+   LBRACE stmt_list RBRACE { "\n{\n" ^ $2 ^ "\n}\n" }
+
 stmt:
-    assignment SEMI  { " " ^ $1 ^ ";\n"  }
-  | RETURN expr SEMI { "RETURN " ^ $2 }
+    assignment SEMI                                             { " " ^ $1 ^ ";\n"  }
+  | FOR LPAREN expr_opt SEMI expr_opt SEMI expr_opt RPAREN body { "FOR " ^ $3 ^ ";" ^ $5 ^ ";" ^ $7 ^ $9 }
+  | WHILE LPAREN expr RPAREN body                               { "WHILE " ^ $3 ^ $5 }
+  | IF LPAREN expr RPAREN body elifs else                       { "IF " ^ $3 ^ " THEN " ^ $5 ^ $6 ^ $7 }
+  | RETURN expr SEMI                                            { "RETURN " ^ $2 }
 
 assignment:
   ID ASSIGN expr { $1 ^ " = " ^ $3 }
+
+expr_opt:
+    /* nothing */ { " " }
+  | expr          { $1 }
 
 expr:
     LITERAL            { "'" ^ (string_of_int $1) ^ "'" }
@@ -80,3 +90,13 @@ mult_formals:
 formal_list:
     ID                   { $1 }
   | formal_list COMMA ID { $3 ^ ", " ^ $1 }
+
+
+elifs:
+    /*nothing */                       { " " }
+  | ELIF LPAREN expr RPAREN body elifs { "ELIF (" ^ $3 ^ ")" ^ $5 }
+
+else:
+    /*nothing*/ { " " }
+  | ELSE body   { "ELSE " ^ $2 }
+
