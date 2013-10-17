@@ -2,11 +2,13 @@
 
 %token LPAREN RPAREN LBRACE RBRACE LBRACK RBRACK
 %token SEMI COMMA ASSIGN COLON ARROW CONCAT ACCESS
-%token PLUS MINUS TIMES DIVIDE
+%token PLUS MINUS TIMES DIVIDE MOD
 %token EQ NEQ LT LEQ GT GEQ
 %token RETURN IF ELIF ELSE FOR WHILE
-%token <int> LITERAL
 %token <string> ID
+%token <float> NUM_LIT
+%token <bool> BOOLEAN_LIT
+%token <string> STRING_LIT
 %token EOF
 
 %nonassoc IF
@@ -17,7 +19,7 @@
 %left EQ NEQ 
 %left LT GT LEQ GEQ
 %left PLUS MINUS
-%left TIMES DIVIDE
+%left TIMES DIVIDE MOD
 %nonassoc LBRACE RBRACE
 %nonassoc LPAREN RPAREN
 %nonassoc LBRACK RBRACK
@@ -39,33 +41,42 @@ body:
    LBRACE stmt_list RBRACE { "\n{\n" ^ $2 ^ "\n}\n" }
 
 stmt:
-    assignment SEMI                                             { " " ^ $1 ^ ";\n"  }
-  | func_call SEMI                                              { " " ^ $1 ^ ";\n"  }
-  | FOR LPAREN expr_opt SEMI expr_opt SEMI expr_opt RPAREN body { "FOR " ^ $3 ^ ";" ^ $5 ^ ";" ^ $7 ^ $9 }
-  | WHILE LPAREN expr RPAREN body                               { "WHILE " ^ $3 ^ $5 }
-  | IF LPAREN expr RPAREN body elifs else_opt                   { "IF " ^ $3 ^ " THEN " ^ $5 ^ $6 ^ $7 }
-  | RETURN expr SEMI                                            { "RETURN " ^ $2 }
+    assignment SEMI                                                 { " " ^ $1 ^ ";\n"  }
+  | func_call SEMI                                                  { " " ^ $1 ^ ";\n"  }
+  | FOR LPAREN assign_opt SEMI expr_opt SEMI assign_opt RPAREN body { "FOR " ^ $3 ^ ";" ^ $5 ^ ";" ^ $7 ^ $9 }
+  | WHILE LPAREN expr RPAREN body                                   { "WHILE " ^ $3 ^ $5 }
+  | IF LPAREN expr RPAREN body elifs else_opt                       { "IF " ^ $3 ^ " THEN " ^ $5 ^ $6 ^ $7 }
+  | RETURN expr SEMI                                                { "RETURN " ^ $2 }
+
+assign_opt:
+    /* nothing */ { " " }
+  | assignment    { $1 }
 
 assignment:
-  ID ASSIGN expr { $1 ^ " = " ^ $3 }
+    ID ASSIGN expr     { $1 ^ " = " ^ $3 }
+  | access ASSIGN expr { $1 ^ " = " ^ $3 }
 
 expr_opt:
     /* nothing */ { " " }
   | expr          { $1 }
 
 expr:
-    LITERAL            { "'" ^ (string_of_int $1) ^ "'" }
+    NUM_LIT            { "'" ^ (string_of_float $1) ^ "'" }
+  | BOOLEAN_LIT        { "'" ^ (string_of_bool $1) ^ "'" }
+  | STRING_LIT         { "'" ^ $1 ^ "'" }
   | ID                 { $1 }
   | func_create        { $1 }
   | func_call          { $1 }
   | access             { $1 }
-  | list_creation      { $1 }
+  | list_create        { $1 }
+  | obj_create         { $1 }
   | LPAREN expr RPAREN { "(" ^ $2 ^ ")" }
   | expr CONCAT expr   { $1 ^ " ^ "  ^ $3 }
   | expr PLUS   expr   { $1 ^ " + "  ^ $3 }
   | expr MINUS  expr   { $1 ^ " - "  ^ $3 }
   | expr TIMES  expr   { $1 ^ " * "  ^ $3 }
   | expr DIVIDE expr   { $1 ^ " / "  ^ $3 }
+  | expr MOD expr      { $1 ^ " % "  ^ $3 }
   | expr EQ     expr   { $1 ^ " == " ^ $3 }
   | expr NEQ    expr   { $1 ^ " != " ^ $3 }
   | expr LT     expr   { $1 ^ " < "  ^ $3 }
@@ -91,13 +102,9 @@ else_opt:
   4. (x,y,z) -> body 
 */
 func_create:
-    LPAREN RPAREN ARROW func_body               { "() -> " ^ $4 }
-  | ID ARROW func_body                          { $1 ^ " -> " ^ $3 }
-  | LPAREN mult_formals RPAREN ARROW func_body { "(" ^ $2 ^ ") -> " ^ $5 }
-
-func_body:
-    LBRACE stmt_list RBRACE { " {\n" ^ $2 ^ "\n}\n" }
-  | expr SEMI               { $1 ^ ";\n" }
+    LPAREN RPAREN ARROW body               { "() -> " ^ $4 }
+  | ID ARROW body                          { $1 ^ " -> " ^ $3 }
+  | LPAREN mult_formals RPAREN ARROW body  { "(" ^ $2 ^ ") -> " ^ $5 }
 
 mult_formals:
   formal_list COMMA ID { $1 ^ ", " ^ $3 }
@@ -124,6 +131,15 @@ actuals_list:
 access: 
     expr LBRACK expr RBRACK                    { $1 ^ "[" ^ $3 ^ "]"}
   | expr LBRACK expr_opt COLON expr_opt RBRACK { $1 ^ "[" ^ $3 ^ ":" ^ $5 ^ "]" }
+  | expr ACCESS ID                             { $1 ^ "['" ^ $3 ^ "']m" }
 
-list_creation:
-  LBRACK actuals_opt RBRACK { "[" ^ $2 ^ "]"}
+list_create:
+  LBRACK actuals_opt RBRACK { "[" ^ $2 ^ "]" }
+
+obj_create: 
+    LBRACE RBRACE { "{}" }
+  | LBRACE properties RBRACE { "{" ^ $2 ^ "}" }
+
+properties: 
+    ID COLON expr { $1 ^ ": " ^ $3 }
+  | properties COMMA ID COLON expr { $1 ^ "," ^ $3 ^ ": " ^ $5 }

@@ -1,0 +1,60 @@
+mtV = 4;
+myFloat = 4.3;
+myOtherFloat = 0.1;
+
+myFunc = (mtV,y) -> {
+	return 4;
+};
+
+// cmment
+
+myLastFunc = x -> {
+	x();
+};
+
+callFunc(1,2,3);
+callFunc();
+
+if (mtV) {
+	// body
+	x = 4;
+}
+elif (mtV) {
+	x = 5;
+}
+elif (otherVar) {
+	x = 6;	
+}
+else {
+	x = 7;
+}
+
+while(mtV) {
+	x = 1;
+}
+
+for (i=0;x==2;i=i+1) {
+	
+}
+for (;;) {
+	
+}
+
+x = true;
+
+myObj = {};
+
+myFullObj = {
+	a: 7,
+	b: 8,
+	c: myLastFunc,
+	d: () -> { return 5; }
+};
+
+myString = '';
+myString2 = 'balls';
+
+return 8+mtV;
+
+
+
