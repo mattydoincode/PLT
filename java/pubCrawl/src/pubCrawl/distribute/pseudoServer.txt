@@ -1,0 +1,49 @@
+//PSEUDOCODE FOR DISTRIBUTE MASTER
+
+//FUNCTION: CONNECT TO SLAVES
+
+socket_list connectToSlaves( list_of_hosts){
+    list_of_sockets = listOfSize(list_of_hosts);
+
+    for each host in list_of_hosts
+        list_of_sockets.add = new Socket(host)
+
+    return list_of_sockets
+}
+
+
+//FUNCTION: CREATE STREAMS TO SEND DATA
+outputStream_list getOutputStreams(socket_list){
+
+    outputStream_list = list_of_size(socket list)
+
+    for each socket in socket_list
+        outputStream.add(new outputStream(socket.getOutputStream))
+
+    return outputStream_list
+}
+
+//ditto for input streams
+
+//FUNCTION: SEND FUNCTIONS TO SLAVES
+void sendFnToSlaves(outputStream_list, function_PCList){
+    for each outputStream in outputStream_list
+        outputStream.write function_PCList.length
+        outputStream.write function_PCList
+}
+
+//FUNCTION: SEND DATA ROUND ROBIN TO SLAVES, WAIT FOR PICKUP.
+PCList sendData(OutputStream_list, inputStream_list, IPC_Function, PCList){
+
+	for each outputStream in outputStream_list
+	    send 1;
+		send the ith PCList and IPC_Function.name;
+
+	for each inputStream in inputStream_List
+		read objects //this should block
+		add object to PCList
+
+	return PCList;
+}
+
+
