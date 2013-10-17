@@ -1,4 +1,6 @@
 mtV = 4;
+myFloat = 4.3;
+myOtherFloat = 0.1;
 
 myFunc = (mtV,y) -> {
 	return 4;
@@ -38,4 +40,21 @@ for (;;) {
 	
 }
 
+x = true;
+
+myObj = {};
+
+myFullObj = {
+	a: 7,
+	b: 8,
+	c: myLastFunc,
+	d: () -> { return 5; }
+};
+
+myString = '';
+myString2 = 'balls';
+
 return 8+mtV;
+
+
+

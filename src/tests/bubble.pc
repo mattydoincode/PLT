@@ -1,0 +1,21 @@
+//bubble sort
+bubble = values -> {
+	swapped = true;
+	while(swapped) {
+		swapped = false;
+		for(i = 0; i < values.length-1; i = i + 1) {
+			if (values[i] > values[i+1]) {
+				temp = values[i];
+				values[i] = values[i+1];
+				values[i+1] = temp;
+				swapped = true;
+		  	}
+		}
+	}
+	return values;
+};
+
+mylist = [7, 4, 5, 2, 9, 1];
+mylist = mylist.bubble();
+
+print(mylist); // TODO this will break

@@ -19,6 +19,7 @@ rule token = parse
 | '-'                  { MINUS }
 | '*'                  { TIMES }
 | '/'                  { DIVIDE }
+| '%'                  { MOD }
 | '='                  { ASSIGN }
 | '^'                  { CONCAT }
 | "=="                 { EQ }
@@ -33,7 +34,10 @@ rule token = parse
 | "for"                { FOR }
 | "while"              { WHILE }
 | "return"             { RETURN }
-| ['0'-'9']+ as lxm    { LITERAL(int_of_string lxm) }
+| "true"               { BOOLEAN_LIT(true) }
+| "false"              { BOOLEAN_LIT(false) }
+| ['0'-'9']+(['.']['0'-'9']+)? as lxm { NUM_LIT(float_of_string lxm) }
+| '\'' ([^'\'']* as s) '\'' { STRING_LIT(s) }
 | ['a'-'z' 'A'-'Z']['a'-'z' 'A'-'Z' '0'-'9' '_']* as lxm { ID(lxm) }
 | eof                  { EOF }
 | _ as char            { raise (Failure("illegal character " ^ Char.escaped char)) }
@@ -44,4 +48,5 @@ and comment = parse
 
 and singlelinecom = parse
   "\n" { token lexbuf }
+| eof  { EOF }
 | _	   { singlelinecom lexbuf}
