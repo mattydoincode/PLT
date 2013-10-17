@@ -131,7 +131,7 @@ actuals_list:
 access: 
     expr LBRACK expr RBRACK                    { $1 ^ "[" ^ $3 ^ "]"}
   | expr LBRACK expr_opt COLON expr_opt RBRACK { $1 ^ "[" ^ $3 ^ ":" ^ $5 ^ "]" }
-  | expr ACCESS ID                             { $1 ^ "['" ^ $3 ^ "']" }
+  | expr ACCESS ID                             { $1 ^ "['" ^ $3 ^ "']m" }
 
 list_create:
   LBRACK actuals_opt RBRACK { "[" ^ $2 ^ "]" }
