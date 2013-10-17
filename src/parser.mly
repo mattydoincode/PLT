@@ -102,9 +102,9 @@ else_opt:
   4. (x,y,z) -> body 
 */
 func_create:
-    LPAREN RPAREN ARROW body               { "() -> " ^ $4 }
-  | ID ARROW body                          { $1 ^ " -> " ^ $3 }
-  | LPAREN mult_formals RPAREN ARROW body  { "(" ^ $2 ^ ") -> " ^ $5 }
+    LPAREN RPAREN ARROW body              { "() -> " ^ $4 }
+  | ID ARROW body                         { $1 ^ " -> " ^ $3 }
+  | LPAREN mult_formals RPAREN ARROW body { "(" ^ $2 ^ ") -> " ^ $5 }
 
 mult_formals:
   formal_list COMMA ID { $1 ^ ", " ^ $3 }
@@ -131,15 +131,15 @@ actuals_list:
 access: 
     expr LBRACK expr RBRACK                    { $1 ^ "[" ^ $3 ^ "]"}
   | expr LBRACK expr_opt COLON expr_opt RBRACK { $1 ^ "[" ^ $3 ^ ":" ^ $5 ^ "]" }
-  | expr ACCESS ID                             { $1 ^ "['" ^ $3 ^ "']m" }
+  | expr ACCESS ID                             { $1 ^ "['" ^ $3 ^ "']" }
 
 list_create:
   LBRACK actuals_opt RBRACK { "[" ^ $2 ^ "]" }
 
 obj_create: 
-    LBRACE RBRACE { "{}" }
+    LBRACE RBRACE            { "{}" }
   | LBRACE properties RBRACE { "{" ^ $2 ^ "}" }
 
 properties: 
-    ID COLON expr { $1 ^ ": " ^ $3 }
+    ID COLON expr                  { $1 ^ ": " ^ $3 }
   | properties COMMA ID COLON expr { $1 ^ "," ^ $3 ^ ": " ^ $5 }

@@ -37,3 +37,6 @@ trial_division = n -> {
 // prime factorize every number up to 1000
 //range(1000).distribute(trial_division)
   //         .map(x=>print(x ": " + x.output + "\n"));
+
+
+5.add(6);
