@@ -1,0 +1,73 @@
+
+
+
+//keywords:
+scrape
+scrape async
+
+maybe it's "GET, POST, PUT etc "
+
+collect
+
+
+
+//SYNC CASE
+scrape "www.google.com" to goog //blocking
+
+//we have access go goog here
+for links in goog.links:
+	print link.text
+
+
+//ASYNC CASE
+scrape async "www.google.com" to googProxy //non blocking
+
+for values in googProxy.links //this fails because googProxy is just a reference to the async task
+
+collect googProxy to goog
+
+//now goog is same as above
+
+for links in goog.links:
+	print link.text
+
+
+
+//post example
+
+scrape "www.imdb.com" to mysite posting search as "hey", query as "what what"
+
+
+
+1) GET "www.google.com" -> goog //goog represents reference to the task
+
+
+//enter code hdere
+2) 
+
+3) Collect goog -> mypage
+
+//do stuff on mypage
+
+
+POST "www.imbd.com" using {search: hey} -> imdb
+
+PUT mylistofurls using mylistofobjects -> listofpages
+
+
+
+mylist = ["www.google.com/a", "www.google.com/b"];
+
+
+GET "www.google.com" -> goog
+
+
+foreach link goog
+
+
+GET "www.amazon.com" -> am
+
+foreach link in am
+
+
+

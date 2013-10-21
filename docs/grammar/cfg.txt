@@ -1,0 +1,130 @@
+
+program -> eps | program block | program fdecl
+
+block -> eps | block stmt
+
+stmt -> assignment;
+		| functioncall;
+		| return expr;
+		| if( expr ){block} elseifs elsehandling
+		| for(expr;expr;expr){block}
+		| while(expr){block}
+
+elseifs ->  eps | elif (expr) { block } elseifs
+elsehandling -> eps | else { block }
+
+expr -> lit 
+		| id 
+		| functioncall 
+		| (expr)
+		| access
+		| creation
+		| expr ^ expr (string concat)
+		| math
+
+assignment -> id = expr
+
+TODO haven't handled mything.select(x->x.property)
+
+functioncall -> expr() | expr(actuals)
+
+creation -> [] | [actuals] | {} | {properties}
+
+properties -> id:expr | properties, id:expr
+
+access -> expr[expr] | expr[expr:expr] |  expr[:] | expr[expr:] | expr[:expr] | expr.id 
+
+fdecl -> id(formals) -> {block} | id(formals) -> expr;
+
+formals -> eps | formal_list
+
+formal_list -> id | formals, id
+
+actuals -> expr | actuals,expr
+
+math -> expr + expr
+		| expr - expr
+		| expr * expr
+		| expr / expr
+		| expr == expr
+		| expr != expr
+		| expr < expr
+		| expr <= expr
+		| expr > expr
+		| expr >= expr
+
+
+
+
+//########## NOTES ################3
+
+//expressions return a value, statements are just for side effects
+
+our functions have to have parameters... is that cool?
+
+like you can't write... myfunc() -> {alsdkfj}
+
+for(;;)
+
+code
+code
+{
+	code
+}
+
+if(){
+	
+}
+else{
+shit
+}
+
+
+myfunc(x,y) -> {
+	
+	return x + y;
+}
+
+myfunc(x,y) -> x+y;
+
+
+myobj = 
+{
+	add: (x,y) -> x + y;
+}
+?????????????????
+
+myobj.add(5,6)
+
+function 
+
+5 + 4(x, y)
+
+
+
+
+code
+code
+add(x,y) -> {
+	
+}
+add(x,y) -> x + y;
+
+funcreator() ->{
+	
+	return (x,y) -> x + y;
+
+}
+
+
+
+function -> (formals) -> expr; | (formals) -> {stmt_list}
+
+
+
+{} //expr (creation)
+
+if(){}{}  //also valid (empty block)
+
+
+add([1,2,3,4][1] , 5); //7
