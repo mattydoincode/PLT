@@ -2,8 +2,9 @@ package pubCrawl.core;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Iterator;
 
-public class PCList extends PCObject {
+public class PCList extends PCObject implements Iterable {
 
     private final ArrayList<PCObject> _list = new ArrayList<PCObject>();
 
@@ -40,6 +41,10 @@ public class PCList extends PCObject {
 
     public PCList subList(int start, int end) {
         return new PCList(_list.subList(start, end));
+    }
+
+    public Iterator<PCObject> iterator(){
+        return _list.iterator();
     }
 
 }
