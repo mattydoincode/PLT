@@ -103,8 +103,7 @@ else_opt:
 
 /* 
   1. () -> body
-  DON'T FORGET THAT WE DID SOME WACK SHIT HERE YO!!!!!
-  2. (x) -> body
+  2. (x) -> body     THIS ONE NEEDS SEMANTIC CHECK THAT expr is ID
   3. x -> body
   4. (x,y,z) -> body 
 */
@@ -136,14 +135,6 @@ actuals_list:
     OBJECTS 
 ***************/
 
-access: 
-    expr LBRACK expr RBRACK                    { $1 ^ "[" ^ $3 ^ "]"}
-  | expr LBRACK expr_opt COLON expr_opt RBRACK { $1 ^ "[" ^ $3 ^ ":" ^ $5 ^ "]" }
-  | expr ACCESS ID                             { $1 ^ "['" ^ $3 ^ "']" }
-
-list_create:
-  LBRACK actuals_opt RBRACK { "[" ^ $2 ^ "]" }
-
 obj_create: 
     LBRACE RBRACE            { "{}" }
   | LBRACE properties RBRACE { "{" ^ $2 ^ "}" }
@@ -151,3 +142,12 @@ obj_create:
 properties: 
     ID COLON expr                  { $1 ^ ": " ^ $3 }
   | properties COMMA ID COLON expr { $1 ^ "," ^ $3 ^ ": " ^ $5 }
+
+/* second method is access AND create */
+list_create:
+    LBRACK actuals_opt RBRACK                  { "[" ^ $2 ^ "]" }
+  | expr LBRACK expr_opt COLON expr_opt RBRACK { $1 ^ "[" ^ $3 ^ ":" ^ $5 ^ "]" }
+
+access: 
+    expr LBRACK expr RBRACK                    { $1 ^ "[" ^ $3 ^ "]"}
+  | expr ACCESS ID                             { $1 ^ "['" ^ $3 ^ "']" }
