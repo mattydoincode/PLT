@@ -1,5 +1,5 @@
 //bubble sort
-bubble = values -> {
+bubble = (values) -> {
 	swapped = true;
 	while(swapped) {
 		swapped = false;

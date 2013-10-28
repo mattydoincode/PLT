@@ -98,12 +98,15 @@ else_opt:
 
 /* 
   1. () -> body
-  2. x -> body
+  DON'T FORGET THAT WE DID SOME WACK SHIT HERE YO!!!!!
+  2. (x) -> body
+  3. x -> body
   4. (x,y,z) -> body 
 */
 func_create:
     LPAREN RPAREN ARROW body              { "() -> " ^ $4 }
-  | ID ARROW body                         { $1 ^ " -> " ^ $3 }
+  | ID ARROW body                         { $1 ^ " -> "  ^ $3 }
+  | LPAREN expr RPAREN ARROW body         { $2 ^ " -> " ^ $5 }
   | LPAREN mult_formals RPAREN ARROW body { "(" ^ $2 ^ ") -> " ^ $5 }
 
 mult_formals:

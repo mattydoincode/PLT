@@ -8,7 +8,7 @@ myFunc = (mtV,y) -> {
 
 // cmment
 
-myLastFunc = x -> {
+myLastFunc = (x) -> {
 	x();
 };
 
@@ -56,5 +56,7 @@ myString2 = 'balls';
 
 return 8+mtV;
 
+
+mything = otherthing()();
 
 
