@@ -1,4 +1,9 @@
 
+****
+POSSIBLE PROBLEM
+****
+
+
 // define function "doMath" that takes 2 params
 doMath(x, y) -> {
 	return x * y;
@@ -22,4 +27,8 @@ nine = 3.doMath(3); // equivalent to "nine = doMath(3, 3);"
 // how do we know we didn't want:
 seven = doMath(myObj, 3);
 
+****
+RESOLUTION
+****
 
+This is allowed, but object properties will be checked before in-scope variables.

@@ -1,7 +1,0 @@
-
-
-//NEW PLAN
-
-//EVERYTHING IS AN 'X' AND WE IMPLEMENT TYPE CHECKING WHEN NECESSARY. OUR X IS LIKE PYTHON AND IS A DICTIONARY!
-//for myvariable = 5. myvariable is a dict with a 'base' property that points to a number. myobject = #fancyobject# 
-//would have a pointer to itself there
