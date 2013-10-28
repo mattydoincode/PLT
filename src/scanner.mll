@@ -28,6 +28,9 @@ rule token = parse
 | "<="                 { LEQ }
 | ">"                  { GT }
 | ">="                 { GEQ }
+| "&&"                 { AND }
+| "||"                 { OR }
+| '!'                  { NOT }
 | "if"                 { IF }
 | "elif"               { ELIF }
 | "else"               { ELSE }

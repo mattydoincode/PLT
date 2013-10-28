@@ -3,7 +3,7 @@
 %token LPAREN RPAREN LBRACE RBRACE LBRACK RBRACK
 %token SEMI COMMA ASSIGN COLON ARROW CONCAT ACCESS
 %token PLUS MINUS TIMES DIVIDE MOD
-%token EQ NEQ LT LEQ GT GEQ
+%token EQ NEQ LT LEQ GT GEQ AND OR NOT
 %token RETURN IF ELIF ELSE FOR WHILE
 %token <string> ID
 %token <float> NUM_LIT
@@ -16,8 +16,10 @@
 %nonassoc ELIF
 %nonassoc ASSIGN COLON
 %left CONCAT
-%left EQ NEQ 
+%left AND OR
+%left EQ NEQ
 %left LT GT LEQ GEQ
+%nonassoc NOT
 %left PLUS MINUS
 %left TIMES DIVIDE MOD
 %nonassoc LBRACE RBRACE
@@ -83,6 +85,9 @@ expr:
   | expr LEQ    expr   { $1 ^ " <= " ^ $3 }
   | expr GT     expr   { $1 ^ " > "  ^ $3 }
   | expr GEQ    expr   { $1 ^ " >= " ^ $3 }
+  | expr AND    expr   { $1 ^ " && " ^ $3 }
+  | expr OR     expr   { $1 ^ " || " ^ $3 }
+  | NOT expr           { "!" ^ $2 }
 
 elifs:
     /* nothing */                      { " " }

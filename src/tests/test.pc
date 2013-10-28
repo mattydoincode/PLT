@@ -40,7 +40,7 @@ for (;;) {
 	
 }
 
-x = true;
+x = true || false && !z && s != t;
 
 myObj = {};
 
