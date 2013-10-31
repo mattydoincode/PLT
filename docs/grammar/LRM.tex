@@ -1,0 +1,756 @@
+\documentclass[oneside]{book}
+
+\usepackage[english]{babel}
+\usepackage[utf8x]{inputenc}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage[colorinlistoftodos]{todonotes}
+\usepackage[framemethod=tikz]{mdframed}
+\usepackage{fancyvrb}
+\usepackage[margin=1 in]{geometry}
+\usepackage[]{hyperref}
+\hypersetup{
+    pdftitle=pubCrawl Language Reference Manual,
+    bookmarksnumbered=true,     
+    bookmarksopen=true,         
+    bookmarksopenlevel=1,       
+    colorlinks=true,
+    allcolors=black,
+    pdfstartview=Fit,           
+    pdfpagemode=UseOutlines,
+    pdfpagelayout=TwoPageRight
+}
+
+\DefineVerbatimEnvironment{code}{Verbatim}{fontsize=\small}
+\DefineVerbatimEnvironment{example}{Verbatim}{fontsize=\small}
+
+\title{
+  pubCrawl \\ Language Reference Manual \\ \vspace{2 mm}
+  \large{COMS W4115}
+}
+
+\author{
+  Matt Dean, Sireesh Gururaja, Kevin Mangan, Alden Quimby\\
+  \texttt{mtd2121, skg2123, kmm2256, adq2101}
+}
+
+\begin{document}
+\maketitle
+\tableofcontents
+
+%---------------------------------------------------------------------------
+
+\chapter{Introduction}
+pubCrawl is a distributed systems programming language with a focus on list operations. Given some number of networked slave computers, pubCrawl helps the user automatically split work up among them requiring the user only to specify whether a function should distribute work or not. pubCrawl has been designed from the ground up to make taking advantage of the power of distributed programming as easy as possible. To this end, pubCrawl code is syntactically imperative but function calling is side effect free. This allows developers to get writing pubCrawl code quickly but also makes distributing work across slaves easy. Developers won't have to worry about shared resource locking or race conditions. 
+
+\section{Why is it called pubCrawl?}
+It's Saturday and the world is your oyster, why stay put the entire night? Since 1915, the term "pub crawl" has been defined by \textit{The New Partridge Dictionary of Slang and Unconventional} as "A drinking session that moves from one licensed premise to the next, and so on." Just as a pub crawl is all about making the most out of the diversity of drinking establishments available, pubCrawl the language is about taking advantage of the many devices the modern developer has available to him or her. 
+
+\section{What Constitutes a Program}
+A pubCrawl program is simply a list of statements. The syntax of a valid statement is defined in detail in a later section.
+
+%---------------------------------------------------------------------------
+
+\chapter{Types and Type Inference}
+\section{Type Inference}
+Data in pubCrawl is expressed using a finite and well defined set of data types. However when writing a pubCrawl program, it is not necessary to explicitly declare types. In this sense pubCrawl is \textit{type inferred} as opposed to \textit{dynamically typed}. The following sections outline the valid types in pubCrawl. 
+\section{Primitive Types}
+There are only three primitive types in pubCrawl: \textbf{booleans}, \textbf{numbers}, and \textbf{characters}. 
+
+\subsection{Booleans}
+A boolean in pubCrawl is defined by the \texttt{true} and \texttt{false} keywords. Booleans are considered their own type, meaning that an expression that uses a boolean operator and a non-boolean variable will cause an error. For example, !3 will cause an error. 
+
+\subsection{Numbers}
+A \textbf{number} in pubCrawl is a 64 bit piece of information representing values between 4.9E-324 and 1.7976931348623157E308. This is similar to the double class commonly found in other languages. Because there is no "int" type and all numbers in pubCrawl can have a fractional part, when using a number in a situation where having a fractional part would be inappropriate -- such as when accessing a specific index of a collection -- the fractional part will be ignored.
+
+\subsection{Characters}
+Much like in the C programming language, a string is not a primitive type in pubCrawl but rather a collection of characters. This allows manipulating strings to take advantage of the powerful and easy to use collection syntax and functionality found in pubCrawl. Luckily and in contrast to C, using the character primitive type will feel much like using a string in other programming languages such as Java. This is because characters can only ever exist within the context of a collection. To simplify discussion, character collections will be referred to as strings.
+
+\section{Non-Primitive Types}
+
+\subsection{Collections}
+pubCrawl has been designed to make creating and manipulating collections as simple as possible. A collection is a list of items that maintains the order with which it was created much like an array. Items in a collection may be of any type, although the type must remain consistent through the life of the collection. For example, attempting to put a number at the end of a collection that contains objects is not allowed.
+
+\subsection{Objects}
+Objects in pubCrawl are built using an adapted JSON syntax. Json.org writes that JSON is, "Easy for humans to read and write" but also, "Easy for machines to parse and generate." JSON notation has become the data object representation standard for networking applications and noSQL databases. pubCrawl's JSON syntax is very similar to javascript's.
+
+\subsection{Functions}
+In pubCrawl, functions are first class objects. They can be assigned to variables, and passed as arguments to other functions.
+
+
+%---------------------------------------------------------------------------
+
+
+\chapter{Lexical Conventions}
+\section{Identifiers}
+An \textbf{identifier} is a sequence of letters, digits, or underscores. The first character must be a letter; the underscore is not considered a letter. Upper and lower case letters are different.
+\section{Keywords}
+The following identifiers are reserved for use as keywords, and may not be used otherwise:\\
+\begin{center}
+  \begin{tabular}{c c}
+  if&elif\\
+  else&for\\
+  while&return\\
+  true&false\\
+  distribute&read\\
+  print&download
+  \end{tabular}
+\end{center}
+\section{Literals}
+\textbf{Literals} or \textbf{constants} are the values written in a conventional form whose value is obvious. In contrast to variables, literals do not change in value.\\\\
+A \textbf{number literal}, or \textbf{number constant}, consists of an optional minus sign, one or more digits constituting the integer part of the number, and then an optional decimal point with zero or more digits consituting the fraction. If the integer part of the number will contain more than one digit, a zero cannot be the first. These are all well formed number literals in pubCrawl: 
+\begin{center}
+  \begin{tabular}{c c}
+  42&42.\\
+  0.42&42.4000\\
+  -42.4&0.42\\
+  \end{tabular}
+\end{center}
+These are not: 
+\begin{center}
+  \begin{tabular}{c c}
+  00&.68\\
+  17e-6&+3\\
+  092.5&6.7.8\\
+  \end{tabular}
+\end{center}
+A \textbf{boolean literal} represents boolean values for true and false. The two possible values are represented by \texttt{true} and \texttt{false}.
+
+\section{Strings as Collections}
+
+Because strings are collections of characters in pubCrawl, a number of caveats apply. For example, attempting to use the "add" built in collection function on a string literal is in some sense impossible since no character can exist on its own. Therefore what happens is one attempts to add a collection of characters to a collection of characters... this is a type mismatch! In order to perform the equivalent of "add" with strings, one must use collection concatenation. On the other hand "remove" works just fine. Declaring strings literals in pubCrawl is supported but the string is immediately converted into a collection of characters. Defining a string literal can be done with a sequence of one or more characters enclosed by single quotes. String literals can contain the ' character, but in order to represent it, and certain other characters, the following escape sequences may be used:
+\begin{center}
+  \begin{tabular}{l l}
+  single quote&\textbackslash '\\
+  newline&\textbackslash n\\
+  horizontal tab&\textbackslash t\\
+  carriage return&\textbackslash r\\
+  \end{tabular}
+\end{center}
+Note that it is impossible to declare a character literal, instead it is treated as a string literal and immediately converted into a character collection of length 1.
+
+\section{Punctuation}
+Some characters are used as \textbf{punctuators}, which have their own syntactic and semantic significance. Punctuators are not operators or identifiers.\\
+\begin{center}
+  \begin{tabular}{| l | l | l |}
+    \hline
+    \textbf{Punctuator} & \textbf{Use} & \textbf{Example} \\ \hline
+    , & List seperator, function parameters & list1 = [1, 2, 3, 4, 5] \\ \hline
+    [] & List delimiter, list access, object access & list2 = [] \\ \hline
+    () & Conditional parameter delimiter, expression precedence & if(bool)\\ \hline
+    $\{\}$ & Statement list delimiter & if(bool) $\{$ statements $\}$\\ \hline
+    : & List access, object property assignment & list3 = list2[0:2]\\ \hline
+    ; & Statement end & mystring = 'ABC';\\ \hline
+    ' ' & String literal delimiter & mystring = 'ABC'\\ \hline
+    \hline
+  \end{tabular}
+\end{center}
+
+\section{Comments}
+The characters /* introduce a multi-line comment, which terminates with the characters */. The characters // introduce a single line comment. Multi-line comments cannot be nested within multi-line comments, but single line comments can be nested in multi-line comments.\\
+\begin{mdframed}
+[hidealllines=true,backgroundcolor=gray!10,skipbelow=.5em,skipabove=.5em]
+\begin{code}
+// single line comments start 
+/*
+  multi-line comments
+*/
+/*
+  /* this breaks */
+  // this, however, works
+*/
+/* this will break too /* */
+\end{code}
+\end{mdframed}
+
+\section{Operators}
+An \textbf{operator} is a token that specifies an operation on at least one operand, and yields some result.
+\begin{center}
+  \begin{tabular}{| l | l| l|}
+    \hline
+    \textbf{Operator} & \textbf{Use} & \textbf{Associativity}\\ \hline
+    . & Access & Left \\ \hline
+    * & Multiplication & Left \\ \hline
+    / & Division & Left \\ \hline
+    \% & Modulus & Left \\ \hline
+    + & Addition & Left \\ \hline
+    - & Subtraction & Left \\ \hline
+    \textasciicircum  & Concatenation & Left \\ \hline
+    = & Assignment  & Non-associative\\ \hline
+    == & Equal to  & Non-associative\\ \hline
+    != & Not equal to  & Non-associative \\ \hline
+    \textless & Less than  & Non-associative \\ \hline
+    \textgreater & Greater than  & Non-associative \\ \hline
+    \textless= & Less than or equal to  & Non-associative' \\ \hline
+    \textgreater= & Greater than or equal to  & Left \\ \hline
+  \end{tabular}
+  
+  
+\end{center}
+
+
+The precedence of operators is the following, from greatest to least precedence:
+
+\begin{center}
+  \begin{tabular}{c}
+  .\\
+  * / \% \\
+  + -\\
+  \textless \textgreater \textless= \textgreater=\\
+  = != \\
+  \textasciicircum\\ 
+  = :  \\
+  \end{tabular}
+\end{center}
+
+
+%---------------------------------------------------------------------------
+
+
+\chapter{Syntax}
+\section{Program Structure}
+
+A program in pubCrawl consists of a sequence of zero or more valid pubCrawl statements:
+\begin{code}
+statement-list-opt
+\end{code}
+
+\section{Expressions}
+An expression is a sequence of operators and operands that produce a value and may have side effects. Expressions have a type and a value. The order of evalution of subexpressions, and therefore the order in which side effects take place, is left to right. For example:
+
+\begin{mdframed}
+[hidealllines=true,backgroundcolor=gray!10,skipbelow=.5em,skipabove=.5em]
+\begin{code}
+
+// x+y evaluated first, then a+b, then division.
+(x + y) / (a + b)
+
+// func2 evalutated first, then func3, then func1
+func1(func2(), func3())
+
+\end{code}
+\end{mdframed}
+Operands of expressions must have compatible types.
+
+\subsection{Constants}
+
+The type of a constant depends on its form. It can either be a number, string or boolean, as discussed in Lexical Conventions.
+
+\subsection{Identifiers}
+
+An identifier designates a primitive type, collection, object, or function. The type and value of an identifier is determined by this designation. All identifiers are modifiable lvalues, so the type and value can change throughout a program. For example:
+\begin{mdframed}
+[hidealllines=true,backgroundcolor=gray!10,skipbelow=.5em,skipabove=.5em]
+\begin{code}
+x = 4;
+// here x has type number and value 4
+x = true;
+// here x has type boolean and value true
+\end{code}
+\end{mdframed}
+
+\subsection{Binary Operators}
+
+Binary operators can be used with variables and constants to create complex expressions. A binary operator is of the form:
+\begin{code}
+expression binary-operator expression
+\end{code}
+
+\begin{itemize}
+\item Arithmetic operators
+
+Arithmetic operators include multiplication (*), division (/), modulus (\%), addition (+), and subtraction (-). The operands to an arithmetic operator must be numbers. The type of an arithmetic operator expression is a number and the value is the result of calculating the appropriate arithmetic. For example, the multiplication operator performs multiplication on its operands.
+
+\item Relational operators
+
+Relational operators include less than (\textless), less than or equal to (\textless=), greater than (\textgreater), greater than or equal to (\textgreater=), equal to (==), and not equal to (!=). The operands to a relational operator must be numbers. The type of an relational operator expression is a boolean and the value is true if the relation is true. For example, the less than operator has a value of true if the left operand is strictly less than the right operand.
+
+\item Logical operators
+
+Logical operators include AND (\&\&) and OR (\textbar\textbar). The operands to a logical operator must be booleans, and the result of the expression is also a boolean.
+
+\item String operators
+
+The only string operator is concatentation (\textasciicircum). The operands to a concatenation operator must be strings, and the result is a new string that is the concatenation of the left and right operands.
+
+\end{itemize}
+
+\subsection{Parenthesized Expressions}
+
+Any expression surrounded by parentheses has the same type and value as it would without parentheses. In general, parentheses are used to alter operator precendence.
+
+\subsection{Function Creation}
+Function creation is an expression whose type is function and whose value is a reference to the newly created function. Because functions in pubCrawl are first class objects, functions can be declared anywhere having an expression would be appropriate. Because of this, functions must be stored in variables to be accessed later in the program. A function declaration is made clear with the "-\textgreater" operator. On the left hand side of the "-\textgreater" is the parameter declaration and on the right hand side is a block. Specifiying the result of a function is done with a return statement and void functions are not allowed. Parameter declaration is surrounded by parentheses and consists of a list of identifiers separated by commas. Optionally when only one parameter is specified, the parenthesis may be omitted. 
+This is a function with no parameters:
+\begin{code}
+() -> {
+  statement-list-opt
+  return-stmnt
+}
+\end{code}
+Both of these functions have one parameter:
+\begin{code}
+identifier -> {
+  statement-list-opt
+  return-stmnt
+}
+(identifier) -> {
+  statement-list-opt
+  return-stmnt
+}
+\end{code}
+This function has n parameters
+\begin{code}
+(identifier-1,identifier-2, ... ,identifier-n) -> {
+  statement-list-opt
+  return-stmnt
+}
+\end{code}
+A function can have multiple return statements, however a function's return type must remain consistent over the life of the function. In other words no function can exist that sometimes returns one type, and sometimes returns a different type and such a function would fail to compile.
+
+\subsection{Function Call}
+
+A function call is an expression whose type and value are determined by the return type and value of the function. Calling a function executes the function and blocks program execution until the function is complete. Parameters are expressions that are separated by commas, surrounded by parenthesis and placed after the identifier representing the function. If there are no parameters, the parenthsis are still required for the function call.
+\begin{code}
+identifier(expr1,expr2, ..., exprn)
+identifier()
+\end{code}
+pubCrawl also supports a secondary format for function call where the function is called on an expression and that expression is passed in as the first parameter to the function. Any additonal parameters are passed in like normal. This allows functions to chain.
+\begin{code}
+expr1.identifier(expr2, ..., exprn)
+function-call.identifier(expr2, ..., exprn)
+\end{code}
+In the second example, the result of the first function is passed in as the first parameter to the second function.\\\\
+When a function is called, the expressions passed into the function as parameters are evaluated in left to right order:
+\begin{code}
+identifier(expr1,expr2)
+\end{code}
+In this example, expr1 would be evaluated first. The results of these expressions are then copied by value into the function's scope.
+
+
+\subsection{Object Creation}
+
+Object creation is an expression that has a type of object and a value of a reference to the object. An object is created as an optional list of properties surrounded by braces:
+\begin{code}
+{ properties-opt }
+\end{code}
+The optional list of properties are comma separated property declarations:
+\begin{code}
+identifier: expression
+\end{code}
+The identifiers in the property list must be unique for a specific object. Each property declaration assigns the value and type of the expression to the specified identifier within the context of the created object. Expressions in the property list will be evaluated in the order in which they appear.
+
+\subsection{Object Access}
+
+The properties of an object can be accessed via bracket notation or dot notation. The type and value of an object access expression are the type and value of the accessed property. To access via bracket notation, use a string literal to represent the identifier of the property used during creation:
+\begin{code}
+object['identifier']
+\end{code}
+And to access via dot notation:
+\begin{code}
+object.identifier
+\end{code}
+Note that this syntax might conflict with the secondary format for function calling in certain situations. Consider the following:
+
+\begin{mdframed}
+[hidealllines=true,backgroundcolor=gray!10,skipbelow=.5em,skipabove=.5em]
+\begin{code}
+// myFunc compares two objects by property "value"
+myFunc = (x,y) -> {
+  if (x.value > y.value) {
+    return 1;
+  }
+  elif (x.value < y.value) {
+    return -1;
+  }
+  else {
+    return 0;
+  }
+};
+
+// myObj has property "myFunc" that checks if property "value" is even 
+myObj = {
+  value: 7,
+  myFunc: (x) -> {
+    return x.value % 2 == 0;
+  }
+};
+
+otherObj = {
+  value: 4
+};
+
+// will result be 1 or true?
+result = myObj.compare(otherObj);
+\end{code}
+\end{mdframed}
+In the above example, \texttt{result} will be \texttt{true}, not \texttt{0}, because object access takes precedence over secondary function calling notation. pubCrawl first looks for a property on \texttt{myObj} identified by \texttt{myFunc} of type function accepting one parameter. If such a property does not exist, pubCrawl will look for an in-scope variable \texttt{myFunc} of type function accepting two parameters. In order to call the locally defined \texttt{myFunc} function and pass \texttt{myObj} as the first parameter, the standard function calling sytax of \texttt{myFunc(myObj, otherObj)} must be used.
+
+\subsection{Collection Creation}
+
+Collection creation is an expression that has a type of colletion and a value of a reference to the collection. A collection is created as an optional list of expressions surrounded by brackets:
+\begin{code}
+[ expressions-opt ]
+\end{code}
+The expressions in the optional list are comma separated and can be of any type, but must all have the same type.
+
+\subsection{Collection Access}
+
+Items in a collection are accessed using bracket notation. The expressions inside brackets must resolve to numbers. The resulting type will either be another collection, or the type of an item at the specified index. To access a particular item by it's index in a collection:
+\begin{code}
+[ expression ]
+\end{code}
+To access a subset of the collection:
+\begin{code}
+[ expression1-opt : expression2-opt ] 
+\end{code}
+If expression1-opt is omitted, the subset will go from the beginning of the collection to the index of expression2-opt. If expression2-opt is ommited, the subset will go from the index of expression1-opt to the end of the collection. If both expressions are omitted, the collection will be copied.
+
+\section{Statements}
+
+A statement in pubCrawl does not produce a value and does not have a type, but can produce side effects. Statements are executed in the order in which they appear. An expression is not a valid statement in pubCrawl.
+
+\subsection{Assignment}
+
+Assignment statements consist of a modifiable lvalue and an expression. An lvalue is either an identifier, an object access expression, or a collection access expression that is not a subset. When an assignment statement is executed, the expression is evaluated and the result is assigned to the lvalue.
+\begin{code}
+lvalue = expression;
+\end{code}
+
+\subsection{Function Call}
+
+A function call statement executes the specified function and specifically ignores the return value of the function. A function call statement is a function call expression followed by a semi-colon.
+\begin{code}
+function_call;
+\end{code}
+Because function calling is also an expression, the return value of a function call can be captured with an assignment statement.
+
+\subsection{Selection Statements}
+
+A selection statement executes a set of statments based on the value of a specific expression.
+
+\begin{itemize}
+\item If-elif-else
+
+An if-elif-else statement takes multiple boolean expression and selects one statement list to execute corresponding to the first true expression. 
+
+\begin{code}
+if (expression-1)
+{
+  statement-1-list
+}
+elif (expression-2)
+{
+  statement-2-list
+}
+...
+elif (expression-n)
+{
+  statement-n-list
+}
+else
+{
+  statement-else-list
+}
+\end{code}
+
+In the above example, if expression-1 is true, only statement-1-list will be executed, and all remaining expressions will not be evaluated. If expression-1 is false, expression-2 will be evaluated. If expression-2 is true, statement-2-list will be executed and all remaining expressions will not be evaluated. If all expressions evaluate to false, statemement-else-list will be executed. Note that all elif clauses are optional, and the else clause is optional, but must come after all elif clauses.
+
+\end{itemize}
+
+\subsection{Iteration Statements}
+\begin{itemize}
+
+\item While loop
+
+The while statement evaluates an expression before each execution of the body. The expression must by of type boolean, and the value of the expression typically changes in the body of the loop. If the expression is true, the loop body is executed. If the expression is false, the while statement terminates. The while statement has the following syntax:
+
+\begin{code}
+while ( expression )
+{
+  statement-list
+}
+\end{code}
+
+\item For loop
+
+The for statement evaluates two assignments and one boolean expression, and executes the body until the expression evaluates to false.
+
+\begin{code}
+for ( assignment1-opt ; expression-opt ; assignment2-opt ) 
+{
+  statement-list
+}
+\end{code}
+
+The for statement is equivalent to the following while loop:
+
+\begin{code}
+assignment1-opt;
+while ( expression-opt )
+{
+  statement-list
+  assignment2-opt;
+}
+\end{code}
+
+A for statement executes as follows:
+assignment1-opt is evaluated once before any iteration. expression-opt is a boolean expression evaluated before each loop iteration. If this expression is true, the loop body is executed. If this expression is false, the for statement terminates. assignment2-opt is evaluated after each iteration. A jump statement inside the loop body will cause the for statement to terminate. If the optional expression is omitted, it will be treated as true, making an infinite loop.
+\end{itemize}      
+
+\subsection{Jump Statements}
+\begin{itemize}
+\item Return
+
+A return statement is specified with the return keyword, followed by an expression and ending with a semi-colon.
+\begin{code}
+return expression;
+\end{code}
+The return statement terminates execution of the smallest containing function, or the entire program if there is no containing function, and returns control to the caller with the value and type of it's expression. 
+
+\end{itemize} 
+
+\section{Scope}
+
+\subsection{Lexical Scoping with Blocks}
+
+A block is a set of statements enclosed by braces. For example, the body of a for loop or an if statement is a block. An identifier appearing within a block is visible within the entire block, but can be modified by an inner block. For example, this will print 7 twice, followed by 'hey' five times:
+\begin{mdframed}[hidealllines=true,backgroundcolor=gray!10,skipbelow=.5em,skipabove=.5em]
+\begin{code}
+x = 7;
+print(x);
+for (i = 0; i < 5; i = i + 1)
+{
+  print(x);
+  x = 'hey';
+}
+print(x);
+\end{code}
+\end{mdframed}
+The scope of an identifier begins when it is first assigned, and ends at the end of it's smallest containing block or program.
+\begin{mdframed}[hidealllines=true,backgroundcolor=gray!10,skipbelow=.5em,skipabove=.5em]
+\begin{code}
+a = 7;
+for (i = 0; i < 5; i = i + 1)
+{
+  x = 'hey';
+  // a and x are visible here
+}
+// only a is visible here
+x = 'hey';
+// a and x are visible here
+\end{code}
+\end{mdframed}
+
+\subsection{Function Scope}
+
+Functions only have access to the identifiers in their parameter list and identifiers declared within their body.
+\begin{mdframed}
+[hidealllines=true,backgroundcolor=gray!10,skipbelow=.5em,skipabove=.5em]
+\begin{code}
+x = 4;
+y = (a,b,c) -> 
+{
+  x = a + b + c; // this x does not affect outer x
+  return x*5;
+};
+z = y(1,2,3);
+/* 
+  x is still 4 here
+  z is 30
+*/
+\end{code}
+\end{mdframed}
+
+\section{Distribution}
+The special function \texttt{distribute} is what enables programmers to leverage the processing poewr of multiple machines. Its use is essentially analogous to the \texttt{map} function (see section 6.1) - given a function on the list, it will apply the function to each element in the list, the difference being that the work of applying the function to the list is spread across multiple computers. The  \texttt{distribute} function will return a list of processed values. Its usage is as follows:
+
+\begin{mdframed}[hidealllines=true,backgroundcolor=gray!10,skipbelow=.5em,skipabove=.5em]
+\begin{code}
+results_list = distribute(list, function);
+\end{code}
+\end{mdframed}
+
+
+%---------------------------------------------------------------------------
+
+\chapter{Built-in Functions}
+pubCrawl provides some simple IO. Standard in and out, file read and write, as well as simple web downloading is all supported. Additionally, collections have built in methods to aid their manipulation.
+\section{Read}
+By using the read function one can read from either stdin or a file to EOF. The parameter is the name of a file, otherwise if no parameter is specified, it will read from stdin. The function will split on newline so whether referring to a file or stdin, the result of the function will be a list of strings, each one representing a line.
+\begin{mdframed}[hidealllines=true,backgroundcolor=gray!10,skipbelow=.5em,skipabove=.5em]
+\begin{code}
+// read to EOF
+input = read(); // reads from stdin until eof and returns a collection of lines
+input = read('path/to/file.txt'); // returns a collection of lines from file
+\end{code}
+\end{mdframed}
+
+\section{Print}
+By using the print function, one can print to either stdout or to a file. The first parameter must be of type string, and an optional second parameter must also be of type string. The first parameter will be written to standard out if no second parameter is passed, or to the file specified by the second parameter.\\
+\begin{mdframed}[hidealllines=true,backgroundcolor=gray!10,skipbelow=.5em,skipabove=.5em]
+\begin{code}
+// write
+print('Hello World'); // stdout
+print('Hello World', 'path/to/file.txt');
+\end{code}
+\end{mdframed}
+
+\section{Download}
+The download function will download either a webpage in the form of a string, or the bytes of a file.\\
+\begin{mdframed}[hidealllines=true,backgroundcolor=gray!10,skipbelow=.5em,skipabove=.5em]
+\begin{code}
+//download
+download('http://www.google.com'); // returns a string
+download('http://images.mywebsite.com/myimage.png'); // returns bytes
+\end{code}
+\end{mdframed}
+
+\subsection{Collection Modification}
+Built in to collections is the ability to add to the end of a collection using the "add" method. Also built in is the "remove" method which takes away an element from a specific index of a collection compressing the remaining collection much like a linked list would. Collections are zero indexed.
+
+\begin{mdframed}
+[hidealllines=true,backgroundcolor=gray!10,skipbelow=.5em,skipabove=.5em]
+\begin{code}
+// start with 1-5
+myCollection = [1,2,3,4,5];
+// let's add 6
+myCollection.add(6); // [1,2,3,4,5,6];
+// then we can take away the element at index 3
+myCollection.remove(3); //[1,2,3,5,6];
+\end{code}
+\end{mdframed}
+
+
+%---------------------------------------------------------------------------
+
+\chapter{Standard Library}
+\section{Map}
+
+Usage:
+\begin{quote}
+\texttt{resultList = }\texttt{\textbf{map}}\texttt{(}\texttt{\emph{list
+, function);}}
+
+\texttt{resultList = }\texttt{\emph{list}}\texttt{.}\texttt{\textbf{map}}\texttt{(}\texttt{\emph{function);}}
+\end{quote}
+The \texttt{map} function takes a function and a list as arguments,
+applies the function to each member of the list, and returns a new
+list with the results as elements. Since lambda functions are allowed
+in pubCrawl, the function with which to map can be declared inline. 
+
+
+\section{Where}
+
+Usage:
+\begin{quote}
+\texttt{resultList = }\texttt{\textbf{where}}\texttt{(}\texttt{\emph{list
+, boolean\_function}}\texttt{)}\texttt{\emph{;}}
+
+\texttt{resultList = }\texttt{\emph{list.}}\texttt{\textbf{where}}\texttt{(}\texttt{\emph{boolean\_function}}\texttt{);}
+\end{quote}
+The \texttt{where} function takes a function that returns a boolean
+result and a list, and applies the function to every element of the
+list. If the function returns \texttt{true, }the element is added
+to the returned list. Since lambda functions are allowed in pubCrawl,
+the function with which to map can be declared inline. 
+
+
+\section{String/List Manipulation}
+
+pubCrawl provides a few built-in functions to aid in string manipulation.
+Because strings are treated as lists in pubCrawl, the functions that
+would be are found in this library can be used for lists as well.
+
+
+\subsection{Find}
+
+Usage: 
+\begin{quote}
+\texttt{\emph{number = }}\texttt{\textbf{find(}}\texttt{\emph{string,
+substring}}\texttt{);}
+
+\texttt{\emph{number = string.}}\texttt{\textbf{find(}}\texttt{\emph{substring}}\texttt{);}
+\end{quote}
+Thhe default port that pubCrawl will use is \texttt{1099; }if the
+slave utility is listening on this port, the port need not be \texttt{\textbf{find
+}}function looks through a substring and returns the index at which
+the substring was found. If the substring was not found, the function
+returns \texttt{-1}.
+
+
+\subsection{Contains }
+
+Usage:
+\begin{quotation}
+\texttt{boolean = contains(}\texttt{\emph{string, substring);}}
+
+\texttt{boolean = }\texttt{\emph{string.}}\texttt{contains(}\texttt{\emph{substring);}}
+\end{quotation}
+The \texttt{\textbf{contains }}function searches a string for a substring,
+and returns \texttt{true }if the substrng is present. Else, it returns
+\texttt{false. }
+
+
+\subsection{Split}
+
+Usage:
+\begin{quote}
+\texttt{\emph{list = }}\texttt{split(}\texttt{\emph{source, token}}\texttt{);}
+
+\texttt{\emph{list = source.}}\texttt{split(token);}
+\end{quote}
+The \texttt{\textbf{split }}function returns a list containing the
+different parts of a string, as separated by the string given in \texttt{token. }
+
+
+\section{Range}
+
+Usage:
+\begin{quote}
+\texttt{\emph{list = }}\texttt{range(}\texttt{\emph{number\_min, number\_max}}\texttt{);}
+
+\texttt{\emph{list = }}\texttt{range(}\texttt{\emph{number\_max}}\texttt{);}
+\end{quote}
+The \texttt{\textbf{range }}function returns a list of the integers
+between \texttt{number\_min}\texttt{\emph{ }}and\texttt{\emph{ }}\texttt{number}\texttt{\emph{\_}}\texttt{max}\texttt{\emph{,
+}}inclusive. If \texttt{number\_min }is not specified, it is taken
+to be 0.
+%---------------------------------------------------------------------------
+
+\chapter{Program Execution}
+To execute the program, the user must have the slave utility running
+on the slave machines. The user will then run the client program executable.
+
+
+\section{Master Setup}
+
+To run the master program, the user will run the executable generated
+by the compiler, using for arguments the IP addresses and port numbers
+of the machines being used. Alternatively,
+the user can specify the -f flag, and load a text file that contains
+all the hosts, with each host on a new line, in the format \texttt{IP\_Address,port\_number. } The user must specify one, but not both, of these options. Two examples are as follows: 
+
+\begin{mdframed}[hidealllines=true,backgroundcolor=gray!10,skipbelow=.5em,skipabove=.5em]
+\begin{code}
+master:~$ pc_exec 127.0.0.1 1100 192.168.0.1 3402
+
+master:~\$ pc_exec -f hosts.txt
+\end{code}
+\end{mdframed}
+
+
+\section{Slave Setup }
+
+To set up the slaves, the user will run the slave utility executable
+with one argument: the port number to listen on. The slave utility
+will then listen on that port for the client program. 
+
+\begin{mdframed}[hidealllines=true,backgroundcolor=gray!10,skipbelow=.5em,skipabove=.5em]
+\begin{code}
+slave:~$ pc\_slave 1337
+\end{code}
+\end{mdframed}
+
+%---------------------------------------------------------------------------
+\end{document}

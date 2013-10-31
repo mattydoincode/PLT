@@ -1,9 +1,9 @@
-%{  %}
+%{ open Ast %}
 
 %token LPAREN RPAREN LBRACE RBRACE LBRACK RBRACK
 %token SEMI COMMA ASSIGN COLON ARROW CONCAT ACCESS
 %token PLUS MINUS TIMES DIVIDE MOD
-%token EQ NEQ LT LEQ GT GEQ
+%token EQ NEQ LT LEQ GT GEQ AND OR NOT
 %token RETURN IF ELIF ELSE FOR WHILE
 %token <string> ID
 %token <float> NUM_LIT
@@ -16,8 +16,10 @@
 %nonassoc ELIF
 %nonassoc ASSIGN COLON
 %left CONCAT
-%left EQ NEQ 
+%left AND OR
+%left EQ NEQ
 %left LT GT LEQ GEQ
+%nonassoc NOT
 %left PLUS MINUS
 %left TIMES DIVIDE MOD
 %nonassoc LBRACE RBRACE
@@ -83,6 +85,9 @@ expr:
   | expr LEQ    expr   { $1 ^ " <= " ^ $3 }
   | expr GT     expr   { $1 ^ " > "  ^ $3 }
   | expr GEQ    expr   { $1 ^ " >= " ^ $3 }
+  | expr AND    expr   { $1 ^ " && " ^ $3 }
+  | expr OR     expr   { $1 ^ " || " ^ $3 }
+  | NOT expr           { "!" ^ $2 }
 
 elifs:
     /* nothing */                      { " " }
@@ -98,12 +103,14 @@ else_opt:
 
 /* 
   1. () -> body
-  2. x -> body
+  2. (x) -> body     THIS ONE NEEDS SEMANTIC CHECK THAT expr is ID
+  3. x -> body
   4. (x,y,z) -> body 
 */
 func_create:
     LPAREN RPAREN ARROW body              { "() -> " ^ $4 }
-  | ID ARROW body                         { $1 ^ " -> " ^ $3 }
+  | ID ARROW body                         { $1 ^ " -> "  ^ $3 }
+  | LPAREN expr RPAREN ARROW body         { $2 ^ " -> " ^ $5 }
   | LPAREN mult_formals RPAREN ARROW body { "(" ^ $2 ^ ") -> " ^ $5 }
 
 mult_formals:
@@ -128,14 +135,6 @@ actuals_list:
     OBJECTS 
 ***************/
 
-access: 
-    expr LBRACK expr RBRACK                    { $1 ^ "[" ^ $3 ^ "]"}
-  | expr LBRACK expr_opt COLON expr_opt RBRACK { $1 ^ "[" ^ $3 ^ ":" ^ $5 ^ "]" }
-  | expr ACCESS ID                             { $1 ^ "['" ^ $3 ^ "']" }
-
-list_create:
-  LBRACK actuals_opt RBRACK { "[" ^ $2 ^ "]" }
-
 obj_create: 
     LBRACE RBRACE            { "{}" }
   | LBRACE properties RBRACE { "{" ^ $2 ^ "}" }
@@ -143,3 +142,12 @@ obj_create:
 properties: 
     ID COLON expr                  { $1 ^ ": " ^ $3 }
   | properties COMMA ID COLON expr { $1 ^ "," ^ $3 ^ ": " ^ $5 }
+
+/* second method is access AND create */
+list_create:
+    LBRACK actuals_opt RBRACK                  { "[" ^ $2 ^ "]" }
+  | expr LBRACK expr_opt COLON expr_opt RBRACK { $1 ^ "[" ^ $3 ^ ":" ^ $5 ^ "]" }
+
+access: 
+    expr LBRACK expr RBRACK                    { $1 ^ "[" ^ $3 ^ "]"}
+  | expr ACCESS ID                             { $1 ^ "['" ^ $3 ^ "']" }

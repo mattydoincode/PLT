@@ -1,0 +1,11 @@
+/* Bug noticed by Pin-Chin Huang */
+
+fun = (x, y) -> {
+  return 0;
+};
+
+i = 1;
+
+fun(i, i+1);
+
+print(i);
