@@ -1,4 +1,28 @@
-OBJS = parser.cmo scanner.cmo pc.cmo
+OBJS = ast.cmi st.cmi jt.cmi parser.cmo scanner.cmo analyzer.cmo javaconvert.cmo javacode.cmo pc.cmo
+
+TESTS = \
+arith1 \
+arith2 \
+fib \
+for1 \
+func1 \
+func2 \
+func3 \
+gcd \
+global1 \
+hello \
+if1 \
+if2 \
+if3 \
+if4 \
+ops1 \
+var1 \
+while1
+
+TARFILES = Makefile testall.sh scanner.mll parser.mly \
+	ast.mli st.mli jt.mli analyzer.ml javaconvert.ml javacode.ml pc.ml
+	$(TESTS:%=tests/test-%.pc) \
+	$(TESTS:%=tests/test-%.out)
 
 pc : $(OBJS)
 	ocamlc -o pc $(OBJS)
@@ -15,9 +39,17 @@ parser.ml parser.mli : parser.mly
 %.cmi : %.mli
 	ocamlc -c $<
 
+pubCrawl.tar.gz : $(TARFILES)
+	cd .. && tar czf src/pubCrawl.tar.gz $(TARFILES:%=src/%)
+
+.PHONY : test
+test : pc testall.sh
+	./testall.sh
+
 .PHONY : clean
 clean :
-	rm -f pc parser.ml parser.mli parser.output scanner.ml *.cmo *.cmi
+	rm -f pc parser.ml parser.mli parser.output scanner.ml testall.log \
+	*.cmo *.cmi *.out *.diff
 
 .PHONY : all
 all: clean pc
