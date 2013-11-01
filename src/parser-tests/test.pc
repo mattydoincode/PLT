@@ -1,20 +1,35 @@
+/*******************
+***** COMMENT
+*******************/
+// cmment
+/* cmmnt */
+
+/*******************
+***** ASSIGN LITERAL
+*******************/
 mtV = 4;
 myFloat = 4.3;
 myOtherFloat = 0.1;
+x = true;
+y = false;
+myString = '';
+myString2 = 'balls';
 
-myFunc = (mtV,y) -> {
-	return 4;
-};
+/*******************
+***** LOOPS
+*******************/
+while(mtV) {
+	x = 1;
+}
+for (i=0;x==2;i=i+1) {
+}
+for (;;) {
+	x = 5;
+}
 
-// cmment
-
-myLastFunc = (x) -> {
-	x();
-};
-
-callFunc(1,2,3);
-callFunc();
-
+/*******************
+***** CONDITIONALS
+*******************/
 if (mtV) {
 	// body
 	x = 4;
@@ -28,36 +43,52 @@ elif (otherVar) {
 else {
 	x = 7;
 }
-
-while(mtV) {
-	x = 1;
+if (x) {
+	print('hey');
+}
+else {
+	print('dude');
+}
+if (y) {
+	return 4;
 }
 
-for (i=0;x==2;i=i+1) {
-	
-}
-for (;;) {
-	
-}
+/*******************
+***** FUNCTION CREATE
+*******************/
+myFunc = (mtV,y) -> { return 4; };
+myOtherFunc = x -> { return 5; };
+myLastFunc = (x) -> { x(); };
+myRealLastFunc = () -> { a(); b(); c(); return 4; };
 
-x = true;
+/*******************
+***** FUNCTION CALL
+*******************/
+callFunc(1,2,3);
+callFunc();
+mything = otherthing();
+(otherthing())();
+crazy = ((x())())();
 
+/*******************
+***** OBJECT CREATE
+*******************/
 myObj = {};
-
 myFullObj = {
 	a: 7,
-	b: 8,
+	b: 'hi',
 	c: myLastFunc,
 	d: () -> { return 5; }
 };
 
-myString = '';
-myString2 = 'balls';
-
+/*******************
+***** RETURN
+*******************/
 return 8+mtV;
+return () -> { return () -> { return 4; }; };
 
-
-mything = otherthing()();
-
-x = a || b && c && !d;
-
+/*******************
+***** OPERATORS
+*******************/
+x = a == 4 || b != 5 || !(4 > 3) || x < 4 && x <= 2 && z >= 3;
+y = 5*3+2-1/4-3%3;
