@@ -59,4 +59,5 @@ return 8+mtV;
 
 mything = otherthing()();
 
+x = a || b && c && !d;
 
