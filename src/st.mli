@@ -69,12 +69,12 @@ type stExpr =
   | FuncCallExpr of stFunc * stExpr list
   | Access of stAccess
   
- type stAssign = 
- 	NumAssign of string * stNum
- 	BoolAssign of string * stBool
- 	ListAssign of string * stList
- 	ObjectAssign of string * stObject
- 	FuncAssign of string * stFunc
+type stAssign = 
+	NumAssign of string * stNum
+  | BoolAssign of string * stBool
+  | ListAssign of string * stList
+  | ObjectAssign of string * stObject
+  | FuncAssign of string * stFunc
 
 and stStmt =
     Return of stExpr
