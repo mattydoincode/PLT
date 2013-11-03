@@ -11,7 +11,7 @@ type stBoolMathOp =
 	Equal | Neq | Less | Leq | Greater | Geq
 
 type stCharOp = 
-	Equal
+	Equal | Neq
   
 type stBoolBoolOp =
 	And | Or
