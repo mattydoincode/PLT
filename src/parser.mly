@@ -102,7 +102,7 @@ else_opt:
 
 /* 
   1. () -> body
-  2. (x) -> body     THIS ONE NEEDS SEMANTIC CHECK THAT expr is ID
+  2. (x) -> body 
   3. x -> body
   4. (x,y,z) -> body 
 */

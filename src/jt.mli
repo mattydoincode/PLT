@@ -13,7 +13,7 @@ type expr =
     num_expr
   | bool_expr
   | string_expr
-  | func_expr
+  | func_expr (*func call that returns func?*)
   | Func_Create of func_create
   | Access of expr * string_expr 
   | List_Create of expr list

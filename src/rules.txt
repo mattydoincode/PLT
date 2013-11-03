@@ -1,0 +1,16 @@
+/////// ideas from operators from st first try ////
+type stNumOp = 
+    Add | Sub | Mult | Div | Mod
+
+type stBoolNumOp = 
+	NumEqual | NumNeq | Less | Leq | Greater | Geq
+
+type stBoolCharOp = 
+	CharEqual | CharNeq
+  
+type stBoolBoolOp =
+	And | Or
+
+type stListOp = 
+	Concat
+///// end ideas ////

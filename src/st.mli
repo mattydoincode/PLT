@@ -7,24 +7,34 @@
 type stNumOp = 
     Add | Sub | Mult | Div | Mod
 
-type stBoolMathOp = 
-	Equal | Neq | Less | Leq | Greater | Geq
+type stBoolNumOp = 
+	NumEqual | NumNeq | Less | Leq | Greater | Geq
 
-type stCharOp = 
-	Equal | Neq
+type stBoolCharOp = 
+	CharEqual | CharNeq
   
 type stBoolBoolOp =
 	And | Or
 
 type stListOp = 
-	Concat 
+	Concat
+
+type pctype = PCNum | PCBool
+
+
+type variable = {
+  type : pctype;
+}
+
+type expr =
+  binaryop of variable * op * variable
+
 
 type stNum = 
-	NumLit of float
+    NumLit of float
   | NumOp of stNum * stNumOp * stNum
-  | NumFuncCallExpr of expr * expr list
-  | NumAccess of access
   | NumVariable of string
+  | NumFuncCall of (*type*)
 
 type stBool = 
 	BoolList of bool,
@@ -32,8 +42,15 @@ type stBool =
   | BoolBoolOp of stBool stBoolBoolOp stBool
   | BoolCharOp of char stCharOp char
   | BoolNot of stBool
-  | BoolVariable of string
+  | BoolId of string
 
+
+type stString =
+    StringId of string
+  | StringList of char list
+  | StringLit of string
+  | StringFuncCall of stString
+  | StringObjectAccess 
 
 (*List create gets encompassed here*)
 type stList = 
@@ -51,8 +68,12 @@ type stObject =
 	ObjectCreate of (string * stExpr) list
   | ObjectVariable of string
 
-type stFunc = 
-	FuncCreate of string list * stStmt list
+type stFunc = {
+  ReturnType : pctype;
+  Value: stFuncCreate;
+}
+type stFuncCreate = 
+    FuncCreate of string list * stStmt list
   | FuncVariable of string
 
 type stAccess = 
@@ -69,12 +90,23 @@ type stExpr =
   | FuncCallExpr of stFunc * stExpr list
   | Access of stAccess
   
-type stAssign = 
+
+type stAssign =
+    IdAssign of string * stExpr
+  | ListAssign of stList * stNum * stExpr
+  | ObjAssign of stObject * string * stExpr
+
+
+type stIdAssign = 
 	NumAssign of string * stNum
   | BoolAssign of string * stBool
   | ListAssign of string * stList
   | ObjectAssign of string * stObject
   | FuncAssign of string * stFunc
+
+type stListAssign = 
+
+type stObjAssign 
 
 and stStmt =
     Return of stExpr
