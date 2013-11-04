@@ -1,4 +1,12 @@
-%{ open Ast %}
+%{ open Ast
+
+  (* convert string into char list *)
+  let explode s =
+    let rec exp i l = 
+      if i < 0 then l else exp (i - 1) (s.[i] :: l)
+    in 
+      exp (String.length s - 1) []
+%}
 
 %token LPAREN RPAREN LBRACE RBRACE LBRACK RBRACK
 %token SEMI COMMA ASSIGN COLON ARROW CONCAT ACCESS
@@ -64,7 +72,7 @@ expr_opt:
 expr:
     NUM_LIT            { NumLit($1) }
   | BOOLEAN_LIT        { BoolLit($1) }
-  | STRING_LIT         { StringLit($1) }
+  | STRING_LIT         { StringLit(explode $1) }
   | ID                 { Id($1) }
   | func_create        { $1 }
   | func_call          { FuncCallExpr(fst $1, snd $1) }

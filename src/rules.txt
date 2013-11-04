@@ -1,16 +1,63 @@
-/////// ideas from operators from st first try ////
-type stNumOp = 
-    Add | Sub | Mult | Div | Mod
+RULES FROM EXPRESSIONS
+	- NumLit of float
+		Number
+	- BoolLit of bool
+		Bool
+	- StringLit of char list
+		List of Char
+	- Id of string
+		check symbol table
+	- FuncCreate of expr * expr list
+		new scope, add (string list) to symbol table,
+		run contained type inference on (stmt list)
+		to get parameter and return types
+	- FuncCallExpr of expr * expr list
+		first expr is Func
+		check each expr in (expr list)
+		result is func result given params
+	- Access of expr * expr
+		if first expr is Object and second is List of Char
+		then result type is in object symbol table
+		if first expr is List and second is Number
+		then result type is inner type of list
+	- ListCreate of expr list
+		check each expr and unify types
+		result is List of inner type that
+	- Sublist of expr * expr option * expr option
+		expr must be type List
+		optional expr's must be type Number
+		result type is same as list
+	- ObjectCreate of (string * expr) list
+		create new symbol table for object
+		with type of each expr keyed on string
+		result type is Object
+	- Binop of expr * op * expr
+		- Add, Sub, Mult, Div, Mod
+			(Number * Number) -> Number
+		- Concat
+			(List a * List a) -> List a
+		- And, Or
+			(Bool * Bool) -> Bool
+		- Equal, Neq, Less, Leq, Greater, Geq
+			(Number * Number) -> Bool
+	- Not of expr
+		expr is Bool and result is Bool
 
-type stBoolNumOp = 
-	NumEqual | NumNeq | Less | Leq | Greater | Geq
-
-type stBoolCharOp = 
-	CharEqual | CharNeq
-  
-type stBoolBoolOp =
-	And | Or
-
-type stListOp = 
-	Concat
-///// end ideas ////
+RULES FROM STATEMENTS
+	- If of conditional list * stmt list option
+		every condition expr in list is type Bool
+	- For of (expr * expr) option * expr option * (expr * expr) option * stmt list
+		- for first and last:
+			- if first expr is Id, type check second expr and add/update symbol table
+			- if first expr is list access, add or check TYPE of list
+			- if first expr is object access, add/update object symbol table
+			- for any NEW things (not in outer symbol table), disappear after FOR
+		- middle expr option is Bool
+	- While of expr * stmt list
+		- expr is Bool
+	- Assign of (expr * expr)
+		- if first expr is Id, type check second expr and add/update symbol table
+		- if first expr is list access, add or check TYPE of list from second expr
+		- if first expr is object access, add/update object symbol table
+	- FuncCallStmt of expr * expr list
+		- same as FuncCallExpr

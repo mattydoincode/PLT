@@ -1,0 +1,70 @@
+
+***************************
+******* UNIFICATION *******
+***************************
+
+Basic idea:
+- the process of finding a substitution that makes two given terms equal
+- type inference done by applying unification to type expressions (e.g. 'a -> 'b -> 'a).
+- essential task is to find a substitution S that unifies two given terms
+- write s S for the result of applying the substitution S to the term s
+- given s and t, we want to find the unifier S such that s S = t S
+
+Example:
+http://www.cs.cornell.edu/courses/cs3110/2011sp/lectures/lec26-type-inference/type-inference.htm
+
+
+
+HM
+- types
+	- monotype - known and unique (int, string, etc.)
+	- polytype - known and multiple (identity)
+	- free type - unknown
+- context
+	- must keep track of type for named expression
+- constraints
+	- specify 
+- from 5000 feet
+	- look through function and compute constraint set based on how each value is used
+	- unify constraints
+	- should yield unambiguous type
+- from 1000 feet
+	- give each unknown express an unused name type, let's say variable x gets type X
+	- depth first traverse AST looking for constraints
+		- for each type constraint, add X:type
+	- unify constraints, so that X becomes Bool, for example 
+- from 100 feet
+	- given
+		def baz(a, b) = a(b) :: b
+	- assign unconstrained type to everything
+		def baz(a: X, b: Y): Z = a(b) :: b
+	- get the following constraints
+		X: (Y => Y')
+		Y: List[Y']
+		Z: List[Y']
+	- Unify them with simple substitution
+		X: (List[Y'] => Y')
+		Y: List[Y']
+		Z: List[Y']
+	- Where Y' is a polytype
+
+- Rules
+	- if you see a function, you should know input types and return type
+	- if you see a variable, symbol table should tell you what it is
+	- if you see any math operator, operands are NUM and return is NUM
+	- equality/comparison operators have NUM or CHAR type and return BOOL 
+	- boolean operator has operands BOOL and return BOOL
+
+- A type is either
+	- Number, Bool, String, Object, List, Function
+	- or a type variable (type we are computing)
+	- or p1 -> p2, where p1 and p2 are types 
+	- example: (a -> Number) -> B -> B is a type
+- type schemes have free variables and bound variables 
+	- example:
+		if t denotes type scheme: for all a (a -> Number) -> B -> B
+		then FV(t) = {B}, BV(t) = {a}
+
+
+
+
