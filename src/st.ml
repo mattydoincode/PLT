@@ -82,13 +82,13 @@ and tree_of_stmts stmts =
   List.map tree_of_stmt stmts
 
 and tree_of_cond cond = 
-  stConditional({condition=tree_of_typed_expr cond.condition;body=tree_of_stmts cond.body})
+  {stCondition=(tree_of_typed_expr cond.condition);stBody=(tree_of_stmts cond.body)}
 
 and tree_of_assign ((e1, e2)) = 
   (tree_of_typed_expr e1, tree_of_typed_expr e2)
 
 let tree_of_program prog = 
-  stProgram(tree_of_stmts prog)
+  tree_of_stmts prog
 
 
 

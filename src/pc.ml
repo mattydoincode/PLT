@@ -21,5 +21,5 @@ let _ =
     Ast -> let listing = Ast.string_of_program program
            in print_string listing
   | St ->  let stree = St.tree_of_program program
-           in print_string stree
-  | Compile -> print_endline "Oops, not done yet!"
+           in print_string (string_of_int (List.length stree))
+  | Compile -> print_string "not yet!"
