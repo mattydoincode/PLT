@@ -9,15 +9,17 @@
 	7. run java executable
 *)
 
-type action = Ast | Compile
+type action = Ast | Compile | St
 
 let _ =
   let action = if Array.length Sys.argv > 1 then
-    List.assoc Sys.argv.(1) [ ("-a", Ast); ("-c", Compile) ]
-  else Ast in
+    List.assoc Sys.argv.(1) [ ("-a", Ast); ("-c", Compile); ("-s", St);]
+  else St in
   let lexbuf = Lexing.from_channel stdin in
   let program = Parser.program Scanner.token lexbuf in
   match action with
     Ast -> let listing = Ast.string_of_program program
            in print_string listing
+  | St ->  let stree = St.tree_of_program program
+           in print_string stree
   | Compile -> print_endline "Oops, not done yet!"

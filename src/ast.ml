@@ -46,7 +46,7 @@ let string_of_opt string_of = function
 let rec string_of_expr = function
     NumLit(n) -> string_of_float n
   | BoolLit(b) -> string_of_bool b
-  | StringLit(chars) -> "'" ^ String.concat "" (List.map escaped chars) ^ "'" 
+  | StringLit(chars) -> "'" ^ String.concat "" (List.map Char.escaped chars) ^ "'" 
   | Id(s) -> s
   | Not(e) ->  "!" ^ string_of_expr e
   | Binop(e1, op, e2) ->
