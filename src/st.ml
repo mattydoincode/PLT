@@ -65,7 +65,7 @@ and tree_of_expr = function
 
 and tree_of_stmt = function
     Return(expr) ->  StReturn(tree_of_typed_expr expr)
-  | If(conds, elsebody) -> StIf(List.map tree_of_cond conds, tree_of_stmts elsebody)
+  | If(conds, elsebody) -> StIf(List.map tree_of_cond conds, tree_of_opt tree_of_stmts elsebody)
   | For(a1, e, a2, body) ->
       StFor(tree_of_opt tree_of_assign a1,
         tree_of_opt tree_of_typed_expr e,
@@ -76,6 +76,7 @@ and tree_of_stmt = function
   | Assign(a) -> StAssign(tree_of_assign a)
   | FuncCallStmt(e, el) -> 
       StFuncCallStmt(tree_of_typed_expr e, List.map tree_of_typed_expr el)
+
 
 and tree_of_stmts stmts = 
   List.map tree_of_stmt stmts
