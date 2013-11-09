@@ -1,0 +1,8 @@
+Matt: Builtin Functions (Dl, read, write), PCObject, PCList, Scanner, Parser, 
+semantic tree
+ 
+Alden: Scanner, Parser, AST generation, abstract syntax tree testing 
+
+Kevin: Java distribution code, test suite
+
+Sireesh: Java distribution code, fixing of PC-classes, Java tree
