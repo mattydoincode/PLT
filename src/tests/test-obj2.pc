@@ -1,0 +1,7 @@
+myObj = {
+	value1: 7,
+	value2: 9
+};
+
+print(myObj['value1']);
+print(myObj['value2']);

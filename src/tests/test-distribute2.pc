@@ -1,0 +1,21 @@
+gcd = (list) -> {
+  a = list[0];
+  b = list[1];
+  while (a != b) {
+    if (a > b) {
+      a = a - b;
+	}
+	else {
+      b = b - a;
+	}
+  }
+  return a;
+};
+
+listOflists = [[2, 14], [3, 15], [99, 121]];
+
+results = distribute(listOflists, gcd);
+
+print(results[0]);
+print(results[1]);
+print(results[2]);

@@ -1,0 +1,4 @@
+myString = 'hello';
+
+print(myString.contains('dog'));
+print(myString.contains('el'));

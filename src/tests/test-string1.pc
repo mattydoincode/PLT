@@ -1,0 +1,3 @@
+myString = 'HELLOWORLD'
+
+print(myString[3:5]);

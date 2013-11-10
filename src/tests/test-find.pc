@@ -1,0 +1,7 @@
+myString = 'hello';
+
+print(myString.find('dog'));
+print(myString.find('el'));
+
+print(find(myString, 'dog'));
+print(find(myString, 'lo'));
