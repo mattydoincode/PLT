@@ -108,7 +108,7 @@ let yyact = [|
     let _2 = (Parsing.peek_val __caml_parser_env 0 : 'expr) in
     Obj.repr(
 # 29 "Parser/parser.mly"
-                        ( App (_1, _2) )
+                        ( FunCall (_1, _2) )
 # 113 "Parser/parser.ml"
                : 'expr))
 (* Entry main *)
