@@ -1,0 +1,74 @@
+----------------------- 
+Expression Evaluation:| 
+-----------------------
+NumLit/BoolLit - 
+Anonymous new PCObject with that value
+
+  new PCObject(numboolLit);
+
+StringLit - //Needs fixing- we have no way to implement strings right now.
+
+
+Id -  
+Because java needs a type declaration for all variables, this should be
+split  into two cases:
+
+	id_typed for when you are declaring a variable, e.g x=3; Code for this would
+	look like the following:
+
+		PCObject id = new PCObject(); id.add("x","y"); //etc
+
+	id_bare for when an ID is being accessed- e.g x[3] or x + y. The code for this
+	would look like, respectively:
+
+		id.get(3); new PCObject(x.getbase()+y.getbase());
+
+If an ID is assigned to a function, that must be handled separately- so the JT
+will have to have a separate clause for when an ID is assigned to a function.
+
+Function Creation -  
+The function creation would first create a new file, named
+after the function. If the function is not named, the program will look at the
+symbol table for the name of the function, and then create a class named after
+that function. It will then proceed to evaluate the function's statement list,
+and put those results into the class' call method.
+
+Function Calling - 
+use an anonymous instance of a class that will be created.
+	
+	new FunctionName.call(params);
+
+List Creation- 
+The compiler will create a PCList that contains the elements.
+
+	List = new PCList().add(1).add(2)... etc;
+
+Sublists- This will use the sublist function in the PCList class
+	
+	expr = id.sublist(a,b);
+
+Accessing properties This will check the type of the expression in the square
+brackets, then do one of the following:
+
+	PCObject = object.get(key); PCObject = object.get(idx);
+
+
+Object creation - 
+like list creation, just string add statements.
+
+BinOps -  
+Create a new PCObject with the value of the operation on the two
+PCObjects' bases. In any case, all of the binary operators we have operate on
+numbers and booleans.
+
+	new PCObject(x.getbase() OP y.getbase());
+
+The only thing you can not is a boolean, so we can use   new
+PCObject(!PCObject.getbase());
+
+
+
+---------------------- 
+Statement Evaluation:|
+----------------------
+These all translate extremely straightforwardly to java code.
