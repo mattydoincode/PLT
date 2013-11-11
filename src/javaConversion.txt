@@ -52,7 +52,6 @@ brackets, then do one of the following:
 
 	PCObject = object.get(key); PCObject = object.get(idx);
 
-
 Object creation - 
 like list creation, just string add statements.
 
@@ -72,3 +71,12 @@ PCObject(!PCObject.getbase());
 Statement Evaluation:|
 ----------------------
 These all translate extremely straightforwardly to java code.
+
+
+
+----------------------
+Lambda function stuff
+----------------------
+keep in mind we gotta separate file these guys
+
+java converter needs to deal with this shit
