@@ -1,0 +1,26 @@
+
+SIREESH
+ 	- from java table, make jt.ml
+
+KEVIN
+ 	- new tests to add
+ 	 	- list of string literals
+ 	 	- make sure ALL operators are covered by ops.pc (mod, etc)
+ 	 	- make bool-ops.pc that tests OR, AND, NOT
+ 	- figure out actual types for scoping (array and StringMap). implement these:
+ 		let find (id, scope, level) = 
+ 			(* id is a string like 'myVar' *)
+ 			(* scope is an array of StringMap's *)
+ 			(* level is an int, which is your current scope level *)
+ 			(* basic idea: check StringMap at scope.[level] for id,
+ 						   if it's not there, check index level - 1, etc. *)
+
+	   let set (id, value, scope, level) = 
+	   		(* at level, in scope, set key id to value )
+
+ALDEN AND MATT
+	- remove ability to access objects dynamically
+		- x['hey'] is no good anymore, doesn't allow us to do complete compile time checking because someone could do x[f1()][f2()] and it'll throw at runtime.
+	- equals and notequals operator now allow equality for anything that's not
+	  an object and if lists, will compare objects one at a time
+ 	- hinley milner

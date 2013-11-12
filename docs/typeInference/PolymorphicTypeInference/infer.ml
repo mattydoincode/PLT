@@ -18,7 +18,7 @@ let type_of (ae : aexpr) : typ =
   match ae with
     AVar (_, a) -> a
   | AFun (_, _, a) -> a
-  | AApp (_, _, a) -> a
+  | AFunCall (_, _, a) -> a
   
 (* annotate all subexpressions with types *)
 (* bv = stack of bound variables for which current expression is in scope *)
@@ -39,8 +39,8 @@ let annotate (e : expr) : aexpr =
         let a = next_type_var() in
         let ae = annotate' e ((x, a) :: bv) in
         AFun (x, ae, Arrow (a, type_of ae))
-    | App (e1, e2) ->
-        AApp (annotate' e1 bv, annotate' e2 bv, next_type_var())
+    | FunCall (e1, e2) ->
+        AFunCall (annotate' e1 bv, annotate' e2 bv, next_type_var())
   in annotate' e []
 
 (* collect constraints for unification *)
@@ -49,7 +49,7 @@ let rec collect (aexprs : aexpr list) (u : (typ * typ) list) : (typ * typ) list 
     [] -> u
   | AVar (_, _) :: r -> collect r u
   | AFun (_, ae, _) :: r -> collect (ae :: r) u
-  | AApp (ae1, ae2, a) :: r ->
+  | AFunCall (ae1, ae2, a) :: r ->
       let (f, b) = (type_of ae1, type_of ae2) in
       collect (ae1 :: ae2 :: r) ((f, Arrow (b, a)) :: u)
 

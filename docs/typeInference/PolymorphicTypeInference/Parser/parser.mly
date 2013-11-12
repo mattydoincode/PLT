@@ -26,6 +26,6 @@ expr:
   | VAR                 { Var $1 }
   | FUN VAR IMP expr %prec FUN { Fun ($2, $4) }
   | LPAREN expr RPAREN  { $2 }
-  | expr expr %prec APP { App ($1, $2) }
+  | expr expr %prec APP { FunCall ($1, $2) }
 ;
 
