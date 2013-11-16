@@ -8,26 +8,34 @@
 open Ast
 open Sast
 
-type environment = {
-	return_type : Sast.t;          (* Function’s return type *)
-	break_label : label option;    (* when break makes sense *)
-	continue_label : label option; (* when continue makes sense *)
-	scope : symbol_table;          (* symbol table for vars *)
-	bound_vars : (id * typ) list;  (* bound variables for inference *)
-}
-
 type symbol_table = {
 	parent : symbol_table option;
-	variables : variable_decl list;
+	variables : (string * Sast.t) list;
 }
+
+type environment = {
+	parent : environment option; (* entire env can be nested (funcs) *)
+	return_type : Sast.t option; (* Function’s return type *)
+	scope : symbol_table;        (* symbol table for vars *)
+}
+
+(* inside a for loop or if block, nest scope *)
+let nest_scope (env : environment) : environment =
+	let s = { variables = []; parent = Some(env.scope) } in
+	{ env with scope = s; }	
+
+(* inside a function, nest entire env *)
+let nest_env (env : environment) : environment = 
+	let s = { variables = []; parent = Some(env.scope) } in
+	{ scope = s; return_type = None; parent = Some(env); }
 
 let rec find_variable (scope : symbol_table) name =
 	try
 		List.find (fun (s, _, _, _) -> s = name) scope.variables
 	with Not_found ->
 		match scope.parent with
-		Some(parent) -> find_variable parent name
-		| _ -> raise Not_found
+			Some(parent) -> find_variable parent name
+			| _ -> raise Not_found
 
 (* UNIFICATION *)
 (* invariant for substitutions: no id on a lhs occurs in any term earlier  *)
@@ -92,13 +100,41 @@ let type_of (ae : aexpr) : typ =
   | AFunCall (_, _, a) -> a
   
 let annotate_program (p : Ast.program) : Sast.aProgram =
-	let env = {} in
+	let env = { scope = { variables = []; parent = None }; return_type = None } in
 	annotate_stmts p env
 
-let annotate_stmts (stmts : Ast.stmt list) (env : environment) : Sast.aStmt list =
+let rec annotate_stmts (stmts : Ast.stmt list) (env : environment) : Sast.aStmt list =
 	List.map (fun x -> annotate_stmt x env) stmts
 
-let annotate_stmt (s : Ast.stmt) (env : environment) : Sast.aStmt =
+let rec annotate_stmt (s : Ast.stmt) (env : environment) : Sast.aStmt =
+	match s with
+    Return(expr) -> AReturn(annotate_expr expr env)
+  | If(conds, elsebody) -> 
+  	let aIfFunc = fun cond -> 
+  		let ae = annotate_expr cond.condition env in
+  		let new_env = nest_scope env in
+  		let aBody = annotate_stmts cond.body new_env in
+  		(ae, aBody)
+	in
+	let aElseFunc = fun else -> 
+  		let new_env = nest_scope env in
+  		annotate_stmts cond.body new_env in
+	in
+	match elsebody with
+		Some(x) -> AIf(List.map aIfFunc conds, Some(aElseFunc x))
+		None -> AIf(List.map aIfFunc conds, None)
+  | For(a1, e, a2, body) ->
+      StFor(tree_of_opt tree_of_assign a1,
+        tree_of_opt tree_of_typed_expr e,
+        tree_of_opt tree_of_assign a2,
+        tree_of_stmts body)
+  | While(e, s) -> 
+      StWhile(tree_of_typed_expr e, tree_of_stmts s)
+  | Assign(a) -> StAssign(tree_of_assign a)
+  | FuncCallStmt(e, el) -> 
+      StFuncCallStmt(tree_of_typed_expr e, List.map tree_of_typed_expr el)
+
+let annote
 
 let annotate_expr (e : Ast.expr) (env : environment) : Sast.aExpr =
 

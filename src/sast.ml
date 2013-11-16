@@ -29,16 +29,11 @@ type aExpr =
 
 and aStmt =
     AReturn of aExpr
-  | AIf of aConditional list * aStmt list option
+  | AIf of (aExpr * aStmt list) list * aStmt list option
   | AFor of (aExpr * aExpr) option * aExpr option * (aExpr * aExpr) option * aStmt list
   | AWhile of aExpr * aStmt list 
   | AAssign of (aExpr * aExpr)
   | AFuncCallStmt of aExpr * aExpr list
-
-and aConditional = {
-  aCondition : aExpr;
-  aBody : aStmt list;
-}
 
 type aProgram = aStmt list
 (*
