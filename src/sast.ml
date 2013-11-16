@@ -28,7 +28,7 @@ type aExpr =
   | ANot of aExpr * t
 
 and aStmt =
-    AReturn of aExpr
+    AReturn of aExpr * t
   | AIf of (aExpr * aStmt list) list * aStmt list option
   | AFor of (aExpr * aExpr) option * aExpr option * (aExpr * aExpr) option * aStmt list
   | AWhile of aExpr * aStmt list 
