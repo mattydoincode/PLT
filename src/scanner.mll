@@ -39,7 +39,7 @@ rule token = parse
 | "return"             { RETURN }
 | "true"               { BOOLEAN_LIT(true) }
 | "false"              { BOOLEAN_LIT(false) }
-| '\'' ([' '-'&' '('-'[' ']'-'~']) '\''
+| ('\'' ([' '-'&' '('-'[' ']'-'~']) '\'') ("'\\" ['n' 't' 'r' '\' '\''] '\'')
 					   { CHAR_LIT(lxm) }
 | ('0' | ['1'-'9']+['0'-'9']*)(['.']['0'-'9']+)? as lxm 
 					   { NUM_LIT(float_of_string lxm) }

@@ -38,7 +38,7 @@ and aStmt =
 and aConditional = {
   aCondition : aExpr;
   aBody : aStmt list;
-}  
+}
 
 type aProgram = aStmt list
 
@@ -46,7 +46,7 @@ let tree_of_opt tree_of = function
     Some(x) -> Some(tree_of x)
   | None -> None
 
-let rec tree_of_typed_expr e = (tree_of_expr e, []) 
+let rec tree_of_typed_expr e = (tree_of_expr e, [])
 
 and tree_of_expr = function
     NumLit(n) -> ANumLit(n, TNum)
@@ -98,8 +98,6 @@ and tree_of_assign ((e1, e2)) =
 
 let tree_of_program prog = 
   tree_of_stmts prog
-
-
 
 (*
 NOTES ON SYMBOL MAPPING TABLE

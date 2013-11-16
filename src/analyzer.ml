@@ -5,7 +5,29 @@
 	- output: semantic tree
 *)
 
+open Ast
 open Sast
+
+type environment = {
+	return_type : Sast.t;          (* Function’s return type *)
+	break_label : label option;    (* when break makes sense *)
+	continue_label : label option; (* when continue makes sense *)
+	scope : symbol_table;          (* symbol table for vars *)
+	bound_vars : (id * typ) list;  (* bound variables for inference *)
+}
+
+type symbol_table = {
+	parent : symbol_table option;
+	variables : variable_decl list;
+}
+
+let rec find_variable (scope : symbol_table) name =
+	try
+		List.find (fun (s, _, _, _) -> s = name) scope.variables
+	with Not_found ->
+		match scope.parent with
+		Some(parent) -> find_variable parent name
+		| _ -> raise Not_found
 
 (* UNIFICATION *)
 (* invariant for substitutions: no id on a lhs occurs in any term earlier  *)
@@ -64,6 +86,17 @@ let type_of (ae : aexpr) : typ =
   | AFun (_, _, a) -> a
   | AFunCall (_, _, a) -> a
   
+let annotate_program (p : Ast.program) : Sast.aProgram =
+	let env = {} in
+	annotate_stmts p env
+
+let annotate_stmts (stmts : Ast.stmt list) (env : environment) : Sast.aStmt list =
+	List.map (fun x -> annotate_stmt x env) stmts
+
+let annotate_stmt (s : Ast.stmt) (env : environment) : Sast.aStmt =
+
+let annotate_expr (e : Ast.expr) (env : environment) : Sast.aExpr =
+
 (* annotate all subexpressions with types *)
 (* bv = stack of bound variables for which current expression is in scope *)
 (* fv = hashtable of known free variables *)
