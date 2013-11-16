@@ -17,6 +17,7 @@
 %token <float> NUM_LIT
 %token <bool> BOOLEAN_LIT
 %token <string> STRING_LIT
+%token <char> CHAR_LIT
 %token EOF
 
 %nonassoc ASSIGN COLON
@@ -72,7 +73,8 @@ expr_opt:
 expr:
     NUM_LIT            { NumLit($1) }
   | BOOLEAN_LIT        { BoolLit($1) }
-  | STRING_LIT         { StringLit(explode $1) }
+  | CHAR_LIT           { CharLit($1) }
+  | STRING_LIT         { ListCreate(List.map (fun x -> CharLit(x)) (explode $1)) }
   | ID                 { Id($1) }
   | func_create        { $1 }
   | func_call          { FuncCallExpr(fst $1, snd $1) }
@@ -110,8 +112,8 @@ else_opt:
 
 /* 
   1. () -> body
-  2. (x) -> body 
-  3. x -> body
+  2. x -> body
+  3. (x) -> body 
   4. (x,y,z) -> body 
 */
 func_create:
@@ -146,18 +148,23 @@ actuals_list:
 ***************/
 
 obj_create: 
-    LBRACE RBRACE            { ObjectCreate([]) }
-  | LBRACE properties RBRACE { ObjectCreate(List.rev $2) }
+    LBRACE RBRACE            { ObjCreate([]) }
+  | LBRACE properties RBRACE { ObjCreate(List.rev $2) }
 
 properties: 
     ID COLON expr                  { [($1, $3)] }
   | properties COMMA ID COLON expr { ($3, $5) :: $1 }
 
-/* second method is access AND create */
 list_create:
     LBRACK actuals_opt RBRACK                  { ListCreate($2) }
   | expr LBRACK expr_opt COLON expr_opt RBRACK { Sublist($1, $3, $5) }
 
-access: 
-    expr LBRACK expr RBRACK                    { Access($1, $3) }
-  | expr ACCESS ID                             { Access($1, Id($3)) }
+access:
+    obj_access
+  | list_access
+
+obj_access:
+    expr ACCESS ID { ObjAccess($1, $3) }
+
+list_access: 
+    expr LBRACK expr RBRACK { ListAccess($1, $3) }

@@ -11,14 +11,15 @@ type op =
 type expr =
     NumLit of float
   | BoolLit of bool
-  | StringLit of char list
+  | CharLit of char
   | Id of string
   | FuncCreate of string list * stmt list
   | FuncCallExpr of expr * expr list
-  | Access of expr * expr 
+  | ObjAccess of expr * string
+  | ListAccess of expr * expr
   | ListCreate of expr list
   | Sublist of expr * expr option * expr option
-  | ObjectCreate of (string * expr) list  
+  | ObjCreate of (string * expr) list  
   | Binop of expr * op * expr
   | Not of expr 
 
@@ -46,7 +47,7 @@ let string_of_opt string_of = function
 let rec string_of_expr = function
     NumLit(n) -> string_of_float n
   | BoolLit(b) -> string_of_bool b
-  | StringLit(chars) -> "'" ^ String.concat "" (List.map Char.escaped chars) ^ "'" 
+  | CharLit(c) -> "'" ^ Char.escaped c ^ "'"
   | Id(s) -> s
   | Not(e) ->  "!" ^ string_of_expr e
   | Binop(e1, op, e2) ->
@@ -69,12 +70,14 @@ let rec string_of_expr = function
       string_of_expr e ^ "[" ^ 
       string_of_opt string_of_expr eleft ^ ":" ^ 
       string_of_opt string_of_expr eright ^ "]"
-  | ObjectCreate(props) ->
+  | ListAccess(e1, e2) -> 
+      string_of_expr e1 ^ "[" ^ string_of_expr e2 ^ "]" 
+  | ObjCreate(props) ->
       "{\n" ^ String.concat ",\n" (List.map 
           (fun(prop) -> fst prop ^ ": " ^ string_of_expr (snd prop)) 
       props) ^ "\n}"
-  | Access(e1, e2) -> 
-      string_of_expr e1 ^ "[" ^ string_of_expr e2 ^ "]" 
+  | ObjAccess(e, s) ->
+      string_of_expr e ^ "." ^ s
 
 and string_of_stmt = function
     Return(expr) -> "return " ^ string_of_expr expr ^ ";";
