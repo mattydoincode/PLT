@@ -41,7 +41,7 @@ and aConditional = {
 }
 
 type aProgram = aStmt list
-
+(*
 let tree_of_opt tree_of = function 
     Some(x) -> Some(tree_of x)
   | None -> None
@@ -99,7 +99,6 @@ and tree_of_assign ((e1, e2)) =
 let tree_of_program prog = 
   tree_of_stmts prog
 
-(*
 NOTES ON SYMBOL MAPPING TABLE
 1) Mapping table can't be passed between stages because it's dynamic... 
 in other words it gets created on the fly as you walk through the tree

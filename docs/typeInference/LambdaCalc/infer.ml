@@ -4,15 +4,21 @@
 
 open Ast
 
-let code = ref (Char.code 'a')
+(* INFERENCE *)
+let code1 = ref (Char.code 'a')
+let code2 = ref (Char.code 'a')
 
-let reset_type_vars() = code := Char.code 'a'
+let reset_type_vars() = 
+  (code1 := Char.code 'a'; code2 := Char.code 'a')
 
 let next_type_var() : typ =
-  let c = !code in
-  if c > Char.code 'z' then failwith "too many type variables";
-  incr code;
-  TVar (String.make 1 (Char.chr c))
+  let c1 = !code1 in
+  let c2 = !code2 in
+    (
+      if c2 > Char.code 'Z' then (incr code1; code2 := Char.code 'a')
+      else incr code2;
+      TVar((Char.escaped (Char.chr c1)) ^ (Char.escaped (Char.chr c2)))
+    )
 
 let type_of (ae : aexpr) : typ =
   match ae with

@@ -70,15 +70,20 @@ and unify (s : (typ * typ) list) : substitution =
       t1 @ t2
 
 (* INFERENCE *)
-let code = ref (Char.code 'a')
+let code1 = ref (Char.code 'a')
+let code2 = ref (Char.code 'a')
 
-let reset_type_vars() = code := Char.code 'a'
+let reset_type_vars() = 
+  (code1 := Char.code 'a'; code2 := Char.code 'a')
 
-let next_type_var() : typ =
-  let c = !code in
-  if c > Char.code 'z' then failwith "too many type variables";
-  incr code;
-  TVar (String.make 1 (Char.chr c))
+let next_type_var() : Sast.t =
+  let c1 = !code1 in
+  let c2 = !code2 in
+  (
+    if c2 > Char.code 'Z' then (incr code1; code2 := Char.code 'a')
+    else incr code2;
+    TVar((Char.escaped (Char.chr c1)) ^ (Char.escaped (Char.chr c2)))
+  )
 
 let type_of (ae : aexpr) : typ =
   match ae with
@@ -131,9 +136,12 @@ let rec collect (aexprs : aexpr list) (u : (typ * typ) list) : (typ * typ) list 
       collect (ae1 :: ae2 :: r) ((f, Arrow (b, a)) :: u)
 
 (* collect the constraints and perform unification *)
-let infer (e : expr) : typ =
+let infer (p : Ast.program) : Sast.aProgram =
   reset_type_vars();
-  let ae = annotate e in
-  let cl = collect [ae] [] in
-  let s = unify cl in
-  apply s (type_of ae)
+  let annotatedP = annotate p in
+  let collectedP = collect [annotatedP] [] in
+  let subs = unify collectedP in
+  apply subs (type_of ae)
+
+
+  (* 1. get the char thing working*)
