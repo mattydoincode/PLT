@@ -37,73 +37,88 @@ and aStmt =
 
 type aProgram = aStmt list
 
-(*
-let tree_of_opt tree_of = function 
-    Some(x) -> Some(tree_of x)
-  | None -> None
 
-let rec tree_of_typed_expr e = (tree_of_expr e, [])
 
-and tree_of_expr = function
-    NumLit(n) -> ANumLit(n, TNum)
-  | BoolLit(b) -> ABoolLit(b, TBool)
-  | CharLit(c) -> ACharLit(c, TChar)
-  | Id(s) -> AId(s, false, TVar(s))
-  | Not(e) -> ANot(tree_of_typed_expr e, TBool)
-  | Binop(e1, op, e2) -> ABinop(tree_of_typed_expr e1, op, tree_of_typed_expr e2)
-  | FuncCallExpr(e, el) -> 
-      AFuncCallExpr(tree_of_typed_expr e, List.map tree_of_typed_expr el)
-  | FuncCreate(formals, body) ->
-      AFuncCreate(formals, List.map tree_of_stmt body)
-  | ListCreate(exprs) ->
-      AListCreate(List.map tree_of_typed_expr exprs)
-  | Sublist(e, eleft, eright) -> 
-      ASublist(
-        tree_of_typed_expr e,
-        tree_of_opt tree_of_typed_expr eleft,
-        tree_of_opt tree_of_typed_expr eright)
-  | ObjCreate(props) ->
-      AObjCreate(List.map (fun(prop) -> (fst prop, tree_of_typed_expr (snd prop))) props)
-  | ObjAccess(e1, s) -> 
-      AObjAccess(tree_of_typed_expr e1, s)
-  | ListAccess(e1, e2) ->
-      AListAccess(tree_of_typed_expr e1, tree_of_typed_expr e2)
+let string_of_opt string_of = function 
+    Some(x) -> string_of x 
+  | None -> ""
 
-and tree_of_stmt = function
-    Return(expr) ->  AReturn(tree_of_typed_expr expr)
-  | If(conds, elsebody) -> AIf(List.map tree_of_cond conds, tree_of_opt tree_of_stmts elsebody)
-  | For(a1, e, a2, body) ->
-      AFor(tree_of_opt tree_of_assign a1,
-        tree_of_opt tree_of_typed_expr e,
-        tree_of_opt tree_of_assign a2,
-        tree_of_stmts body)
-  | While(e, s) -> 
-      AWhile(tree_of_typed_expr e, tree_of_stmts s)
-  | Assign(a) -> AAssign(tree_of_assign a)
-  | FuncCallStmt(e, el) -> 
-      AFuncCallStmt(tree_of_typed_expr e, List.map tree_of_typed_expr el)
+let rec string_of_type = function
+    TVar(s) -> "TVar(" ^ s ^ ")"
+  | TFunc(tlist, t) -> "TFunc((" ^ String.concat "," (List.map string_of_type tlist) ^ "), " ^ string_of_type t ^ ")"
+  | TList(t) -> "TList(" ^ string_of_type t ^ ")"
+  | TObjCreate(props) -> "TObjCreate(" ^ String.concat "," (List.map (fun (s, t) -> s ^ ":" ^ string_of_type t) props) ^ ")"
+  | TObjAccess(s, t) -> "TObjAccess(" ^ s ^ ":" ^ string_of_type t ^ ")"
+  | TNum -> "TNum"
+  | TChar -> "TChar"
+  | TBool -> "TBool"
 
-and tree_of_stmts stmts = 
-  List.map tree_of_stmt stmts
+let sot typ =
+  " [" ^ string_of_type typ ^ "]"
 
-and tree_of_cond cond = 
-  {aCondition=(tree_of_typed_expr cond.condition);aBody=(tree_of_stmts cond.body)}
+let rec string_of_expr = function
+    ANumLit(n, t) -> string_of_float n ^ sot t
+  | ABoolLit(b, t) -> string_of_bool b ^ sot t
+  | ACharLit(c, t) -> "'" ^ Char.escaped c ^ "'" ^ sot t
+  | AId(s, b, t) -> s ^ " [" ^ string_of_bool b ^ ", " ^ string_of_type t ^ "]"
+  | AFuncCreate(formals, body, t) -> 
+      "(" ^ String.concat ", " formals ^ ") -> {\n" ^
+      String.concat "" (List.map string_of_stmt body) ^ "\n}" ^ sot t
+  | AFuncCallExpr(ae, ael, t) -> 
+      string_of_expr ae ^ "(" ^ 
+      String.concat ", " (List.map string_of_expr ael) ^ ")" ^ sot t
+  | AObjAccess(ae, s, t)  ->
+      string_of_expr ae ^ "." ^ s ^ sot t
+  | AListAccess(ae1, ae2, t) -> 
+      string_of_expr ae1 ^ "[" ^ string_of_expr ae2 ^ "]" ^ sot t
+  | AListCreate(ael, t) ->
+      "[" ^ String.concat ", " (List.map string_of_expr ael) ^ "]" ^ sot t
+  | ASublist(ae, aeleft, aeright, t) ->
+      string_of_expr ae ^ "[" ^ 
+      string_of_opt string_of_expr aeleft ^ ":" ^ 
+      string_of_opt string_of_expr aeright ^ "]" ^ sot t
+  | AObjectCreate(props, t) ->
+      "{\n" ^ String.concat ",\n" (List.map (fun prop -> fst prop ^ ": " ^ string_of_expr (snd prop)) props) ^
+      "\n}" ^ sot t
+  | ABinop(ae1, op, ae2, t) ->
+      string_of_expr ae1 ^ (match op with
+        Add -> " + "    | Sub -> " - "     | Mult -> " * " 
+      | Div -> " / "    | Mod -> " % "
+      | Equal -> " == " | Neq -> " != "    | Less -> " < "
+      | Leq -> " <= "   | Greater -> " > " | Geq -> " >= "
+      | Concat -> " ^ " | And -> " && "    | Or -> " || ") ^
+      string_of_expr ae2 ^ sot t
+  | ANot(ae, t) ->
+      "!" ^ string_of_expr ae ^ sot t
 
-and tree_of_assign ((e1, e2)) = 
-  (tree_of_typed_expr e1, tree_of_typed_expr e2)
+and string_of_stmt = function
+    AReturn(ae, t) -> "return " ^ string_of_expr ae ^ ";" ^ sot t
+  | AIf(conds, elsebody) -> 
+      "if" ^ string_of_cond (List.hd conds) ^ String.concat "" 
+        (List.map (fun x -> "\nelif" ^ string_of_cond x) (List.tl conds)) ^
+        string_of_opt (fun x -> "\nelse {\n" ^ string_of_stmts x ^ "}") elsebody
+  | AFor(a1, ae, a2, asl) ->
+      "for (" ^ string_of_opt string_of_assign a1 ^ "; " ^ 
+                string_of_opt string_of_expr ae ^ "; " ^
+                string_of_opt string_of_assign a2 ^ ") {\n" ^ 
+      string_of_stmts asl ^ "}"
+  | AWhile(ae, asl) -> 
+      "while (" ^ string_of_expr ae ^ ") {\n" ^ 
+      string_of_stmts asl ^ "}"
+  | AAssign(a) -> string_of_assign a ^ ";"
+  | AFuncCallStmt(ae, ael) ->
+      string_of_expr ae ^ "(" ^ 
+      String.concat ", " (List.map string_of_expr ael) ^ ");"
 
-let tree_of_program prog = 
-  tree_of_stmts prog
+and string_of_stmts stmts = 
+  String.concat "\n" (List.map string_of_stmt stmts) ^ "\n"
 
-NOTES ON SYMBOL MAPPING TABLE
-1) Mapping table can't be passed between stages because it's dynamic... 
-in other words it gets created on the fly as you walk through the tree
-2) rules for the mapping table, however, can be decided on
-3) RULES:
-  a) Each time you enter function, all variables get an underscore appended
-    if you're two functions deep, two underscores appended, this is our scoping
-  b) each time you assign, you simply overwrite any existing variable with
-      the same name. This should work if we walk the tree in the correct direction
-  c) each entry will have a type and a value associated with it, that's determined on 
-      assignment and doesn't change until another assignment
-*)
+and string_of_cond (ae, asl) =
+  " (" ^ string_of_expr ae ^ ") {\n" ^
+  string_of_stmts asl ^ "}"
+
+and string_of_assign (e1, e2) = 
+  string_of_expr e1 ^ " = " ^ string_of_expr e2
+
+let string_of_program prog = 
+  string_of_stmts prog

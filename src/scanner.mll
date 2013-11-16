@@ -39,8 +39,8 @@ rule token = parse
 | "return"             { RETURN }
 | "true"               { BOOLEAN_LIT(true) }
 | "false"              { BOOLEAN_LIT(false) }
-| ('\'' ([' '-'&' '('-'[' ']'-'~']) '\'') ("'\\" ['n' 't' 'r' '\' '\''] '\'')
-					   { CHAR_LIT(lxm) }
+| ('\'' ([' '-'&' '('-'[' ']'-'~']) '\'') as lxm
+					   { CHAR_LIT(String.get lxm 2) }
 | ('0' | ['1'-'9']+['0'-'9']*)(['.']['0'-'9']+)? as lxm 
 					   { NUM_LIT(float_of_string lxm) }
 | '"' ([^'"']* as s) '"' 

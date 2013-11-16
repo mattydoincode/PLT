@@ -160,8 +160,8 @@ list_create:
   | expr LBRACK expr_opt COLON expr_opt RBRACK { Sublist($1, $3, $5) }
 
 access:
-    obj_access
-  | list_access
+    obj_access  { $1 }
+  | list_access { $1 }
 
 obj_access:
     expr ACCESS ID { ObjAccess($1, $3) }
