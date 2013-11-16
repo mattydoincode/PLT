@@ -14,8 +14,7 @@ type symbol_table = {
 }
 
 type environment = {
-	parent : environment option; (* entire env can be nested (funcs) *)
-	return_type : Sast.t option; (* Function’s return type *)
+	cur_func_return_type : Sast.t option; (* Function’s return type *)
 	scope : symbol_table;        (* symbol table for vars *)
 }
 
@@ -25,13 +24,13 @@ let nest_scope (env : environment) : environment =
 	{ env with scope = s; }	
 
 (* inside a function, nest entire env *)
-let nest_env (env : environment) : environment = 
-	let s = { variables = []; parent = Some(env.scope) } in
-	{ scope = s; return_type = None; parent = Some(env); }
+let new_env : environment = 
+	let s = { variables = []; parent = None } in
+	{ scope = s; return_type = None; }
 
-let rec find_variable (scope : symbol_table) name =
+let rec find_variable (scope : symbol_table) (name : string) : (string * Sast.t) =
 	try
-		List.find (fun (s, _, _, _) -> s = name) scope.variables
+		List.find (fun (s, _) -> s = name) scope.variables
 	with Not_found ->
 		match scope.parent with
 			Some(parent) -> find_variable parent name
@@ -81,10 +80,10 @@ and unify (s : (typ * typ) list) : substitution =
 let code1 = ref (Char.code 'a')
 let code2 = ref (Char.code 'a')
 
-let reset_type_vars() = 
+let reset_type_vars : void = 
   (code1 := Char.code 'a'; code2 := Char.code 'a')
 
-let next_type_var() : Sast.t =
+let next_type_var : Sast.t =
   let c1 = !code1 in
   let c2 = !code2 in
   (
@@ -98,45 +97,124 @@ let type_of (ae : aexpr) : typ =
     AVar (_, a) -> a
   | AFun (_, _, a) -> a
   | AFunCall (_, _, a) -> a
-  
-let annotate_program (p : Ast.program) : Sast.aProgram =
-	let env = { scope = { variables = []; parent = None }; return_type = None } in
-	annotate_stmts p env
 
-let rec annotate_stmts (stmts : Ast.stmt list) (env : environment) : Sast.aStmt list =
-	List.map (fun x -> annotate_stmt x env) stmts
+let rec annotate_expr (e : Ast.expr) (env : environment) : Sast.aExpr =
+  match e with
+  | NumLit(n) -> ANumLit(n, TNum)
+  | BoolLit(b) -> ABoolLit(b, TBool)
+  | CharLit(c) -> ACharLit(c, TChar)
+  | Id(s) ->
+      let (_, typ) = find_variable env.scope s in
+      AId(x, false, typ)
+  | FuncCreate(formals, body) ->
+      let return_type = next_type_var() in
+      let new_env = new_env() in
+      new_env.cur_func_return_type <- return_type;
+      let aBody = annotate_stmts body new_env in
+      let formal_types = List.map (fun _ -> next_type_var()) formals in
+      AFuncCreate(formals, aBody, TFunc(formal_types, return_type))
+  | FuncCallExpr(e, elist) -> 
+      let ae = annotate_expr e env in
+      let aelist = List.map (fun x -> annotate_expr x env) elist in
+      let new_type = next_type_var() in
+      AFunCallExpr(ae, aelist, new_type)
+  | ObjAccess(e, s) ->
+      let ae = annotate_expr e env in
+      let new_type = next_type_var() in
+      AObjAccess(ae, s, new_type)
+  | ListAccess(e1, e2) -> 
+      let ae1 = annotate_expr e1 env in
+      let ae2 = annotate_expr e2 env in
+      let new_type = next_type_var() in
+      AListAccess(ae1, ae2, new_type)
+  | ListCreate(exprs) ->
+      let aExprs = List.map (fun x -> annotate_expr x env) exprs in
+      let new_type = next_type_var() in
+      AListCreate(aExprs, TList(new_type))
+  | Sublist(e, eleft, eright) -> 
+  | ObjCreate(props) ->
+  | Binop(e1, op, e2) -> 
+  | Not(e) ->
+
+let rec annotate_assign (e1 : Ast.expr) (e2 : Ast.expr) (env : environment) (must_exist : bool) : Sast.aExpr * Sast.aExpr = 
+  let ae2 = annotate_expr e2 env in
+  match e1 with
+  | Id(x) -> 
+      try
+        let (_, typ) = find_variable env.scope x in
+        (AId(x, false, typ), ae2)
+      with Not_found
+        if must_exist 
+        then 
+          failwith "Invalid assignment."
+        else 
+          let new_typ = next_type_var() in
+          env.scope.variables <- (x, new_typ) :: env.scope.variables; (* side effect *)
+          (AId(x, true, typ), ae2)
+  | ObjAccess(_, _)
+  | ListAccess(_, _) ->
+      let ae1 = annotate_expr e1 env in
+      (ae1, ae2)
+  | _ -> failwith "Invalid assignment."
 
 let rec annotate_stmt (s : Ast.stmt) (env : environment) : Sast.aStmt =
 	match s with
-    Return(expr) -> AReturn(annotate_expr expr env)
+  | Return(expr) -> 
+    match env.cur_func_return_type in
+    | None -> failwith "Invalid return statement."
+    | Some(x) -> 
+        let ae = annotate_expr expr env in
+        AReturn(ae, x)
+  | Assign(e1, e2) -> 
+      let (ae1, ae2) = annotate_assign e1 e2 env false in
+      AAssign(ae1, ae2)
   | If(conds, elsebody) -> 
-  	let aIfFunc = fun cond -> 
-  		let ae = annotate_expr cond.condition env in
-  		let new_env = nest_scope env in
-  		let aBody = annotate_stmts cond.body new_env in
-  		(ae, aBody)
-	in
-	let aElseFunc = fun else -> 
-  		let new_env = nest_scope env in
-  		annotate_stmts cond.body new_env in
-	in
-	match elsebody with
-		Some(x) -> AIf(List.map aIfFunc conds, Some(aElseFunc x))
-		None -> AIf(List.map aIfFunc conds, None)
+	  	let aIfFunc = fun cond -> 
+        let ae = annotate_expr cond.condition env in
+        let scoped_env = nest_scope env in
+        let aBody = annotate_stmts cond.body scoped_env in
+        (ae, aBody)
+      in
+      let aElseFunc = fun else -> 
+      		let scoped_env = nest_scope env in
+      		annotate_stmts cond.body scoped_env in
+      in
+      match elsebody with
+      | Some(x) -> AIf(List.map aIfFunc conds, Some(aElseFunc x))
+      | None -> AIf(List.map aIfFunc conds, None)
   | For(a1, e, a2, body) ->
-      StFor(tree_of_opt tree_of_assign a1,
-        tree_of_opt tree_of_typed_expr e,
-        tree_of_opt tree_of_assign a2,
-        tree_of_stmts body)
-  | While(e, s) -> 
-      StWhile(tree_of_typed_expr e, tree_of_stmts s)
-  | Assign(a) -> StAssign(tree_of_assign a)
-  | FuncCallStmt(e, el) -> 
-      StFuncCallStmt(tree_of_typed_expr e, List.map tree_of_typed_expr el)
+    let scoped_env = nest_scope env in
+    let aa1 = 
+      match a1 with
+      | Some(e1, e2) -> Some(annotate_assign e1 e2 scoped_env false)
+      | None -> None
+    in
+    let ae = match e with
+      | Some(x) -> Some(annotate_expr x scoped_env)
+      | None -> None
+    let aa2 = 
+      match a2 with
+      | Some(e1, e2) -> Some(annotate_assign e1 e2 scoped_env true)
+      | None -> None
+    in
+    let aBody = annotate_stmts body scoped_env in
+    AFor(aa1, ae, aa2, aBody)
+  | While(e, body) -> 
+      let ae = annotate_expr e env
+      let scoped_env = nest_scope env in
+      let aBody = annotate_stmts body scoped_env in
+      AWhile(ae, aBody)
+  | FuncCallStmt(e, elist) -> 
+      let ae = annotate_expr e env in
+      let aelist = List.map (fun x -> annotate_expr x env) elist in
+      AFunCallStmt(ae, aelist)
 
-let annote
-
-let annotate_expr (e : Ast.expr) (env : environment) : Sast.aExpr =
+let rec annotate_stmts (stmts : Ast.stmt list) (env : environment) : Sast.aStmt list =
+  List.map (fun x -> annotate_stmt x env) stmts
+  
+let annotate_program (p : Ast.program) : Sast.aProgram =
+  let env = new_env() in
+  annotate_stmts p env
 
 (* annotate all subexpressions with types *)
 (* bv = stack of bound variables for which current expression is in scope *)
