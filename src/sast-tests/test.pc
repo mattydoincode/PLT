@@ -1,0 +1,8 @@
+fib = (x) -> {
+  if (x < 2) {
+  	return 1;
+  }
+  return x*x;
+};
+
+y = fib(9);

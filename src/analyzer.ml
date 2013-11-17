@@ -28,13 +28,14 @@ let new_env() : environment =
 	let s = { variables = []; parent = None } in
 	{ scope = s; cur_func_return_type = None; }
 
-let rec find_variable (scope : symbol_table) (name : string) : (string * Sast.t) =
+let rec find_variable (scope : symbol_table) (name : string) : Sast.t option =
   try
-    List.find (fun (s, _) -> s = name) scope.variables
+    let (_, typ) = List.find (fun (s, _) -> s = name) scope.variables in
+    Some(typ)
   with Not_found ->
     match scope.parent with
       Some(parent) -> find_variable parent name
-      | _ -> raise Not_found
+      | _ -> None
 
 (*
 
@@ -119,14 +120,18 @@ let rec annotate_expr (e : Ast.expr) (env : environment) : Sast.aExpr =
   | BoolLit(b) -> ABoolLit(b, TBool)
   | CharLit(c) -> ACharLit(c, TChar)
   | Id(s) ->
-      let (_, typ) = find_variable env.scope s in
-      AId(s, false, typ)
+      let typ = find_variable env.scope s in
+      (match typ with
+      | Some(x) -> AId(s, false, x)
+      | None -> failwith ("Unrecognized identifier " ^ s ^ "."))
   | FuncCreate(formals, body) ->
       let new_type = next_type_var() in
       let new_env = new_env() in
       new_env.cur_func_return_type <- Some(new_type);
+      let formals_with_type = List.map (fun x -> (x, next_type_var())) formals in
+      new_env.scope.variables <- formals_with_type @ new_env.scope.variables; (* side effect *)
       let aBody = annotate_stmts body new_env in
-      let formal_types = List.map (fun _ -> next_type_var()) formals in
+      let formal_types = List.map (fun (_, t) -> t) formals_with_type in
       AFuncCreate(formals, aBody, TFunc(formal_types, new_type))
   | FuncCallExpr(e, elist) -> 
       let ae = annotate_expr e env in
@@ -180,10 +185,11 @@ and annotate_assign (e1 : Ast.expr) (e2 : Ast.expr) (env : environment) (must_ex
   let ae2 = annotate_expr e2 env in
   match e1 with
   | Id(x) -> 
-      (try
-        let (_, typ) = find_variable env.scope x in
-        (AId(x, false, typ), ae2)
-      with Not_found ->
+      let typ = find_variable env.scope x in
+      (match typ with
+      | Some(t) -> 
+          (AId(x, false, t), ae2)
+      | None -> 
         if must_exist
         then failwith "Invalid assignment."
         else 

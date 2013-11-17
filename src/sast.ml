@@ -44,7 +44,7 @@ let string_of_opt string_of = function
   | None -> ""
 
 let rec string_of_type = function
-    TVar(s) -> "TVar(" ^ s ^ ")"
+    TVar(s) -> "TVar('" ^ s ^ ")"
   | TFunc(tlist, t) -> "TFunc((" ^ String.concat "," (List.map string_of_type tlist) ^ "), " ^ string_of_type t ^ ")"
   | TList(t) -> "TList(" ^ string_of_type t ^ ")"
   | TObjCreate(props) -> "TObjCreate(" ^ String.concat "," (List.map (fun (s, t) -> s ^ ":" ^ string_of_type t) props) ^ ")"
@@ -60,7 +60,10 @@ let rec string_of_expr = function
     ANumLit(n, t) -> string_of_float n ^ sot t
   | ABoolLit(b, t) -> string_of_bool b ^ sot t
   | ACharLit(c, t) -> "'" ^ Char.escaped c ^ "'" ^ sot t
-  | AId(s, b, t) -> s ^ " [" ^ string_of_bool b ^ ", " ^ string_of_type t ^ "]"
+  | AId(s, b, t) -> 
+    if b 
+    then s ^ " [NEW " ^ string_of_type t ^ "]"
+    else s ^ sot t
   | AFuncCreate(formals, body, t) -> 
       "(" ^ String.concat ", " formals ^ ") -> {\n" ^
       String.concat "" (List.map string_of_stmt body) ^ "\n}" ^ sot t
