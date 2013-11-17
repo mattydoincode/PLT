@@ -18,7 +18,10 @@ let _ =
   let lexbuf = Lexing.from_channel stdin in
   let program = Parser.program Scanner.token lexbuf in
   match action with
-    Ast -> print_string (Ast.string_of_program program)
-  | Sast -> let stree = Sast.tree_of_program program
-           in print_string ("Num Statements: " ^ (string_of_int (List.length stree)) ^ "\n")
-  | Compile -> print_string "not yet!"
+  | Ast -> 
+      print_string (Ast.string_of_program program)
+  | Sast -> 
+      let aProgram = Analyzer.annotate_program program in
+      print_string (Sast.string_of_program aProgram)
+  | Compile -> 
+      print_string "not yet!"

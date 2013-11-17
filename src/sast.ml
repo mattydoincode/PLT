@@ -23,7 +23,7 @@ type aExpr =
   | AListAccess of aExpr * aExpr * t
   | AListCreate of aExpr list * t
   | ASublist of aExpr * aExpr option * aExpr option * t
-  | AObjectCreate of (string * aExpr) list * t
+  | AObjCreate of (string * aExpr) list * t
   | ABinop of aExpr * Ast.op * aExpr * t
   | ANot of aExpr * t
 
@@ -77,7 +77,7 @@ let rec string_of_expr = function
       string_of_expr ae ^ "[" ^ 
       string_of_opt string_of_expr aeleft ^ ":" ^ 
       string_of_opt string_of_expr aeright ^ "]" ^ sot t
-  | AObjectCreate(props, t) ->
+  | AObjCreate(props, t) ->
       "{\n" ^ String.concat ",\n" (List.map (fun prop -> fst prop ^ ": " ^ string_of_expr (snd prop)) props) ^
       "\n}" ^ sot t
   | ABinop(ae1, op, ae2, t) ->
