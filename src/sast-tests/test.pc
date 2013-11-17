@@ -5,4 +5,6 @@ fib = (x) -> {
   return x*x;
 };
 
+// TODO recursive funcs don't work
+
 y = fib(9);
