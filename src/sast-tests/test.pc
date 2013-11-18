@@ -1,10 +1,8 @@
-fib = (x) -> {
+fib = (fib,x) -> {
   if (x < 2) {
   	return 1;
   }
-  return x*x;
+  return fib(x-1)*fib(x-2);
 };
 
-// TODO recursive funcs don't work
-
-y = fib(9);
+y = fib.fib(9); // same as fib(fib, 9)
