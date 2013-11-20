@@ -1,0 +1,22 @@
+fib = (fib,x) -> {
+  if (x < 2) {
+  	return 1;
+  }
+  return fib(x-1)*fib(x-2);
+};
+
+y = fib(fib, 9); // same as fib.fib(9)
+
+d = (d,x) -> {
+  if (x < 2) {
+  	return 1;
+  }
+  return d(x-1)*d(x-2);
+};
+
+r = (r,x) -> {
+  if (x < 2) {
+  	return 1;
+  }
+  return r(x-1)*r(x-2);
+};

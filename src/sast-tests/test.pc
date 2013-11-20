@@ -1,8 +1,0 @@
-fib = (fib,x) -> {
-  if (x < 2) {
-  	return 1;
-  }
-  return fib(x-1)*fib(x-2);
-};
-
-y = fib.fib(9); // same as fib(fib, 9)
