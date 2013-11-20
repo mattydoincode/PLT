@@ -17,7 +17,7 @@ type aExpr =
   | ABoolLit of bool * t
   | ACharLit of char * t
   | AId of string * bool * t
-  | AFuncCreate of string list * aStmt list * t
+  | AFuncCreate of (string * t) list * aStmt list * t
   | AFuncCallExpr of aExpr * aExpr list * t
   | AObjAccess of aExpr * string * t
   | AListAccess of aExpr * aExpr * t
@@ -65,7 +65,7 @@ let rec string_of_expr = function
     then s ^ " [NEW " ^ string_of_type t ^ "]"
     else s ^ sot t
   | AFuncCreate(formals, body, t) -> 
-      "(" ^ String.concat ", " formals ^ ") -> {\n" ^
+      "(" ^ String.concat ", " (List.map (fun x -> fst x ^ sot (snd x)) formals) ^ ") -> {\n" ^
       String.concat "" (List.map string_of_stmt body) ^ "\n}" ^ sot t
   | AFuncCallExpr(ae, ael, t) -> 
       string_of_expr ae ^ "(" ^ 
