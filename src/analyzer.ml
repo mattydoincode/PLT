@@ -130,12 +130,12 @@ let rec annotate_expr (e : Ast.expr) (env : environment) : Sast.aExpr =
   | FuncCreate(formals, body) ->
       let new_type = next_type_var() in
       let new_env = new_env() in
-      new_env.cur_func_return_type <- Some(new_type);
+      new_env.cur_func_return_type <- Some(new_type); (* side effect *)
       let formals_with_type = List.map (fun x -> (x, next_type_var())) formals in
+      let formal_types = List.map (fun (_, t) -> t) formals_with_type in
       new_env.scope.variables <- formals_with_type @ new_env.scope.variables; (* side effect *)
       let aBody = annotate_stmts body new_env in
-      let formal_types = List.map (fun (_, t) -> t) formals_with_type in
-      AFuncCreate(formals, aBody, TFunc(formal_types, new_type))
+      AFuncCreate(formals_with_type, aBody, TFunc(formal_types, new_type))
   | FuncCallExpr(e, elist) -> 
       let ae = annotate_expr e env in
       let aelist = List.map (fun x -> annotate_expr x env) elist in
@@ -144,7 +144,7 @@ let rec annotate_expr (e : Ast.expr) (env : environment) : Sast.aExpr =
   | ObjAccess(e, s) ->
       let ae = annotate_expr e env in
       let new_type = next_type_var() in
-      AObjAccess(ae, s, new_type) (* TODO should i say TObjAccess here? *)
+      AObjAccess(ae, s, new_type)
   | ListAccess(e1, e2) -> 
       let ae1 = annotate_expr e1 env in
       let ae2 = annotate_expr e2 env in
@@ -173,13 +173,13 @@ let rec annotate_expr (e : Ast.expr) (env : environment) : Sast.aExpr =
       then failwith "Duplicate property names on object."
       else
       let aProps = List.map (fun (name, e) -> (name, annotate_expr e env)) props in
-      let types = List.map (fun (name, _) -> (name, next_type_var())) props in
+      let types = List.map (fun (name, ae) -> (name, type_of ae)) aProps in
       AObjCreate(aProps, TObjCreate(types))
   | Binop(e1, op, e2) -> 
       let ae1 = annotate_expr e1 env in
       let ae2 = annotate_expr e2 env in
       let new_type = next_type_var() in
-      ABinop(ae1, op, ae2, new_type) (* TODO should i check cases of op here? *)
+      ABinop(ae1, op, ae2, new_type)
   | Not(e) ->
       let ae = annotate_expr e env in
       ANot(ae, TBool)
@@ -265,7 +265,23 @@ and annotate_stmts (stmts : Ast.stmt list) (env : environment) : Sast.aStmt list
   
 let annotate_program (p : Ast.program) : Sast.aProgram =
   reset_type_vars();
+  let dist_type = next_type_var() in
+  let dist_return_type = next_type_var() in
   let env = new_env() in
+  env.scope.variables <- [
+    ("print", TFunc([TList(TChar)], 
+                    TList(TChar)));
+    ("read", TFunc([],
+                   TList(TList(TChar))));
+    ("printFile", TFunc([TList(TChar); TList(TChar)],
+                        TList(TList(TChar))));
+    ("readFile", TFunc([TList(TChar)],
+                       TList(TList(TChar))));
+    ("download", TFunc([TList(TChar)],
+                       TList(TChar)));
+    ("distribute", TFunc([TList(dist_type); TFunc([dist_type],dist_return_type)], 
+                         TList(dist_return_type)))
+  ];
   annotate_stmts p env
 
 (* TODO BOUND VS FREE VARIABLES *)
