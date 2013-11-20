@@ -1,0 +1,9 @@
+
+- Updates from Alden and Matt
+	- done with annotate and almost collect, next up is unify in HM algorithm
+- Updates from Sireesh
+	- working 
+	- in sast.ml, we need to change function create such that params have types
+- Updates from Kevin
+	- added tests
+	- got scope idea working
