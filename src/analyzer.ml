@@ -82,19 +82,22 @@ and unify (s : (typ * typ) list) : substitution =
 *)
 
 (* INFERENCE *)
-let code1 = ref (Char.code 'a')
-let code2 = ref (Char.code 'a')
+let code1 = ref (Char.code 'A')
+let code2 = ref (Char.code 'A')
 
 let reset_type_vars() = 
-  (code1 := Char.code 'a'; code2 := Char.code 'a')
+  (code1 := Char.code 'A'; code2 := Char.code 'A')
 
 let next_type_var() : Sast.t =
   let c1 = !code1 in
   let c2 = !code2 in
     (
-      if c2 > Char.code 'Z' 
+      if c2 == Char.code 'Z' 
       then (incr code1; code2 := Char.code 'a')
       else incr code2;
+      if c1 >= Char.code 'Z'
+      then code1 := Char.code 'a'
+      else ();
       TVar((Char.escaped (Char.chr c1)) ^ (Char.escaped (Char.chr c2)))
     )
 
@@ -290,7 +293,7 @@ let annotate (e : expr) : aexpr =
   in annotate' e []
 *)
 
-(*
+
 
 (* collect constraints for unification *)
 let rec collect (cprog : aProgram) (u : (Sast.t * Sast.t) list) : (Sast.t * Sast.t) list =
@@ -367,6 +370,32 @@ let rec collect_expr (e : aExpr) (u : (Sast.t * Sast.t) list) : (Sast.t * Sast.t
       match ty with 
       | TList(x) -> List.map (fun m-> (type_of m, x)) members
       | _ -> failwith "not a list!?"
+    | ASublist(mylist, e1, e2, ty) ->
+      let e1_constraints = 
+        match e1 with
+          | Some(x) -> [(type_of e1, TNum)]
+          | None -> []
+      in
+      let e2_constraints = 
+        match e2 with 
+          | Some(x) -> [(type_of e2, TNum)]
+          | None -> []
+      in
+      let list_type = type_of mylist in
+      [(list_type, ty)] @ e1_constraints @ e2_constraints
+    | AObjCreate(props, ty) -> [] (*added in annotate*)
+    | ABinop(e1, op, e2, ty) ->
+      let e1t = type_of e1 in
+      let e2t = type_of e2 in
+      let constraints =
+      match op with
+      | Add | Sub | Mult | Div | Mod -> [(e1t, TNum); (e2t, TNum); (ty, TNum)]
+      | Equal | Neq -> [(e1t,e2t), (ty, TBool)]
+      | Less | Leq | Greater | Geq -> [(e1t, TNum); (e2t, TNum); (ty, TBool)]
+      | Concat -> let new_type = next_type_var() in
+        [(e1t, e2t); (ty, e1t); (ty, TList(new_type))]
+      | And -> | Or -> [(e1t, TBool); (e2t, TBool); (ty, TBool)]
+    | ANot(e, ty) -> [(type_of e, TBool); (ty, TBool)]
 
 (*original collect*)
     [] -> u
@@ -384,4 +413,3 @@ let infer (p : Ast.program) : Sast.aProgram =
   let subs = unify collectedP in
   apply subs (type_of ae)
 
-*)
