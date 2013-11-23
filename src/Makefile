@@ -1,4 +1,4 @@
-OBJS = ast.cmo sast.cmo parser.cmo scanner.cmo analyzer.cmo javaconvert.cmo javacode.cmo pc.cmo
+OBJS = ast.cmo sast.cmo parser.cmo scanner.cmo analyzer.cmo javagen.cmo pc.cmo
 
 TESTS = \
 arith1 \
