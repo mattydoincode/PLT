@@ -101,12 +101,15 @@ let rec unify_one (a : Sast.t) (b : Sast.t) : substitution =
   | (TFunc(params, x), TChar) | (TChar, TFunc(params, x))
   | (TFunc(params, x), TBool) | (TBool, TFunc(params, x)) ->
       failwith "type mismatch function with non-function"
-  | (TList(x), TList(y)) ->
-  | (TList(x), TObjCreate(props)) ->
-  | (TList(x), TObjAccess(prop)) ->
-  | (TList(x), TNum) ->
-  | (TList(x), TChar) ->
-  | (TList(x), TBool) ->
+  | (TList(x), TList(y)) -> 
+      [(x,b)]
+  | (TList(x) as z, TObjAccess(prop)) | (TObjAccess(prop), TList(x) as z)  ->
+      unify_one (snd prop) z
+  | (TList(x), TObjCreate(props)) | (TObjCreate(props), TList(x))
+  | (TList(x), TNum) | (TNum, TList(x))
+  | (TList(x), TChar) | (TChar, TList(x))
+  | (TList(x), TBool) | (TBool, TList(x))->
+      failwith "type mismatch, list with primitive or object"
   | (TObjCreate(props1), TObjCreate(props2)) ->
       if
         List.length props1 = List.props2
