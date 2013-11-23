@@ -1,8 +1,9 @@
 package pubCrawl.core;
 
+import java.io.Serializable;
 import java.util.HashMap;
 
-public class PCObject {
+public class PCObject implements Serializable {
 
     private final HashMap<String, Object> _props = new HashMap<String, Object>();
     private final static String _base = "050FCAC0-610C-4CF6-9CC2-5EA5A40C3155";
@@ -17,8 +18,9 @@ public class PCObject {
         set(_base, b);
     }
 
-    public void set(String key, Object value) {
+    public PCObject set(String key, Object value) {
         _props.put(key, value);
+        return this;
     }
 
     private Object getObj(String key) {
