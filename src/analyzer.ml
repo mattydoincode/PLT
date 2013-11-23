@@ -312,68 +312,22 @@ let annotate (e : expr) : aexpr =
 
 
 (* collect constraints for unification *)
-let rec collect (cprog : aProgram) (u : (Sast.t * Sast.t) list) : (Sast.t * Sast.t) list =
-  collect_stmts cprog u
 
-let rec collect_stmts (stmts : aStmt list) (u : (Sast.t * Sast.t) list) : (Sast.t * Sast.t) list = 
-  List.fold_left (fun l, s-> l @ collect_stmt s) [] stmts
 
-let rec collect_stmt (s : aStmt) : (Sast.t * Sast.t) list =
-  match s with
-    | AReturn(expr, func_return_t) -> 
-        let constraints_from_expr = collect_expr expr [] in
-        (type_of expr,func_return_t) :: (constraints_from_expr)
-    | AIf(conds, the_else) -> 
-        let cond_func = fun list_so_far (ex, stlist) ->
-          let expr_list = (type_of ex, TBool) :: collect_expr ex in
-          let my_list = expr_list @ (collect_stmts stlist) in
-          list_so_far @ my_list
-        in
-        let list_after_ifs = List.fold_left cond_func [] conds in
-        let list_after_cond = list_after_ifs @ collect_stmts the_else in
-        list_after_cond @ u
-    | AFor(assign1, e, assign2, stmts) -> 
-      let list_from_a1 = 
-        match assign1 with
-            None -> []
-          | Some(e1, e2) -> collect_stmt AAssign(e1, e2)
-        in
-      let list_from_a2 = 
-        match assign2 with
-            None -> []
-          | Some(e1, e2) -> collect_stmt AAssign(e1, e2)
-        in
-      let list_from_e = 
-        match e with
-            None -> []
-          | Some(ex) -> (type_of ex, TBool) :: collect_expr ex
-        in
-      let list_from_topbit = list_from_a1 @ list_from_a2 @ list_from_e in
-      list_from_topbit @ collect_stmts stmts
-    | AWhile(expr, stmts) -> 
-      let list_from_expr = (type_of expr, TBool) :: collect_expr expr in
-      list_from_expr @ collect_stmts stmts
-    | AAssign(lhs, rhs) -> (type_of lhs, type_of rhs) :: (collect_expr lhs @ collect_expr rhs)
-    | AFuncCallStmt (fExpr, params) -> 
-      let ftype = type_of fExpr in
-      let constraint_list = 
-        match ftype with
-          | TFunc(tlist, _) -> List.map2 (fun p b -> (type_of p, b)) params tlist 
-          | _ -> failwith "type of function is incorrect"
-        in
-      constraint_list @ List.map (fun p -> collect_expr p) params @ collect_expr fExpr
 
-let rec collect_expr (e : aExpr) (u : (Sast.t * Sast.t) list) : (Sast.t * Sast.t) list = 
+let rec collect_expr (e : Sast.aExpr) : (Sast.t * Sast.t) list = 
   match e with 
     | ANumLit(num, ty) -> []
     | ABoolLit(boo, ty) -> []
     | ACharLit(c, ty) ->   []
+
     | AId(name, seenBefore, ty) -> []
     | AFuncCreate(params, body, ty) -> collect_stmts body
+
     | AFuncCallExpr(fExpr, params, ty) -> 
       let ftype = type_of fExpr in
       let myCreatedType = TFunc(List.map (fun p-> type_of p) params, ty) in
-      (myCreatedType, ftype) :: (List.map (fun p -> collect_expr p) params @ collect_expr fExpr)
+      [(myCreatedType, ftype)] @ (List.fold_left (fun l p -> l@ collect_expr p) [] params) @ collect_expr fExpr
     | AObjAccess(oExpr, name, ty) -> 
       let oType = type_of oExpr in
       [(oType, TObjAccess(name, ty))]
@@ -383,49 +337,108 @@ let rec collect_expr (e : aExpr) (u : (Sast.t * Sast.t) list) : (Sast.t * Sast.t
       [(list_type, TList(return_type));(idx_type,TNum)]
     | AListCreate(members, ty) -> 
       (*all must be same*)
-      match ty with 
+      (match ty with 
       | TList(x) -> List.map (fun m-> (type_of m, x)) members
-      | _ -> failwith "not a list!?"
+      | _ -> failwith "not a list!?")
+    
     | ASublist(mylist, e1, e2, ty) ->
       let e1_constraints = 
         match e1 with
-          | Some(x) -> [(type_of e1, TNum)]
+          | Some(x) -> [(type_of x, TNum)]
           | None -> []
       in
       let e2_constraints = 
         match e2 with 
-          | Some(x) -> [(type_of e2, TNum)]
+          | Some(x) -> [(type_of x, TNum)]
           | None -> []
       in
       let list_type = type_of mylist in
       [(list_type, ty)] @ e1_constraints @ e2_constraints
+      
     | AObjCreate(props, ty) -> [] (*added in annotate*)
     | ABinop(e1, op, e2, ty) ->
       let e1t = type_of e1 in
       let e2t = type_of e2 in
-      let constraints =
-      match op with
+      (match op with
       | Add | Sub | Mult | Div | Mod -> [(e1t, TNum); (e2t, TNum); (ty, TNum)]
-      | Equal | Neq -> [(e1t,e2t), (ty, TBool)]
+      | Equal | Neq -> [(e1t,e2t); (ty, TBool)]
       | Less | Leq | Greater | Geq -> [(e1t, TNum); (e2t, TNum); (ty, TBool)]
       | Concat -> let new_type = next_type_var() in
         [(e1t, e2t); (ty, e1t); (ty, TList(new_type))]
-      | And -> | Or -> [(e1t, TBool); (e2t, TBool); (ty, TBool)]
+      | And | Or -> [(e1t, TBool); (e2t, TBool); (ty, TBool)])
     | ANot(e, ty) -> [(type_of e, TBool); (ty, TBool)]
 
-(*original collect*)
+and collect_stmt (s : aStmt) : (Sast.t * Sast.t) list =
+  match s with
+    | AReturn(expr, func_return_t) -> 
+        let constraints_from_expr = collect_expr expr in
+        (type_of expr,func_return_t) :: (constraints_from_expr)
+    | AIf(conds, the_else) -> 
+        let cond_func = fun list_so_far (ex, stlist) ->
+          let expr_list = (type_of ex, TBool) :: collect_expr ex in
+          let my_list = expr_list @ (collect_stmts stlist) in
+          list_so_far @ my_list
+        in
+        let list_after_ifs = List.fold_left cond_func [] conds in
+        let list_after_cond = (match the_else with
+          | Some(x) -> list_after_ifs @ collect_stmts x
+          | None -> [])
+        in
+        list_after_cond @ list_after_ifs
+    | AFor(assign1, e, assign2, stmts) ->
+      let list_from_a1 = 
+        (match assign1 with
+          | None -> []
+          | Some(e1, e2) -> 
+            let aa = AAssign(e1, e2) in
+            collect_stmt aa)
+        in
+      let list_from_a2 = 
+        (match assign2 with
+          | None -> []
+          | Some(e1, e2) -> 
+            let aa = AAssign(e1, e2) in
+            collect_stmt aa)
+        in
+      let list_from_e = 
+        match e with
+            None -> []
+          | Some(ex) -> (type_of ex, TBool) :: collect_expr ex
+        in
+      let list_from_topbit = list_from_a1 @ list_from_a2 @ list_from_e in
+      list_from_topbit @ (collect_stmts stmts)
+    | AWhile(expr, stmts) -> 
+      let list_from_expr = (type_of expr, TBool) :: collect_expr expr in
+      list_from_expr @ collect_stmts stmts
+    | AAssign(lhs, rhs) -> (type_of lhs, type_of rhs) :: (collect_expr lhs @ collect_expr rhs)
+    | AFuncCallStmt (fExpr, params) -> 
+      let ftype = type_of fExpr in
+      let myCreatedType = TFunc(List.map (fun p-> type_of p) params, next_type_var()) in
+      [(myCreatedType, ftype)] @ (List.fold_left (fun l p -> l @ collect_expr p) [] params) @ collect_expr fExpr
+
+and collect_stmts (stmts : Sast.aStmt list) : (Sast.t * Sast.t) list = 
+ List.fold_left (fun l s -> l @ (collect_stmt s)) [] stmts
+
+let collect (cprog : Sast.aProgram) : (Sast.t * Sast.t) list =
+  collect_stmts cprog
+
+
+(*and annotate_stmts (stmts : Ast.stmt list) (env : environment) : Sast.aStmt list =*)
+
+
+(*original collect
     [] -> u
   | AVar (_, _) :: r -> collect r u
   | AFun (_, ae, _) :: r -> collect (ae :: r) u
   | AFunCall (ae1, ae2, a) :: r ->
       let (f, b) = (type_of ae1, type_of ae2) in
-      collect (ae1 :: ae2 :: r) ((f, Arrow (b, a)) :: u)
+      collect (ae1 :: ae2 :: r) ((f, Arrow (b, a)) :: u)*)
 
 (* collect the constraints and perform unification *)
-let infer (p : Ast.program) : Sast.aProgram =
+(*let infer (p : Ast.program) : Sast.aProgram =
   reset_type_vars();
   let annotatedP = annotate p in
   let collectedP = collect [annotatedP] [] in
   let subs = unify collectedP in
-  apply subs (type_of ae)
+  apply subs (type_of ae)*)
 
