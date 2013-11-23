@@ -75,23 +75,32 @@ let apply (s : substitution) (typ : Sast.t) : Sast.t =
   List.fold_right (fun (x, e) -> subst e x) s typ
 
 (* unify one pair *)
-let rec unify_one (s : Sast.t) (typ : Sast.t) : substitution =
-  match (s, typ) with
-  | (TVar(x), TVar(y)) -> if x = y then [] else [(x, typ)]
-  | (TVar(x), TFunc(params, y)) -> 
-  | (TVar(x), TList(y)) -> 
-  | (TVar(x), TObjCreate(props)) -> 
-  | (TVar(x), TObjAccess(prop)) -> 
-  | (TVar(x), TNum) -> 
-  | (TVar(x), TChar) -> 
-  | (TVar(x), TBool) -> 
+let rec unify_one (a : Sast.t) (b : Sast.t) : substitution =
+  match (a, b) with
+  | (TVar(x), TVar(y)) -> 
+      if x = y then [] else [(x, b)]
+  | (TVar(x), TFunc(params, y) as z) | (TFunc(params, y) as z, TVar(x))
+  | (TVar(x), TList(y) as z) | (TList(y) as z, TVar(x))
+  | (TVar(x), TObjCreate(props) as z) | (TObjCreate(props) as z,TVar(x))
+  | (TVar(x), TObjAccess(prop) as z) | (TObjAccess(prop) as z, TVar(x))
+  | (TVar(x), TNum as z) | (TNum as z, TVar(x))
+  | (TVar(x), TChar as z) | (TChar as z, TVar(x))
+  | (TVar(x), TBool as z) | (TBool as z, TVar(x)) ->
+      [(x, z)]
   | (TFunc(params1, x), TFunc(params2, y)) ->
-  | (TFunc(params1, x), TList(y)) ->
-  | (TFunc(params, x), TObjCreate(props)) ->
-  | (TFunc(params, x), TObjAccess(prop)) ->
-  | (TFunc(params, x), TNum) ->
-  | (TFunc(params, x), TChar) ->
-  | (TFunc(params, x), TBool) ->
+      if 
+        List.length params1 = List.length params2
+      then
+        unify (x,y)::(List.map2 (fun u v -> (u,v)) params1 params2)
+      else
+        failwith "# of parameters not the same"
+  | (TFunc(params1, x), TList(y)) | (TList(y), TFunc(params1, x))
+  | (TFunc(params, x), TObjCreate(props)) | (TObjCreate(props), TFunc(params, x)) 
+  | (TFunc(params, x), TObjAccess(prop)) | (TObjAccess(prop), TFunc(params, x))
+  | (TFunc(params, x), TNum) | (TNum, TFunc(params, x))
+  | (TFunc(params, x), TChar) | (TChar, TFunc(params, x))
+  | (TFunc(params, x), TBool) | (TBool, TFunc(params, x)) ->
+      failwith "type mismatch function with non-function"
   | (TList(x), TList(y)) ->
   | (TList(x), TObjCreate(props)) ->
   | (TList(x), TObjAccess(prop)) ->
