@@ -108,11 +108,13 @@ let rec unify_one (a : Sast.t) (b : Sast.t) : substitution =
   | (TList(x), TChar) ->
   | (TList(x), TBool) ->
   | (TObjCreate(props1), TObjCreate(props2)) ->
-      if
-        List.length props1 = List.props2
-      then
-      else
-        failwith "Type mismatch: "
+      let mapper = fun prop1 -> 
+        let found = List.find (fun prop2 -> (fst prop1) = (fst prop2)) props2 in
+        ((snd prop1), (snd found))
+        with Not_found ->
+          failwith "Type mistmatch: Property from one Object not found on other Object."
+      in
+      unify (List.map mapper props1)
   | (TObjCreate(props), TObjAccess(prop)) | (TObjAccess(prop), TObjCreate(props)) ->
       let found = List.find (fun cProp -> (fst cProp) = (fst prop)) props in
         unify_one (snd found) (snd prop)
