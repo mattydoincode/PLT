@@ -425,6 +425,13 @@ let rec unify_one (a : Sast.t) (b : Sast.t) : substitution =
       in
       (try
       let pairs = List.map2 (fun u v -> (u,v)) params1 params2 in
+
+        (* 
+        params1 TVar('AD), TVar('AE)
+        AD <=> TList(TVar('AF))
+        params2 TList(TVar('AH)), TNum
+        *)
+
         unify_special ((x,y)::pairs)
       with Invalid_argument(_) ->
         failwith "Type mismatch: # of parameters not the same.")
@@ -506,13 +513,14 @@ let rec unify_one (a : Sast.t) (b : Sast.t) : substitution =
 
 (* unify a list of pairs *)
 and unify (s : (Sast.t * Sast.t) list) : substitution =
-  match s with
+  let newS = List.rev s in
+  match newS with
   | [] -> []
   | (x, y) :: tl ->
       let t2 = unify tl in
       let t1 = unify_one (apply t2 x) (apply t2 y) in
       let result = List.map (fun (name, typ) -> (name, apply t1 typ)) t2 in
-      t1 @ result
+      t1 @ t2
 
 (*
 (s : substitution) (typ : Sast.t) : Sast.t
