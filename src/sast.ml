@@ -4,6 +4,7 @@ include Ast
 type t = 
     TVar of string
   | TFunc of t list * t
+  | TFuncCall of t list * t
   | TList of t
   | TObjCreate of (string * t) list
   | TObjAccess of string * t
@@ -46,6 +47,7 @@ let string_of_opt string_of = function
 let rec string_of_type = function
     TVar(s) -> "TVar('" ^ s ^ ")"
   | TFunc(tlist, t) -> "TFunc((" ^ String.concat "," (List.map string_of_type tlist) ^ "), " ^ string_of_type t ^ ")"
+  | TFuncCall(tlist, t) -> "TFuncCall((" ^ String.concat "," (List.map string_of_type tlist) ^ "), " ^ string_of_type t ^ ")"
   | TList(t) -> "TList(" ^ string_of_type t ^ ")"
   | TObjCreate(props) -> "TObjCreate(" ^ String.concat "," (List.map (fun (s, t) -> s ^ ":" ^ string_of_type t) props) ^ ")"
   | TObjAccess(s, t) -> "TObjAccess(" ^ s ^ ":" ^ string_of_type t ^ ")"
@@ -54,7 +56,7 @@ let rec string_of_type = function
   | TBool -> "TBool"
 
 let sot typ =
-  " [" ^ string_of_type typ ^ "]"
+  " [" ^ string_of_type typ ^ "]\n"
 
 let rec string_of_expr = function
     ANumLit(n, t) -> string_of_float n ^ sot t

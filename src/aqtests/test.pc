@@ -15,8 +15,10 @@ print((a, b) -> {
 
 */
 
-
-
-print((a, b) -> {
+// List(x), num -> List(x)
+myFunc = (a, b) -> {
 	return a[1:b];
-}("hey dude", 2));
+};
+
+// x is List(TChar)
+x = myFunc("hey dude", 2);
