@@ -75,9 +75,9 @@ let apply (s : substitution) (typ : Sast.t) : Sast.t =
   List.fold_right (fun (x, e) -> subst e x) s typ
 
 (* unify one pair *)
-let rec unify_one (s : Sast.t) (typ : Sast.t) : substitution =
-  match (s, typ) with
-  | (TVar(x), TVar(y)) -> if x = y then [] else [(x, typ)]
+let rec unify_one (a : Sast.t) (b : Sast.t) : substitution =
+  match (a, b) with
+  | (TVar(x), TVar(y)) -> if x = y then [] else [(x, b)]
   | (TVar(x), TFunc(params, y)) -> 
   | (TVar(x), TList(y)) -> 
   | (TVar(x), TObjCreate(props)) -> 
@@ -99,21 +99,31 @@ let rec unify_one (s : Sast.t) (typ : Sast.t) : substitution =
   | (TList(x), TChar) ->
   | (TList(x), TBool) ->
   | (TObjCreate(props1), TObjCreate(props2)) ->
-  | (TObjCreate(props), TObjAccess(prop)) ->
-  | (TObjCreate(props), TNum) ->
-  | (TObjCreate(props), TChar) ->
-  | (TObjCreate(props), TBool) ->
+      if
+        List.length props1 = List.props2
+      then
+      else
+        failwith "Type mismatch: "
+  | (TObjCreate(props), TObjAccess(prop)) | (TObjAccess(prop), TObjCreate(props)) ->
+      let found = List.find (fun cProp -> (fst cProp) = (fst prop)) props in
+        unify_one (snd found) (snd prop)
+      with Not_found -> 
+        failwith "Type mistmatch: Property does not exist on Object."
+  | (TObjCreate(props), TNum)  | (TNum, TObjCreate(props))
+  | (TObjCreate(props), TChar) | (TChar, TObjCreate(props))
+  | (TObjCreate(props), TBool) | (TBool, TObjCreate(props)) ->
+      failwith "Type mistmatch: Object and Primitive."
   | (TObjAccess(prop1), TObjAccess(prop2)) ->
-  | (TObjAccess(prop), TObjAccess(prop2)) ->
-  | (TObjAccess(prop), TNum) ->
-  | (TObjAccess(prop), TChar) ->
-  | (TObjAccess(prop), TBool) ->
-  | (TNum, TNum) ->
-  | (TNum, TChar) ->
-  | (TNum, TBool) ->
-  | (TChar, TChar) ->
-  | (TChar, TBool) ->
-  | (TBool, TBool) ->
+      unify_one (snd prop1) (snd prop2)
+  | (TObjAccess(prop), TNum as z)  | (TNum as z, TObjAccess(prop))
+  | (TObjAccess(prop), TChar as z) | (TChar as z, TObjAccess(prop))
+  | (TObjAccess(prop), TBool as z) | (TBool as z, TObjAccess(prop)) ->
+      unify_one (snd prop) z
+  | (TNum, TChar) | (TNum, TBool) | (TChar, TBool)
+  | (TChar, TNum) | (TBool, TNum) | (TBool, TChar) ->
+      failwith "Type mismatch: Primitive and Primitive."
+  | (TNum, TNum) | (TChar, TChar) | (TBool, TBool) -> 
+      []
 
 
 (*
