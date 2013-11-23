@@ -37,33 +37,62 @@ let rec find_variable (scope : symbol_table) (name : string) : Sast.t option =
       Some(parent) -> find_variable parent name
       | _ -> None
 
-(*
+
+
+
 
 (* UNIFICATION *)
 (* invariant for substitutions: no id on a lhs occurs in any term earlier  *)
 (* in the list                                                             *)
-type substitution = (id * typ) list
+type substitution = (string * Sast.t) list
 
 (* check if a variable occurs in a term *)
-let rec occurs (x : id) (t : typ) : bool =
-  match t with
-  | TVar y -> x = y
-  | Arrow (u, v) -> occurs x u || occurs x v
+let rec occurs (x : string) (typ : Sast.t) : bool =
+  match typ with
+  | TVar(name) -> x = name
+  | TFunc(params, y) -> List.exists (fun param -> occurs x param) params || occurs x y
+  | TObjCreate(props) -> List.exists (fun prop -> occurs x (snd prop)) props
+  | TObjAccess(prop) -> occurs x (snd prop)
+  | TNum -> false
+  | TChar -> false
+  | TBool -> false
 
 (* substitute term s for all occurrences of var x in term t *)
-let rec subst (s : typ) (x : id) (t : typ) : typ =
-  match t with
-  | TVar y -> if x = y then s else t
-  | Arrow (u, v) -> Arrow (subst s x u, subst s x v)
+let rec subst (s : Sast.t) (x : string) (typ : Sast.t) : Sast.t =
+  match typ with
+  | TVar(name) -> if x = name then s else typ
+  | TFunc(params, y) -> TFunc(List.map (fun param -> subst s x param) params, subst s x y)
+  | TObjCreate(props) -> TObjCreate(List.map (fun prop -> (fst prop, subs s x (snd prop))) props)
+  | TObjAccess(prop) -> TObjAccess(fst prop, subst s x (snd prop))
+  | TNum -> typ
+  | TChar -> typ
+  | TBool -> typ
 
 (* apply a substitution to t right to left *)
-let apply (s : substitution) (t : typ) : typ =
-  List.fold_right (fun (x, e) -> subst e x) s t
+let apply (s : substitution) (typ : Sast.t) : Sast.t =
+  List.fold_right (fun (x, e) -> subst e x) s typ
 
 (* unify one pair *)
-let rec unify_one (s : typ) (t : typ) : substitution =
-  match (s, t) with
-  | (TVar x, TVar y) -> if x = y then [] else [(x, t)]
+let rec unify_one (s : Sast.t) (typ : Sast.t) : substitution =
+  match (s, typ) with
+  | (TVar(x), TVar(y)) -> 
+  | (TVar(x), TFunc(params, y)) -> 
+  | (TVar(x), TVar(y)) -> 
+  | (TVar(x), TVar(y)) -> 
+  | (TVar(x), TVar(y)) -> 
+  | (TVar(x), TVar(y)) -> 
+  | (TVar(x), TVar(y)) -> 
+  | (TVar(x), TVar(y)) -> 
+  | (TVar(x), TVar(y)) -> 
+  | TFunc(params, y) -> TFunc(List.map (fun param -> subst s x param) params, subst s x y)
+  | TObjCreate(props) -> TObjCreate(List.map (fun prop -> (fst prop, subs s x (snd prop))) props)
+  | TObjAccess(prop) -> TObjAccess(fst prop, subst s x (snd prop))
+  | TNum -> typ
+  | TChar -> typ
+  | TBool -> typ
+
+
+  | (TVar x, TVar y) -> if x = y then [] else [(x, typ)]
   | (Arrow (x, y), Arrow (u, v)) -> unify [(x, u); (y, v)]
   | ((TVar x, (Arrow (u, v) as z)) | ((Arrow (u, v) as z), TVar x)) ->
       if occurs x z
@@ -71,15 +100,17 @@ let rec unify_one (s : typ) (t : typ) : substitution =
       else [(x, z)]
 
 (* unify a list of pairs *)
-and unify (s : (typ * typ) list) : substitution =
+and unify (s : (Sast.t * Sast.t) list) : substitution =
   match s with
   | [] -> []
-  | (x, y) :: t ->
-      let t2 = unify t in
+  | (x, y) :: tl ->
+      let t2 = unify tl in
       let t1 = unify_one (apply t2 x) (apply t2 y) in
       t1 @ t2
 
-*)
+
+
+
 
 (* INFERENCE *)
 let code1 = ref (Char.code 'a')
