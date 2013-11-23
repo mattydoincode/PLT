@@ -132,3 +132,8 @@ let string_of_program prog =
 let string_of_collect (l : (t * t) list) =  
   String.concat "\n" (List.map (fun g -> string_of_type (fst g) ^ "  " ^ string_of_type (snd g)) l)
 
+let string_of_subst (s : (string * t) list) =
+  String.concat "\n" (List.map (fun g -> (fst g) ^ "  " ^ string_of_type (snd g)) s)
+
+
+
