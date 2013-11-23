@@ -51,6 +51,7 @@ let rec occurs (x : string) (typ : Sast.t) : bool =
   match typ with
   | TVar(name) -> x = name
   | TFunc(params, y) -> List.exists (fun param -> occurs x param) params || occurs x y
+  | TList(y) -> occurs x y
   | TObjCreate(props) -> List.exists (fun prop -> occurs x (snd prop)) props
   | TObjAccess(prop) -> occurs x (snd prop)
   | TNum -> false
@@ -62,6 +63,7 @@ let rec subst (s : Sast.t) (x : string) (typ : Sast.t) : Sast.t =
   match typ with
   | TVar(name) -> if x = name then s else typ
   | TFunc(params, y) -> TFunc(List.map (fun param -> subst s x param) params, subst s x y)
+  | TList(y) -> TList(subst s x y)
   | TObjCreate(props) -> TObjCreate(List.map (fun prop -> (fst prop, subs s x (snd prop))) props)
   | TObjAccess(prop) -> TObjAccess(fst prop, subst s x (snd prop))
   | TNum -> typ
@@ -75,29 +77,55 @@ let apply (s : substitution) (typ : Sast.t) : Sast.t =
 (* unify one pair *)
 let rec unify_one (s : Sast.t) (typ : Sast.t) : substitution =
   match (s, typ) with
-  | (TVar(x), TVar(y)) -> 
+  | (TVar(x), TVar(y)) -> if x = y then [] else [(x, typ)]
   | (TVar(x), TFunc(params, y)) -> 
-  | (TVar(x), TVar(y)) -> 
-  | (TVar(x), TVar(y)) -> 
-  | (TVar(x), TVar(y)) -> 
-  | (TVar(x), TVar(y)) -> 
-  | (TVar(x), TVar(y)) -> 
-  | (TVar(x), TVar(y)) -> 
-  | (TVar(x), TVar(y)) -> 
-  | TFunc(params, y) -> TFunc(List.map (fun param -> subst s x param) params, subst s x y)
-  | TObjCreate(props) -> TObjCreate(List.map (fun prop -> (fst prop, subs s x (snd prop))) props)
-  | TObjAccess(prop) -> TObjAccess(fst prop, subst s x (snd prop))
-  | TNum -> typ
-  | TChar -> typ
-  | TBool -> typ
+  | (TVar(x), TList(y)) -> 
+  | (TVar(x), TObjCreate(props)) -> 
+  | (TVar(x), TObjAccess(prop)) -> 
+  | (TVar(x), TNum) -> 
+  | (TVar(x), TChar) -> 
+  | (TVar(x), TBool) -> 
+  | (TFunc(params1, x), TFunc(params2, y)) ->
+  | (TFunc(params1, x), TList(y)) ->
+  | (TFunc(params, x), TObjCreate(props)) ->
+  | (TFunc(params, x), TObjAccess(prop)) ->
+  | (TFunc(params, x), TNum) ->
+  | (TFunc(params, x), TChar) ->
+  | (TFunc(params, x), TBool) ->
+  | (TList(x), TList(y)) ->
+  | (TList(x), TObjCreate(props)) ->
+  | (TList(x), TObjAccess(prop)) ->
+  | (TList(x), TNum) ->
+  | (TList(x), TChar) ->
+  | (TList(x), TBool) ->
+  | (TObjCreate(props1), TObjCreate(props2)) ->
+  | (TObjCreate(props), TObjAccess(prop)) ->
+  | (TObjCreate(props), TNum) ->
+  | (TObjCreate(props), TChar) ->
+  | (TObjCreate(props), TBool) ->
+  | (TObjAccess(prop1), TObjAccess(prop2)) ->
+  | (TObjAccess(prop), TObjAccess(prop2)) ->
+  | (TObjAccess(prop), TNum) ->
+  | (TObjAccess(prop), TChar) ->
+  | (TObjAccess(prop), TBool) ->
+  | (TNum, TNum) ->
+  | (TNum, TChar) ->
+  | (TNum, TBool) ->
+  | (TChar, TChar) ->
+  | (TChar, TBool) ->
+  | (TBool, TBool) ->
 
 
+(*
   | (TVar x, TVar y) -> if x = y then [] else [(x, typ)]
   | (Arrow (x, y), Arrow (u, v)) -> unify [(x, u); (y, v)]
   | ((TVar x, (Arrow (u, v) as z)) | ((Arrow (u, v) as z), TVar x)) ->
       if occurs x z
       then failwith "not unifiable: circularity"
       else [(x, z)]
+*)
+
+
 
 (* unify a list of pairs *)
 and unify (s : (Sast.t * Sast.t) list) : substitution =
