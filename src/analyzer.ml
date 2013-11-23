@@ -53,7 +53,7 @@ let rec occurs (x : string) (typ : Sast.t) : bool =
   | TFunc(params, y) -> List.exists (fun param -> occurs x param) params || occurs x y
   | TList(y) -> occurs x y
   | TObjCreate(props) -> List.exists (fun prop -> occurs x (snd prop)) props
-  | TObjAccess(prop) -> occurs x (snd prop)
+  | TObjAccess(_, y) -> occurs x y
   | TNum -> false
   | TChar -> false
   | TBool -> false
@@ -64,8 +64,8 @@ let rec subst (s : Sast.t) (x : string) (typ : Sast.t) : Sast.t =
   | TVar(name) -> if x = name then s else typ
   | TFunc(params, y) -> TFunc(List.map (fun param -> subst s x param) params, subst s x y)
   | TList(y) -> TList(subst s x y)
-  | TObjCreate(props) -> TObjCreate(List.map (fun prop -> (fst prop, subs s x (snd prop))) props)
-  | TObjAccess(prop) -> TObjAccess(fst prop, subst s x (snd prop))
+  | TObjCreate(props) -> TObjCreate(List.map (fun prop -> (fst prop, subst s x (snd prop))) props)
+  | TObjAccess(name, y) -> TObjAccess(name, subst s x y)
   | TNum -> typ
   | TChar -> typ
   | TBool -> typ
@@ -79,77 +79,73 @@ let rec unify_one (a : Sast.t) (b : Sast.t) : substitution =
   match (a, b) with
   | (TVar(x), TVar(y)) -> 
       if x = y then [] else [(x, b)]
-  | (TVar(x), TFunc(params, y) as z) | (TFunc(params, y) as z, TVar(x))
-  | (TVar(x), TList(y) as z) | (TList(y) as z, TVar(x))
-  | (TVar(x), TObjCreate(props) as z) | (TObjCreate(props) as z,TVar(x))
-  | (TVar(x), TObjAccess(prop) as z) | (TObjAccess(prop) as z, TVar(x))
-  | (TVar(x), TNum as z) | (TNum as z, TVar(x))
-  | (TVar(x), TChar as z) | (TChar as z, TVar(x))
-  | (TVar(x), TBool as z) | (TBool as z, TVar(x)) ->
+  | (TVar(x), (TFunc(_, _) as z))      | ((TFunc(_, _) as z), TVar(x))
+  | (TVar(x), (TList(_) as z))         | ((TList(_) as z), TVar(x))
+  | (TVar(x), (TObjCreate(_) as z))    | ((TObjCreate(_) as z), TVar(x))
+  | (TVar(x), (TObjAccess(_, _) as z)) | ((TObjAccess(_, _) as z), TVar(x))
+  | (TVar(x), (TNum as z))             | ((TNum as z), TVar(x))
+  | (TVar(x), (TChar as z))            | ((TChar as z), TVar(x))
+  | (TVar(x), (TBool as z))            | ((TBool as z), TVar(x)) ->
       [(x, z)]
   | (TFunc(params1, x), TFunc(params2, y)) ->
-      if 
-        List.length params1 = List.length params2
-      then
-        unify (x,y)::(List.map2 (fun u v -> (u,v)) params1 params2)
-      else
-        failwith "# of parameters not the same"
-  | (TFunc(params1, x), TList(y)) | (TList(y), TFunc(params1, x))
-  | (TFunc(params, x), TObjCreate(props)) | (TObjCreate(props), TFunc(params, x)) 
-  | (TFunc(params, x), TObjAccess(prop)) | (TObjAccess(prop), TFunc(params, x))
-  | (TFunc(params, x), TNum) | (TNum, TFunc(params, x))
-  | (TFunc(params, x), TChar) | (TChar, TFunc(params, x))
-  | (TFunc(params, x), TBool) | (TBool, TFunc(params, x)) ->
-      failwith "type mismatch function with non-function"
+      (try
+      let pairs = List.map2 (fun u v -> (u,v)) params1 params2 in
+        unify ((x,y)::pairs)
+      with Invalid_argument(_) ->
+        failwith "Type mismatch: # of parameters not the same.")
+  | (TFunc(_, _), TList(_))         | (TList(_), TFunc(_, _)) ->
+      failwith "Type mismatch: function with list."
+  | (TFunc(_, _), TObjCreate(_))    | (TObjCreate(_), TFunc(_, _)) ->
+      failwith "Type mismatch: function with object."
+  | ((TFunc(_, _) as z), TObjAccess(_, y)) | (TObjAccess(_, y), (TFunc(_, _) as z)) ->
+      unify_one y z
+  | (TFunc(_, _), TNum)             | (TNum, TFunc(_, _))
+  | (TFunc(_, _), TChar)            | (TChar, TFunc(_, _))
+  | (TFunc(_, _), TBool)            | (TBool, TFunc(_, _)) ->
+      failwith "Type mismatch: function with primitive."
   | (TList(x), TList(y)) -> 
-      [(x,b)]
-  | (TList(x) as z, TObjAccess(prop)) | (TObjAccess(prop), TList(x) as z)  ->
-      unify_one (snd prop) z
-  | (TList(x), TObjCreate(props)) | (TObjCreate(props), TList(x))
-  | (TList(x), TNum) | (TNum, TList(x))
-  | (TList(x), TChar) | (TChar, TList(x))
-  | (TList(x), TBool) | (TBool, TList(x))->
-      failwith "type mismatch, list with primitive or object"
+      unify_one x y
+  | ((TList(_) as z), TObjAccess(_, y)) | (TObjAccess(_, y), (TList(_) as z))  ->
+      unify_one y z
+  | (TList(_), TObjCreate(_)) | (TObjCreate(_), TList(_)) ->
+      failwith "Type mismatch: list with object."
+  | (TList(_), TNum)          | (TNum, TList(_))
+  | (TList(_), TChar)         | (TChar, TList(_))
+  | (TList(_), TBool)         | (TBool, TList(_))->
+      failwith "Type mismatch: list with primitive."
   | (TObjCreate(props1), TObjCreate(props2)) ->
       let mapper = fun prop1 -> 
+        try
         let found = List.find (fun prop2 -> (fst prop1) = (fst prop2)) props2 in
-        ((snd prop1), (snd found))
+          ((snd prop1), (snd found))
         with Not_found ->
-          failwith "Type mistmatch: Property from one Object not found on other Object."
+          failwith "Type mistmatch: object with object."
       in
       unify (List.map mapper props1)
-  | (TObjCreate(props), TObjAccess(prop)) | (TObjAccess(prop), TObjCreate(props)) ->
-      let found = List.find (fun cProp -> (fst cProp) = (fst prop)) props in
-        unify_one (snd found) (snd prop)
+  | (TObjCreate(props), TObjAccess(name, y)) | (TObjAccess(name, y), TObjCreate(props)) ->
+      (try
+      let found = List.find (fun cProp -> (fst cProp) = name) props in
+        unify_one (snd found) y
       with Not_found -> 
-        failwith "Type mistmatch: Property does not exist on Object."
-  | (TObjCreate(props), TNum)  | (TNum, TObjCreate(props))
-  | (TObjCreate(props), TChar) | (TChar, TObjCreate(props))
-  | (TObjCreate(props), TBool) | (TBool, TObjCreate(props)) ->
-      failwith "Type mistmatch: Object and Primitive."
-  | (TObjAccess(prop1), TObjAccess(prop2)) ->
-      unify_one (snd prop1) (snd prop2)
-  | (TObjAccess(prop), TNum as z)  | (TNum as z, TObjAccess(prop))
-  | (TObjAccess(prop), TChar as z) | (TChar as z, TObjAccess(prop))
-  | (TObjAccess(prop), TBool as z) | (TBool as z, TObjAccess(prop)) ->
-      unify_one (snd prop) z
-  | (TNum, TChar) | (TNum, TBool) | (TChar, TBool)
-  | (TChar, TNum) | (TBool, TNum) | (TBool, TChar) ->
-      failwith "Type mismatch: Primitive and Primitive."
-  | (TNum, TNum) | (TChar, TChar) | (TBool, TBool) -> 
+        failwith "Type mistmatch: property does not exist on object.")
+  | (TObjCreate(_), TNum)  | (TNum, TObjCreate(_))
+  | (TObjCreate(_), TChar) | (TChar, TObjCreate(_))
+  | (TObjCreate(_), TBool) | (TBool, TObjCreate(_)) ->
+      failwith "Type mistmatch: object with primitive."
+  | (TObjAccess(_, x), TObjAccess(_, y)) ->
+      unify_one x y
+  | (TObjAccess(_, y), (TNum as z))  | ((TNum as z), TObjAccess(_, y))
+  | (TObjAccess(_, y), (TChar as z)) | ((TChar as z), TObjAccess(_, y))
+  | (TObjAccess(_, y), (TBool as z)) | ((TBool as z), TObjAccess(_, y)) ->
+      unify_one y z
+  | (TNum, TChar)  | (TChar, TNum)
+  | (TNum, TBool)  | (TBool, TNum)
+  | (TChar, TBool) | (TBool, TChar) ->
+      failwith "Type mismatch: primitive with primitive."
+  | (TNum, TNum) 
+  | (TChar, TChar) 
+  | (TBool, TBool) -> 
       []
-
-
-(*
-  | (TVar x, TVar y) -> if x = y then [] else [(x, typ)]
-  | (Arrow (x, y), Arrow (u, v)) -> unify [(x, u); (y, v)]
-  | ((TVar x, (Arrow (u, v) as z)) | ((Arrow (u, v) as z), TVar x)) ->
-      if occurs x z
-      then failwith "not unifiable: circularity"
-      else [(x, z)]
-*)
-
-
 
 (* unify a list of pairs *)
 and unify (s : (Sast.t * Sast.t) list) : substitution =
@@ -159,9 +155,6 @@ and unify (s : (Sast.t * Sast.t) list) : substitution =
       let t2 = unify tl in
       let t1 = unify_one (apply t2 x) (apply t2 y) in
       t1 @ t2
-
-
-
 
 
 (* INFERENCE *)
@@ -392,12 +385,6 @@ let annotate (e : expr) : aexpr =
   in annotate' e []
 *)
 
-
-
-(* collect constraints for unification *)
-
-
-
 let rec collect_expr (e : Sast.aExpr) : (Sast.t * Sast.t) list = 
   match e with 
     | ANumLit(num, ty) -> []
@@ -504,18 +491,6 @@ and collect_stmts (stmts : Sast.aStmt list) : (Sast.t * Sast.t) list =
 
 let collect (cprog : Sast.aProgram) : (Sast.t * Sast.t) list =
   collect_stmts cprog
-
-
-(*and annotate_stmts (stmts : Ast.stmt list) (env : environment) : Sast.aStmt list =*)
-
-
-(*original collect
-    [] -> u
-  | AVar (_, _) :: r -> collect r u
-  | AFun (_, ae, _) :: r -> collect (ae :: r) u
-  | AFunCall (ae1, ae2, a) :: r ->
-      let (f, b) = (type_of ae1, type_of ae2) in
-      collect (ae1 :: ae2 :: r) ((f, Arrow (b, a)) :: u)*)
 
 (* collect the constraints and perform unification *)
 (*let infer (p : Ast.program) : Sast.aProgram =

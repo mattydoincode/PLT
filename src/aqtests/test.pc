@@ -1,4 +1,6 @@
-/*fib = (fib,x) -> {
+/*
+
+fib = (fib,x) -> {
   if (x < 2) {
   	return 1;
   }
@@ -10,10 +12,11 @@ y = fib(fib, 9); // same as fib.fib(9)
 print((a, b) -> {
 	return a[1:b];
 }([1,2,3], 2));
+
 */
 
 
 
 print((a, b) -> {
 	return a[1:b];
-}([1,2,3], 2));
+}("hey dude", 2));
