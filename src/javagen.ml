@@ -1,4 +1,4 @@
-(*open Sast
+open Sast
 open Printf
 
 (*******************************************************************************
@@ -10,7 +10,7 @@ let rec writeToFile fileName prog =
   and file = open_out fileName in
     fprintf file "%s"  progString
 
-and gen_program fileName prog = 
+and gen_program fileName prog = (*have a writetofile*)
   let stmtString = writeStmtList prog in
   sprintf "import PCObject;
   import PCList;
@@ -28,7 +28,7 @@ and writeStmtList stmtList =
 
 
 and gen_stmt = function
-    AReturn(exp, typ) -> writeReturnStmt exp
+    AReturn(exp, _) -> writeReturnStmt exp
   | AIf(condTupleList, elseStmt) -> writeIfStmt condTupleList elseStmt
   | AFor(asnTuple, cond, incrTuple, stmtList) -> 
       writeForLoop asnTuple cond incrTuple stmtList
@@ -40,20 +40,20 @@ and gen_stmt = function
 
 
 and gen_expr = function
-    ANumLit(flt, typ)   -> writeNumLit flt
-  | ABoolLit(boolLit, typ) -> writeBoolLit boolLit
-  | ACharLit(charLit, typ) -> writeCharLit charLit 
-  | AId(name, typed, typ) -> writeID  name typed typ
-  | AFuncCreate(params, body, typ) -> writeFunc params body
-  | AFuncCallExpr(exp, params, typ) -> writeFuncCall  exp params typ
-  | AObjAccess(objName, fieldName, typ)-> writeObjectAccess objName
-  | AListAccess(listName, idx, typ) -> writeListAccess listName idx
-  | AListCreate(contentList,typ) -> writeListCreate contentList
-  | ASublist(listName, leftIdx, rightIdx, typ) -> 
+    ANumLit(flt, _)   -> writeNumLit flt
+  | ABoolLit(boolLit, _) -> writeBoolLit boolLit
+  | ACharLit(charLit, _) -> writeCharLit charLit
+  | AId(name, typed, typ) -> writeID  name typed 
+  | AFuncCreate(params, body, _) -> writeFunc params body
+  | AFuncCallExpr(exp, params, _) -> writeFuncCall  exp params
+  | AObjAccess(objName, fieldName, _)-> writeObjectAccess objName fieldName
+  | AListAccess(listName, idx, _) -> writeListAccess listName idx
+  | AListCreate(contentList,_) -> writeListCreate contentList
+  | ASublist(listName, leftIdx, rightIdx, _) -> 
       writeSubList listName leftIdx rightIdx
-  | AObjCreate(nVTplList, typ) ->  writeObjCreate nVTplList
-  | ABinop(ope1, op, ope2, typ) -> writeBinop ope1 op ope2
-  | ANot(exp, typ) -> writeUnaryNot exp
+  | AObjCreate(nVTplList, _) ->  writeObjCreate nVTplList
+  | ABinop(ope1, op, ope2, _) -> writeBinop ope1 op ope2
+  | ANot(exp, _) -> writeUnaryNot exp
 
 
 (*******************************************************************************
@@ -127,19 +127,21 @@ and writeFunc params stmtList =
   let fName = function_name_gen() in
   let fileName = fName ^ ".java" in 
    let file = open_out fileName in
-    let paramsString = params_to_string params 
+    let paramsString = pNames_to_string params 
     and body = writeStmtList stmtList in
       fprintf file "public class %s extends PCObject implements IPCFunction, Serializable{
   public %s(){}
 
   public PCObject call(%s){
-  %s\n}" fName fName paramsString body
+  %s\n}" fName fName paramsString body;
+  sprintf "new %s()" fName
 
 
   
-and writeFuncCall toCallExp paramsExp typ =
+and writeFuncCall toCallExp paramsExp =
   let toCall = (gen_expr toCallExp) and params = (params_to_string paramsExp) in 
-  sprintf fileName "%s.call(%s)" toCall params
+  sprintf "%s.call(%s)" toCall params
+
 
 and params_to_string paramsList= 
   let paramsStringList = List.map gen_expr paramsList in
@@ -149,6 +151,12 @@ and params_to_string paramsList=
       | hd::tl -> (sprintf("%s,") hd)^paramsListtoString tl
     in paramsListtoString paramsStringList 
 
+and pNames_to_string paramTupleList = 
+  let pNameList = List.map (fun (a,b) -> a) paramTupleList 
+in List.fold_left (fun a b -> a^b) "" pNameList
+
+
+
 
 (*******************************************************************************  
     List and Object handling - helper functions
@@ -156,12 +164,12 @@ and params_to_string paramsList=
 
 
 and writeObjectAccess objNameExpr fieldName =
-  let objName = gen_expr objName in 
-    sprintf fileName "%s.get(%s)" objName fieldName
+  let objName = gen_expr objNameExpr in 
+    sprintf "%s.get(%s)" objName fieldName
 
 and writeListAccess listNameExpr idxExpr =
-  let listName = gen_expr listNameExpr and idx = gen_expr id_expr in
-  sprintf fileName "%s.get(%s)" listName idx
+  let listName = gen_expr listNameExpr and idx = gen_expr idxExpr in
+  sprintf "%s.get(%s)" listName idx
 
 and writeListCreate exprList =
   let concatAdds = (fun a b -> a^(sprintf(".add(%s)") b)) 
@@ -169,7 +177,7 @@ and writeListCreate exprList =
   List.fold_left concatAdds "New PCList()" list_of_strings
 
 and writeSubList listNameExpr startIdxExpr endIdxExpr = 
-  let listName = gen_expr listName in  
+  let listName = gen_expr listNameExpr in  
   let startIdx = 
     let det = function
         Some(x) -> gen_expr x
@@ -231,15 +239,15 @@ and writeID idName = function
 (*******************************************************************************  
     Literal expression handling - helper functions
 ********************************************************************************)
-and writeNumLit file_desc numLit = 
-  sprintf file_desc "new PCObject(%f).getbase()" numLit
+and writeNumLit numLit = 
+  sprintf "new PCObject(%f).getbase()" numLit
 
-and writeBoolLit file_desc boolLit = 
-  sprintf file_desc "new PCObject(%b)" boolLit
+and writeBoolLit boolLit = 
+  sprintf "new PCObject(%b)" boolLit
 
 
-and writeCharLit file_desc charLit = 
-  sprintf file_desc "new PCList(%s)" stringLit
+and writeCharLit charLit = 
+  sprintf "new PCList(%c)" charLit
 
 
 (*******************************************************************************  
@@ -247,19 +255,9 @@ and writeCharLit file_desc charLit =
 ********************************************************************************)
 (*function name generator*)
 and function_name_gen () = 
-  incr x
+  incr x;
   sprintf "function_%d" !x
 
 (*"static" variables for function naming*)
-let init = 100
-let x = ref init
-
-
-=======
-(*function name generator*)
-let function_name_gen () = 
-  incr x
-  sprintf "function_%d" !x
-
-*)
-
+and init = 100
+and x = ref init
