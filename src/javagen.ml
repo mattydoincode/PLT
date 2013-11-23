@@ -1,4 +1,4 @@
-open Sast
+(*open Sast
 open Printf
 
 (*******************************************************************************
@@ -254,4 +254,12 @@ and function_name_gen () =
 let init = 100
 let x = ref init
 
+
+=======
+(*function name generator*)
+let function_name_gen () = 
+  incr x
+  sprintf "function_%d" !x
+
+*)
 

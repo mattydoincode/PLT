@@ -125,3 +125,10 @@ and string_of_assign (e1, e2) =
 
 let string_of_program prog = 
   string_of_stmts prog
+
+
+
+
+let string_of_collect (l : (t * t) list) =  
+  String.concat "\n" (List.map (fun g -> string_of_type (fst g) ^ "  " ^ string_of_type (snd g)) l)
+

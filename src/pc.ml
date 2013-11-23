@@ -25,7 +25,10 @@ let _ =
       print_string (Ast.string_of_program program);
       print_string "\n";
       let aProgram = Analyzer.annotate_program program in
+      let collected = Analyzer.collect aProgram in
       print_string (Sast.string_of_program aProgram);
+      print_string "\n";
+      print_string (Sast.string_of_collect collected);
       print_string "\n"
   | Compile -> 
       print_string "not yet!"
