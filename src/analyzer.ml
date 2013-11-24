@@ -75,6 +75,9 @@ let nest_scope (env : environment) : environment =
 let new_env() : environment = 
   let dist_type = next_type_var() in
   let dist_return_type = next_type_var() in
+  let where_type = next_type_var() in
+  let mapping_type = next_type_var() in
+  let mapped_type = next_type_var() in
   let s = { variables = [
     ("print", TFunc([TList(TChar)], 
                     TList(TChar)));
@@ -87,7 +90,11 @@ let new_env() : environment =
     ("download", TFunc([TList(TChar)],
                        TList(TChar)));
     ("distribute", TFunc([TList(dist_type); TFunc([dist_type],dist_return_type)], 
-                         TList(dist_return_type)))
+                         TList(dist_return_type)));
+    ("where", TFunc([TList(where_type); TFunc([where_type], TBool)],
+                    TList(where_type)));
+    ("map", TFunc([TList(mapping_type); TFunc([mapping_type], mapped_type)],
+                  TList(mapped_type)))
   ]; parent = None } in
   { scope = s; cur_func_return_type = None; }
 
