@@ -273,16 +273,19 @@ let rec collect_expr (e : Sast.aExpr) : (Sast.t * Sast.t) list =
         (List.fold_left (fun l p -> l @ collect_expr p) [] params) @ collect_expr fExpr @ [(myCreatedType, ftype)]
     | AObjAccess(oExpr, name, ty) -> 
         let oType = type_of oExpr in
-        [(oType, TObjAccess(name, ty))]
-    | AListAccess(lExpr, idx, return_type) ->
-        let idx_type = type_of idx in
+        (oType, TObjAccess(name, ty)) :: collect_expr oExpr
+    | AListAccess(lExpr, iExpr, return_type) ->
+        let idx_type = type_of iExpr in
         let list_type = type_of lExpr in
-        [(list_type, TList(return_type));(idx_type,TNum)]
+        [(list_type, TList(return_type));(idx_type,TNum)] @ collect_expr lExpr @ collect_expr iExpr
     | AListCreate(members, ty) -> 
         (*all must be same*)
-        (match ty with 
-        | TList(x) -> List.map (fun m-> (type_of m, x)) members
-        | _ -> failwith "not a list!?")
+        let constraints = 
+          (match ty with 
+          | TList(x) -> List.map (fun m -> (type_of m, x)) members
+          | _ -> failwith "Internal error, should never happen: list not a list.")
+        in
+        constraints @ (List.fold_left (fun l m -> l @ collect_expr m) [] members)
     | ASublist(mylist, e1, e2, ty) ->
         let e_constraint = fun e_opt ->
           match e_opt with
@@ -291,7 +294,9 @@ let rec collect_expr (e : Sast.aExpr) : (Sast.t * Sast.t) list =
         in
         let list_type = type_of mylist in
         [(list_type, ty)] @ e_constraint e1 @ e_constraint e2
-    | AObjCreate(props, ty) -> []
+    | AObjCreate(props, ty) ->
+        let prop_exprs = List.map snd props in
+        (List.fold_left (fun l p -> l @ collect_expr p) [] prop_exprs)
     | ABinop(e1, op, e2, ty) ->
         let e1t = type_of e1 in
         let e2t = type_of e2 in

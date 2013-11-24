@@ -18,10 +18,12 @@ print(result);
 
 */
 
-
-fib = (fib,x) -> {
-  if (x < 2) {
-  	return 1;
-  }
-  return fib(x-1)*fib(x-2);
+o = {
+	a: () -> { return 7; },
+	b: 9,
+	c: "hey"
 };
+
+myFunc = (x) -> { return x.a; };
+
+r = myFunc(o);
