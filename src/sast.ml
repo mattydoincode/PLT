@@ -54,7 +54,7 @@ let rec string_of_type = function
   | TBool -> "TBool"
 
 let sot typ =
-  " [" ^ string_of_type typ ^ "]"
+  " [" ^ string_of_type typ ^ "]\n"
 
 let rec string_of_expr = function
     ANumLit(n, t) -> string_of_float n ^ sot t
@@ -62,7 +62,7 @@ let rec string_of_expr = function
   | ACharLit(c, t) -> "'" ^ Char.escaped c ^ "'" ^ sot t
   | AId(s, b, t) -> 
     if b 
-    then s ^ " [NEW " ^ string_of_type t ^ "]"
+    then s ^ " [NEW " ^ string_of_type t ^ "]\n"
     else s ^ sot t
   | AFuncCreate(formals, body, t) -> 
       "(" ^ String.concat ", " (List.map (fun x -> fst x ^ sot (snd x)) formals) ^ ") -> {\n" ^

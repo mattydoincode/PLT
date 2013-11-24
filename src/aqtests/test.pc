@@ -17,6 +17,7 @@ print((a, b) -> {
 
 
 
-print((a, b) -> {
+myFunc = (a, b) -> {
 	return a[1:b];
-}("hey dude", 2));
+};
+result = myFunc("hey dude", 2);
