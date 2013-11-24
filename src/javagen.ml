@@ -5,9 +5,8 @@ open Printf
   Expression and statement evaluation
 ********************************************************************************)
 
-let rec writeToFile fileName prog = 
-  let progString = gen_program fileName prog
-  and file = open_out fileName in
+let rec writeToFile fileName progString = 
+  let file = open_out fileName in
     fprintf file "%s"  progString
 
 and gen_program fileName prog = (*have a writetofile*)
@@ -19,7 +18,9 @@ and gen_program fileName prog = (*have a writetofile*)
       public static void main(String[] args){
       %s
       } 
-  } " fileName stmtString
+  } " fileName stmtString;
+  let x = open_out (fileName ^ ".java")
+  writeToFile x  
 
 
 and writeStmtList stmtList = 
@@ -133,7 +134,8 @@ and writeFunc params stmtList =
   public %s(){}
 
   public PCObject call(%s){
-  %s\n}" fName fName paramsString body;
+  %s\n}
+  }" fName fName paramsString body;
   sprintf "new %s()" fName
 
 
@@ -174,7 +176,7 @@ and writeListAccess listNameExpr idxExpr =
 and writeListCreate exprList =
   let concatAdds = (fun a b -> a^(sprintf(".add(%s)") b)) 
   and list_of_strings = List.map gen_expr exprList in 
-  List.fold_left concatAdds "New PCList()" list_of_strings
+  List.fold_left concatAdds "new PCList()" list_of_strings
 
 and writeSubList listNameExpr startIdxExpr endIdxExpr = 
   let listName = gen_expr listNameExpr in  
@@ -195,7 +197,7 @@ and writeObjCreate kvt_list =
     let v = gen_expr vExpr in
     sprintf ".set(\"%s\",%s)" k v
   in let stringList = List.map string_of_tuple kvt_list; in 
-    List.fold_left (fun a b -> a^b) "New PCObject()" stringList
+    List.fold_left (fun a b -> a^b) "new PCObject()" stringList
 
 
 
@@ -210,17 +212,17 @@ and writeUnaryNot boolExpr =
 and writeBinop expr1 op expr2 = 
   let e1 = gen_expr expr1 and e2 = gen_expr expr2 in
     let writeBinopHelper e1 op e2 = match op with
-        Add  -> sprintf "New PCObject(%s.getBase() + %s.getBase())" e1 e2
-      | Sub  -> sprintf "New PCObject(%s.getBase() - %s.getBase())" e1 e2  
-      | Mult -> sprintf "New PCObject(%s.getBase() * %s.getBase())" e1 e2
-      | Div  -> sprintf "New PCObject(%s.getBase() / %s.getBase())" e1 e2
-      | Mod -> sprintf "New PCObject(%s.getBase() %% %s.getBase())" e1 e2
-      | Less -> sprintf "New PCObject(%s.getBase() < %s.getBase())" e1 e2
-      | Leq -> sprintf "New PCObject(%s.getBase() <= %s.getBase())" e1 e2   
-      | Greater -> sprintf "New PCObject(%s.getBase() > %s.getBase())" e1 e2 
-      | Geq -> sprintf "New PCObject(%s.getBase() >= %s.getBase())" e1 e2
-      | And -> sprintf "New PCObject(%s.getBase() && %s.getBase())" e1 e2    
-      | Or -> sprintf "New PCObject(%s.getBase() ||h %s.getBase())" e1 e2 
+        Add  -> sprintf "new PCObject(%s.getBase() + %s.getBase())" e1 e2
+      | Sub  -> sprintf "new PCObject(%s.getBase() - %s.getBase())" e1 e2  
+      | Mult -> sprintf "new PCObject(%s.getBase() * %s.getBase())" e1 e2
+      | Div  -> sprintf "new PCObject(%s.getBase() / %s.getBase())" e1 e2
+      | Mod -> sprintf "new PCObject(%s.getBase() %% %s.getBase())" e1 e2
+      | Less -> sprintf "new PCObject(%s.getBase() < %s.getBase())" e1 e2
+      | Leq -> sprintf "new PCObject(%s.getBase() <= %s.getBase())" e1 e2   
+      | Greater -> sprintf "new PCObject(%s.getBase() > %s.getBase())" e1 e2 
+      | Geq -> sprintf "new PCObject(%s.getBase() >= %s.getBase())" e1 e2
+      | And -> sprintf "new PCObject(%s.getBase() && %s.getBase())" e1 e2    
+      | Or -> sprintf "new PCObject(%s.getBase() ||h %s.getBase())" e1 e2 
       | Equal -> ""
       | Neq -> ""
       | Concat -> "" 
@@ -247,7 +249,7 @@ and writeBoolLit boolLit =
 
 
 and writeCharLit charLit = 
-  sprintf "new PCList(%c)" charLit
+  sprintf "new PCObject('%c')" charLit
 
 
 (*******************************************************************************  
