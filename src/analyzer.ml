@@ -350,69 +350,11 @@ and collect_stmt (s : aStmt) : (Sast.t * Sast.t) list =
     | AAssign(lhs, rhs) -> (type_of lhs, type_of rhs) :: (collect_expr lhs @ collect_expr rhs)
     | AFuncCallStmt (fExpr, params) -> 
       let ftype = type_of fExpr in
-      let myCreatedType = TFuncCall(List.map (fun p-> type_of p) params, next_type_var()) in
+      let myCreatedType = TFunc(List.map (fun p-> type_of p) params, next_type_var()) in
       [(myCreatedType, ftype)] @ (List.fold_left (fun l p -> l @ collect_expr p) [] params) @ collect_expr fExpr
 
 and collect_stmts (stmts : Sast.aStmt list) : (Sast.t * Sast.t) list = 
  List.fold_left (fun l s -> l @ (collect_stmt s)) [] stmts
-
-let collect (cprog : Sast.aProgram) : (Sast.t * Sast.t) list =
-  let collected = collect_stmts cprog in
-  let expand_dup = fun (name) ->
-    List.map
-  in
-  let expand = fun (a, b) ->
-    match (a, b) with
-    | (typ, TDuplicate(name)) -> 
-        let new_type = next_type_var() in
-        let expand_dup = fun (x, y) -> 
-          match (x, y) with
-          | (TVar(name), z) | (z, TVar(name)) ->
-              [(new_type, z)]
-          | _ -> []
-        in
-        let new_constraints = List.map expand_dup collected in
-        let new_constraints = List.concat new_constraints in
-        (a, b) :: new_constraints
-    | (_, _) -> [(a, b)]
-  in
-  let expanded = List.map expand collected in
-  List.concat expanded
-
-
-
-
-type substitution = (string * Sast.t) list
-
-(* check if a variable occurs in a term *)
-let rec occurs (x : string) (typ : Sast.t) : bool =
-  match typ with
-  | TVar(name) -> x = name
-  | TFunc(params, y) -> List.exists (fun param -> occurs x param) params || occurs x y
-  | TFuncCall(params, y) -> List.exists (fun param -> occurs x param) params || occurs x y
-  | TList(y) -> occurs x y
-  | TObjCreate(props) -> List.exists (fun prop -> occurs x (snd prop)) props
-  | TObjAccess(_, y) -> occurs x y
-  | TNum -> false
-  | TChar -> false
-  | TBool -> false
-
-(* substitute term s for all occurrences of var x in term t *)
-let rec subst (s : Sast.t) (x : string) (typ : Sast.t) : Sast.t =
-  match typ with
-  | TVar(name) -> if x = name then s else typ
-  | TFunc(params, y) -> TFunc(List.map (fun param -> subst s x param) params, subst s x y)
-  | TFuncCall(params, y) -> TFuncCall(List.map (fun param -> subst s x param) params, subst s x y)
-  | TList(y) -> TList(subst s x y)
-  | TObjCreate(props) -> TObjCreate(List.map (fun prop -> (fst prop, subst s x (snd prop))) props)
-  | TObjAccess(name, y) -> TObjAccess(name, subst s x y)
-  | TNum -> typ
-  | TChar -> typ
-  | TBool -> typ
-
-(* apply a substitution to t right to left *)
-let apply (s : substitution) (typ : Sast.t) : Sast.t =
-  List.fold_right (fun (x, e) -> subst e x) s typ
 
 let rec copy_type (typ : Sast.t) (table : symbol_table) : Sast.t =
     match typ with
@@ -432,21 +374,25 @@ let rec copy_type (typ : Sast.t) (table : symbol_table) : Sast.t =
   | TNum -> typ
   | TChar -> typ
   | TBool -> typ
+  | TDuplicate(_) -> typ
 
-(* unify one pair *)
-let rec unify_one (a : Sast.t) (b : Sast.t) : substitution =
+let duplicate (typ : Sast.t) (constraints :  Sast.t * (Sast.t * Sast.t) list) =
+  let helper = fun (x, y) ->
+    if x = typ
+    then [(dup, y)]
+    else if y = typ
+    then [(dup, x)]
+    else []
+  in
+  List.concat (List.map helper constraints)
+
+(* TFunc((TVar('AD),TVar('AE)) -> TVar('AC)) *)
+
+let rec alden (a : Sast.t) (b : Sast.t) : (Sast.t * Sast.t) list =
   match (a, b) with
   | (TVar(x), TVar(y)) -> 
-      if x = y then [] else [(x, b)]
-  | (TVar(x), (TFunc(_, _) as z))      | ((TFunc(_, _) as z), TVar(x))
-  | (TVar(x), (TFuncCall(_, _) as z))  | ((TFuncCall(_, _) as z), TVar(x))
-  | (TVar(x), (TList(_) as z))         | ((TList(_) as z), TVar(x))
-  | (TVar(x), (TObjCreate(_) as z))    | ((TObjCreate(_) as z), TVar(x))
-  | (TVar(x), (TObjAccess(_, _) as z)) | ((TObjAccess(_, _) as z), TVar(x))
-  | (TVar(x), (TNum as z))             | ((TNum as z), TVar(x))
-  | (TVar(x), (TChar as z))            | ((TChar as z), TVar(x))
-  | (TVar(x), (TBool as z))            | ((TBool as z), TVar(x)) ->
-      [(x, z)]
+  | (TVar(x), _) | (_, TVar(x)) -> 
+  | (TFunc(params, x), _)
 
   | (TFunc(params1, x), TFunc(params2, y)) ->
       (try
@@ -454,20 +400,6 @@ let rec unify_one (a : Sast.t) (b : Sast.t) : substitution =
         unify ((x,y)::pairs)
       with Invalid_argument(_) ->
         failwith "Type mismatch: # of parameters not the same.")
-  | ((TFunc(_, _) as z), (TFuncCall(params2, y) as test)) | ((TFuncCall(params2, y) as test), (TFunc(_, _) as z)) ->
-      print_string "\nIM HERE!\n";
-      print_string (Sast.string_of_type z ^ "\n");
-      print_string (Sast.string_of_type test ^ "\n");
-      let new_z = copy_type z { variables = []; parent = None } in
-      print_string (Sast.string_of_type new_z ^ "\n");
-      (match new_z with
-      | TFunc(params1, x) ->
-        (try
-        let pairs = List.map2 (fun u v -> (u,v)) params1 params2 in
-          unify ((x,y)::pairs)
-        with Invalid_argument(_) ->
-          failwith "Type mismatch: # of parameters not the same.")
-      | _ -> failwith "Internal error!")
   | (TFunc(_, _), TList(_))         | (TList(_), TFunc(_, _)) ->
       failwith "Type mismatch: function with list."
   | (TFunc(_, _), TObjCreate(_))    | (TObjCreate(_), TFunc(_, _)) ->
@@ -478,19 +410,6 @@ let rec unify_one (a : Sast.t) (b : Sast.t) : substitution =
   | (TFunc(_, _), TChar)            | (TChar, TFunc(_, _))
   | (TFunc(_, _), TBool)            | (TBool, TFunc(_, _)) ->
       failwith "Type mismatch: function with primitive."
-
-  | (TFuncCall(_, _), TFuncCall(_, _)) ->
-      failwith "Type mismatch: function call with function call."
-  | (TFuncCall(_, _), TList(_)) | (TList(_), TFuncCall(_, _)) ->
-      failwith "Type mismatch: function call with list."
-  | (TFuncCall(_, _), TObjCreate(_)) | (TObjCreate(_), TFuncCall(_, _)) ->
-      failwith "Type mismatch: function call with object."
-  | (TFuncCall(_, _), TObjAccess(_, _)) | (TObjAccess(_, _), TFuncCall(_, _)) ->
-      failwith "Type mismatch: function call with object access."
-  | (TFuncCall(_, _), TNum)  | (TNum, TFuncCall(_, _))
-  | (TFuncCall(_, _), TChar) | (TChar, TFuncCall(_, _))
-  | (TFuncCall(_, _), TBool) | (TBool, TFuncCall(_, _)) ->
-      failwith "Type mismatch: function call with primitive."
 
   | (TList(x), TList(y)) -> 
       unify_one x y
@@ -539,6 +458,148 @@ let rec unify_one (a : Sast.t) (b : Sast.t) : substitution =
   | (TBool, TBool) -> 
       []
 
+  | (TDuplicate(_), _) | (_, TDuplicate(_)) ->
+      failwith "Internal error, should never happen: unify TDuplicate."
+
+
+let collect (cprog : Sast.aProgram) : (Sast.t * Sast.t) list =
+  let collected = collect_stmts cprog in
+  let expand = fun (a, b) ->
+    match (a, b) with
+    | (typ, TDuplicate(name)) -> 
+        let new_type = next_type_var() in
+        let expand_dup = fun (x, y) -> 
+          match (x, y) with
+          | (TVar(name2), z) | (z, TVar(name2)) ->
+              if name = name2
+              then let dups = duplicate z collected in
+                (new_type, fst dups) :: (snd dups)
+              else []
+          | _ -> []
+        in
+        let new_constraints = List.concat (List.map expand_dup collected) in
+        let new_typ = copy_type typ { variables = []; parent = None } in
+        (typ, new_type) :: new_constraints
+    | (_, _) -> [(a, b)]
+  in
+  List.concat (List.map expand collected)
+
+
+
+
+type substitution = (string * Sast.t) list
+
+(* check if a variable occurs in a term *)
+let rec occurs (x : string) (typ : Sast.t) : bool =
+  match typ with
+  | TVar(name) -> x = name
+  | TFunc(params, y) -> List.exists (fun param -> occurs x param) params || occurs x y
+  | TList(y) -> occurs x y
+  | TObjCreate(props) -> List.exists (fun prop -> occurs x (snd prop)) props
+  | TObjAccess(_, y) -> occurs x y
+  | TNum -> false
+  | TChar -> false
+  | TBool -> false
+  | TDuplicate(_) -> failwith "Internal error, should never happen: TDuplicate in occurs."
+
+(* substitute term s for all occurrences of var x in term t *)
+let rec subst (s : Sast.t) (x : string) (typ : Sast.t) : Sast.t =
+  match typ with
+  | TVar(name) -> if x = name then s else typ
+  | TFunc(params, y) -> TFunc(List.map (fun param -> subst s x param) params, subst s x y)
+  | TList(y) -> TList(subst s x y)
+  | TObjCreate(props) -> TObjCreate(List.map (fun prop -> (fst prop, subst s x (snd prop))) props)
+  | TObjAccess(name, y) -> TObjAccess(name, subst s x y)
+  | TNum -> typ
+  | TChar -> typ
+  | TBool -> typ
+  | TDuplicate(_) -> failwith "Internal error, should never happen: TDuplicate in subst."
+
+(* apply a substitution to t right to left *)
+let apply (s : substitution) (typ : Sast.t) : Sast.t =
+  List.fold_right (fun (x, e) -> subst e x) s typ
+
+(* unify one pair *)
+let rec unify_one (a : Sast.t) (b : Sast.t) : substitution =
+  match (a, b) with
+  | (TVar(x), TVar(y)) -> 
+      if x = y then [] else [(x, b)]
+  | (TVar(x), (TFunc(_, _) as z))      | ((TFunc(_, _) as z), TVar(x))
+  | (TVar(x), (TList(_) as z))         | ((TList(_) as z), TVar(x))
+  | (TVar(x), (TObjCreate(_) as z))    | ((TObjCreate(_) as z), TVar(x))
+  | (TVar(x), (TObjAccess(_, _) as z)) | ((TObjAccess(_, _) as z), TVar(x))
+  | (TVar(x), (TNum as z))             | ((TNum as z), TVar(x))
+  | (TVar(x), (TChar as z))            | ((TChar as z), TVar(x))
+  | (TVar(x), (TBool as z))            | ((TBool as z), TVar(x)) ->
+      [(x, z)]
+
+  | (TFunc(params1, x), TFunc(params2, y)) ->
+      (try
+      let pairs = List.map2 (fun u v -> (u,v)) params1 params2 in
+        unify ((x,y)::pairs)
+      with Invalid_argument(_) ->
+        failwith "Type mismatch: # of parameters not the same.")
+  | (TFunc(_, _), TList(_))         | (TList(_), TFunc(_, _)) ->
+      failwith "Type mismatch: function with list."
+  | (TFunc(_, _), TObjCreate(_))    | (TObjCreate(_), TFunc(_, _)) ->
+      failwith "Type mismatch: function with object."
+  | ((TFunc(_, _) as z), TObjAccess(_, y)) | (TObjAccess(_, y), (TFunc(_, _) as z)) ->
+      unify_one y z
+  | (TFunc(_, _), TNum)             | (TNum, TFunc(_, _))
+  | (TFunc(_, _), TChar)            | (TChar, TFunc(_, _))
+  | (TFunc(_, _), TBool)            | (TBool, TFunc(_, _)) ->
+      failwith "Type mismatch: function with primitive."
+
+  | (TList(x), TList(y)) -> 
+      unify_one x y
+  | ((TList(_) as z), TObjAccess(_, y)) | (TObjAccess(_, y), (TList(_) as z))  ->
+      unify_one y z
+  | (TList(_), TObjCreate(_)) | (TObjCreate(_), TList(_)) ->
+      failwith "Type mismatch: list with object."
+  | (TList(_), TNum)          | (TNum, TList(_))
+  | (TList(_), TChar)         | (TChar, TList(_))
+  | (TList(_), TBool)         | (TBool, TList(_))->
+      failwith "Type mismatch: list with primitive."
+
+  | (TObjCreate(props1), TObjCreate(props2)) ->
+      let mapper = fun prop1 -> 
+        try
+        let found = List.find (fun prop2 -> (fst prop1) = (fst prop2)) props2 in
+          ((snd prop1), (snd found))
+        with Not_found ->
+          failwith "Type mistmatch: object with object."
+      in
+      unify (List.map mapper props1)
+  | (TObjCreate(props), TObjAccess(name, y)) | (TObjAccess(name, y), TObjCreate(props)) ->
+      (try
+      let found = List.find (fun cProp -> (fst cProp) = name) props in
+        unify_one (snd found) y
+      with Not_found -> 
+        failwith "Type mistmatch: property does not exist on object.")
+  | (TObjCreate(_), TNum)  | (TNum, TObjCreate(_))
+  | (TObjCreate(_), TChar) | (TChar, TObjCreate(_))
+  | (TObjCreate(_), TBool) | (TBool, TObjCreate(_)) ->
+      failwith "Type mistmatch: object with primitive."
+
+  | (TObjAccess(_, x), TObjAccess(_, y)) ->
+      unify_one x y
+  | (TObjAccess(_, y), (TNum as z))  | ((TNum as z), TObjAccess(_, y))
+  | (TObjAccess(_, y), (TChar as z)) | ((TChar as z), TObjAccess(_, y))
+  | (TObjAccess(_, y), (TBool as z)) | ((TBool as z), TObjAccess(_, y)) ->
+      unify_one y z
+
+  | (TNum, TChar)  | (TChar, TNum)
+  | (TNum, TBool)  | (TBool, TNum)
+  | (TChar, TBool) | (TBool, TChar) ->
+      failwith "Type mismatch: primitive with primitive."
+  | (TNum, TNum) 
+  | (TChar, TChar) 
+  | (TBool, TBool) -> 
+      []
+
+  | (TDuplicate(_), _) | (_, TDuplicate(_)) ->
+      failwith "Internal error, should never happen: unify TDuplicate."
+
 (* unify a list of pairs *)
 and unify (s : (Sast.t * Sast.t) list) : substitution =
   match s with
@@ -546,5 +607,6 @@ and unify (s : (Sast.t * Sast.t) list) : substitution =
   | (x, y) :: tl ->
       let t2 = unify tl in
       let t1 = unify_one (apply t2 x) (apply t2 y) in
-      t1 @ t2
+      let result = List.map (fun (name, typ) -> (name, apply t1 typ)) t2 in
+      t1 @ result
 
