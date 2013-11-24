@@ -9,11 +9,11 @@
 	7. run java executable
 *)
 
-type action = Ast | Compile | Sast
+type action = Ast | Compile | Sast | Java
 
 let _ =
   let action = if Array.length Sys.argv > 1 then
-    List.assoc Sys.argv.(1) [ ("-a", Ast); ("-c", Compile); ("-s", Sast);]
+    List.assoc Sys.argv.(1) [ ("-a", Ast); ("-c", Compile); ("-s", Sast); ("-j", Java);]
   else Sast in
   let lexbuf = Lexing.from_channel stdin in
   let program = Parser.program Scanner.token lexbuf in
@@ -35,6 +35,11 @@ let _ =
       print_string (Sast.string_of_subst subs);
       print_string "\n******* SAST ********\n";
       print_string (Sast.string_of_program aProgram);
+      print_string "\n"
+  | Java ->
+      let ap = Analyzer.infer_prog program in
+      let jp = Javagen.gen_program "alden" ap in
+      print_string jp;
       print_string "\n"
   | Compile -> 
       print_string "not yet!"
