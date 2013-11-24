@@ -22,16 +22,6 @@ type environment = {
 	scope : symbol_table;        (* symbol table for vars *)
 }
 
-(* inside a for loop or if block, nest scope *)
-let nest_scope (env : environment) : environment =
-	let s = { variables = []; parent = Some(env.scope) } in
-	{ env with scope = s; }	
-
-(* inside a function, nest entire env *)
-let new_env() : environment = 
-	let s = { variables = []; parent = None } in
-	{ scope = s; cur_func_return_type = None; }
-
 let rec find_variable (scope : symbol_table) (name : string) : Sast.t option =
   try
     let (_, typ) = List.find (fun (s, _) -> s = name) scope.variables in
@@ -75,6 +65,31 @@ let type_of (ae : Sast.aExpr) : Sast.t =
   | AObjCreate(_, t) -> t
   | ABinop(_, _, _, t) -> t
   | ANot(_, t) -> t
+
+(* inside a for loop or if block, nest scope *)
+let nest_scope (env : environment) : environment =
+  let s = { variables = []; parent = Some(env.scope) } in
+  { env with scope = s; } 
+
+(* inside a function, nest entire env *)
+let new_env() : environment = 
+  let dist_type = next_type_var() in
+  let dist_return_type = next_type_var() in
+  let s = { variables = [
+    ("print", TFunc([TList(TChar)], 
+                    TList(TChar)));
+    ("read", TFunc([],
+                   TList(TList(TChar))));
+    ("printFile", TFunc([TList(TChar); TList(TChar)],
+                        TList(TList(TChar))));
+    ("readFile", TFunc([TList(TChar)],
+                       TList(TList(TChar))));
+    ("download", TFunc([TList(TChar)],
+                       TList(TChar)));
+    ("distribute", TFunc([TList(dist_type); TFunc([dist_type],dist_return_type)], 
+                         TList(dist_return_type)))
+  ]; parent = None } in
+  { scope = s; cur_func_return_type = None; }
 
 
 
@@ -232,23 +247,7 @@ and annotate_stmts (stmts : Ast.stmt list) (env : environment) : Sast.aStmt list
   
 let annotate_prog (p : Ast.program) : Sast.aProgram =
   reset_type_vars();
-  let dist_type = next_type_var() in
-  let dist_return_type = next_type_var() in
   let env = new_env() in
-  env.scope.variables <- [
-    ("print", TFunc([TList(TChar)], 
-                    TList(TChar)));
-    ("read", TFunc([],
-                   TList(TList(TChar))));
-    ("printFile", TFunc([TList(TChar); TList(TChar)],
-                        TList(TList(TChar))));
-    ("readFile", TFunc([TList(TChar)],
-                       TList(TList(TChar))));
-    ("download", TFunc([TList(TChar)],
-                       TList(TChar)));
-    ("distribute", TFunc([TList(dist_type); TFunc([dist_type],dist_return_type)], 
-                         TList(dist_return_type)))
-  ];
   annotate_stmts p env
 
 

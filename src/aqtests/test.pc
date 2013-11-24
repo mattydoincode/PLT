@@ -9,6 +9,16 @@ fib = (fib,x) -> {
 y = fib(fib, 9); // same as fib.fib(9)
 
 
+myList = [1,2,3];
+
+(myList.where)();
+
+ACCESS -> 
+	ID myList
+	where
+
+
+
 
 myFunc = (a, b) -> {
 	return a[1:b];
@@ -16,14 +26,23 @@ myFunc = (a, b) -> {
 result = myFunc("hey dude", 2);
 print(result);
 
-*/
-
 o = {
 	a: () -> { return 7; },
 	b: 9,
-	c: "hey"
+	c: "hey",
+	d: (x) -> { return { e: x }; }
 };
 
-myFunc = (x) -> { return x.a; };
+myFunc = (obj) -> { return obj.e; };
 
-r = myFunc(o);
+r = myFunc(o.d(o.c));
+
+*/
+
+print("hey");
+
+x = () -> { print("hey"); return 4; };
+
+
+
+
