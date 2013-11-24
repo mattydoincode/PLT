@@ -3,6 +3,7 @@ include Ast
 (* types for inference *)
 type t = 
     TVar of string
+  | TDuplicate of string
   | TFunc of t list * t
   | TList of t
   | TObjCreate of (string * t) list
@@ -45,7 +46,8 @@ let string_of_opt string_of = function
 
 let rec string_of_type = function
     TVar(s) -> "TVar('" ^ s ^ ")"
-  | TFunc(tlist, t) -> "TFunc((" ^ String.concat "," (List.map string_of_type tlist) ^ "), " ^ string_of_type t ^ ")"
+  | TDuplicate(s) -> "TDuplicate('" ^ s ^ ")"
+  | TFunc(tlist, t) -> "TFunc((" ^ String.concat "," (List.map string_of_type tlist) ^ ") -> " ^ string_of_type t ^ ")"
   | TList(t) -> "TList(" ^ string_of_type t ^ ")"
   | TObjCreate(props) -> "TObjCreate(" ^ String.concat "," (List.map (fun (s, t) -> s ^ ":" ^ string_of_type t) props) ^ ")"
   | TObjAccess(s, t) -> "TObjAccess(" ^ s ^ ":" ^ string_of_type t ^ ")"
@@ -54,7 +56,7 @@ let rec string_of_type = function
   | TBool -> "TBool"
 
 let sot typ =
-  " [" ^ string_of_type typ ^ "]"
+  " [" ^ string_of_type typ ^ "]\n"
 
 let rec string_of_expr = function
     ANumLit(n, t) -> string_of_float n ^ sot t
@@ -62,7 +64,7 @@ let rec string_of_expr = function
   | ACharLit(c, t) -> "'" ^ Char.escaped c ^ "'" ^ sot t
   | AId(s, b, t) -> 
     if b 
-    then s ^ " [NEW " ^ string_of_type t ^ "]"
+    then s ^ " [NEW " ^ string_of_type t ^ "]\n"
     else s ^ sot t
   | AFuncCreate(formals, body, t) -> 
       "(" ^ String.concat ", " (List.map (fun x -> fst x ^ sot (snd x)) formals) ^ ") -> {\n" ^
