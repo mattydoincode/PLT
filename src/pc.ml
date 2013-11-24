@@ -20,16 +20,12 @@ let _ =
   match action with
   | Ast -> 
       print_string (Ast.string_of_program program)
-  | Sast -> 
-      let aProgram = Analyzer.annotate_prog program in
-      let collected = Analyzer.collect_prog aProgram in
-      let subst = Analyzer.unify (List.rev collected) in
-      print_string "\n\n";
+  | Sast ->
+      let aProgram = Analyzer.infer_prog program in
+      print_string "\n******** AST ********\n";
+      print_string (Ast.string_of_program program);
+      print_string "\n******* SAST ********\n";
       print_string (Sast.string_of_program aProgram);
-      print_string "\n\n";
-      print_string (Sast.string_of_collect collected);
-      print_string "\n\n";
-      print_string (Sast.string_of_subst subst);
-      print_string "\n\n"
+      print_string "\n"
   | Compile -> 
       print_string "not yet!"

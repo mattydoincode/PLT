@@ -433,41 +433,16 @@ let rec unify_one (a : Sast.t) (b : Sast.t) : substitution =
   | (TVar(x), (TChar as z))            | ((TChar as z), TVar(x))
   | (TVar(x), (TBool as z))            | ((TBool as z), TVar(x)) ->
       [(x, z)]
-  | (TFunc(params1, x), (TFunc(params2, y) as z)) ->
-      print_string "IM HERE\n"; 
-      print_string (String.concat ", " (List.map Sast.string_of_type params1));
-      print_string "\n";
-      print_string (String.concat ", " (List.map Sast.string_of_type params2));
-      print_string "\n";
-      print_string (Sast.string_of_type x ^ ", " ^ Sast.string_of_type y);
-      print_string "\nEND OF HERE\n"; 
-
-      let new_func = copy_type z { variables = []; parent = None } in
-      (match new_func with
+  | (TFunc(params1, x), (TFunc(_, _) as z)) ->
+      let existing_func = copy_type z { variables = []; parent = None } in
+      (match existing_func with
       | TFunc(new_params2, new_y) ->
-
-      (try
-      let pairs = List.map2 (fun u v -> (u,v)) params1 new_params2 in
-        unify ((x,new_y)::pairs)
-      with Invalid_argument(_) ->
-        failwith "Type mismatch: # of parameters not the same.")
-
+        (try
+        let pairs = List.map2 (fun u v -> (u,v)) params1 new_params2 in
+          unify ((x,new_y)::pairs)
+        with Invalid_argument(_) ->
+          failwith "Type mismatch: Calling function with wrong # of parameters.")
       | _ -> failwith "Internal error, should never happen: copying TFunc failed.")
-
-(*
-TList(TVar('AF)), TNum -----> TList(TVar('AF))
-TList(TChar), TNum -----> TVar('AI)
-
-TList('NEW) = TList(TChar)
-TNum = TNum
-TVar('AI) = TList('NEW)
-
-TList(TChar), TNum
-TList(TVar('AF)), TNum
-TVar('AI), TList(TVar('AF))
-*)
-
-
   | (TFunc(_, _), TList(_))         | (TList(_), TFunc(_, _)) ->
       failwith "Type mismatch: function with list."
   | (TFunc(_, _), TObjCreate(_))    | (TObjCreate(_), TFunc(_, _)) ->
@@ -539,11 +514,86 @@ and unify (s : (Sast.t * Sast.t) list) : substitution =
 ****** INFER *************
 *************************)
 
+let rec apply_expr (ae : Sast.aExpr) (subs : substitution) : Sast.aExpr = 
+  match ae with 
+    | ANumLit(n, ty) -> 
+        ANumLit(n, apply subs ty)
+    | ABoolLit(b, ty) -> 
+        ABoolLit(b, apply subs ty)
+    | ACharLit(c, ty) ->
+        ACharLit(c, apply subs ty)
+    | AId(name, seenBefore, ty) ->
+        AId(name, seenBefore, apply subs ty)
+    | AFuncCreate(params, body, ty) ->
+        let new_params = List.map (fun (name, typ) -> (name, apply subs typ)) params in
+        AFuncCreate(new_params, apply_stmts body subs, apply subs ty)
+    | AFuncCallExpr(fExpr, params, ty) -> 
+        let new_params = List.map (fun e -> apply_expr e subs) params in
+        AFuncCallExpr(apply_expr fExpr subs, new_params, apply subs ty)
+    | AObjAccess(oExpr, name, ty) -> 
+        AObjAccess(apply_expr oExpr subs, name, apply subs ty)
+    | AListAccess(lExpr, iExpr, ty) ->
+        AListAccess(apply_expr lExpr subs, apply_expr iExpr subs, apply subs ty)
+    | AListCreate(members, ty) -> 
+        let new_members = List.map (fun m -> apply_expr m subs) members in
+        AListCreate(new_members, apply subs ty)
+    | ASublist(lExpr, e1, e2, ty) ->
+        let e_opt_func = fun e_opt ->
+          match e_opt with
+          | Some(e) -> Some(apply_expr e subs)
+          | None -> None
+        in
+        ASublist(apply_expr lExpr subs, e_opt_func e1, e_opt_func e2, apply subs ty)
+    | AObjCreate(props, ty) ->
+        let new_props = List.map (fun (name, e) -> (name, apply_expr e subs)) props in
+        AObjCreate(new_props, apply subs ty)
+    | ABinop(e1, op, e2, ty) ->
+        ABinop(apply_expr e1 subs, op, apply_expr e2 subs, apply subs ty)
+    | ANot(e, ty) -> 
+        ANot(apply_expr e subs, apply subs ty)
+
+and apply_stmt (s : aStmt) (subs : substitution) : Sast.aStmt = 
+  match s with
+    | AReturn(expr, func_return_t) -> 
+        AReturn(apply_expr expr subs, apply subs func_return_t)
+    | AIf(conds, the_else) -> 
+        let cond_func = fun (expr, body) ->
+          (apply_expr expr subs, apply_stmts body subs)
+        in
+        let else_func = fun e ->
+          (match e with
+          | Some(body) -> Some(apply_stmts body subs)
+          | None -> None)
+        in
+        AIf(List.map cond_func conds, else_func the_else)
+    | AFor(assign1, expr, assign2, stmts) ->
+        let assign_func = fun a ->
+          (match a with
+          | Some(e1, e2) -> Some(apply_expr e1 subs, apply_expr e2 subs)
+          | None -> None)
+        in
+        let expr_func = fun e ->
+          (match e with
+          | Some(e1) -> Some(apply_expr e1 subs)
+          | None -> None)
+        in
+        AFor(assign_func assign1, expr_func expr, assign_func assign2, apply_stmts stmts subs)
+    | AWhile(expr, stmts) -> 
+        AWhile(apply_expr expr subs, apply_stmts stmts subs)
+    | AAssign(lhs, rhs) ->
+        AAssign(apply_expr lhs subs, apply_expr rhs subs)
+    | AFuncCallStmt(fExpr, params) -> 
+        let new_params = List.map (fun e -> apply_expr e subs) params in
+        AFuncCallStmt(apply_expr fExpr subs, new_params)
+
+and apply_stmts (stmts : Sast.aStmt list) (subs : substitution) : Sast.aStmt list =
+  List.map (fun s -> apply_stmt s subs) stmts
+
 let infer_prog (p : Ast.program) : Sast.aProgram =
   let ap = annotate_prog p in
   let constraints = collect_prog ap in
   let subs = unify (List.rev constraints) in
-  ap
+  apply_stmts ap subs
 
 
 
