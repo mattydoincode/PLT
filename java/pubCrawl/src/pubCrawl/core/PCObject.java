@@ -18,6 +18,10 @@ public class PCObject implements Serializable {
         set(_base, b);
     }
 
+    public PCObject(char c) {
+        set(_base, c);
+    }
+
     public PCObject set(String key, Object value) {
         _props.put(key, value);
         return this;
