@@ -88,7 +88,3 @@ range(min, max) -> {
 	}
 	return list;
 }
-
-range(max) -> {
-	return range(0, max);
-}
