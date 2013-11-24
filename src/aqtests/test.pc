@@ -6,14 +6,7 @@ fib = (fib,x) -> {
   }
   return fib(x-1)*fib(x-2);
 };
-
 y = fib(fib, 9); // same as fib.fib(9)
-
-print((a, b) -> {
-	return a[1:b];
-}([1,2,3], 2));
-
-*/
 
 
 
@@ -21,3 +14,14 @@ myFunc = (a, b) -> {
 	return a[1:b];
 };
 result = myFunc("hey dude", 2);
+print(result);
+
+*/
+
+
+fib = (fib,x) -> {
+  if (x < 2) {
+  	return 1;
+  }
+  return fib(x-1)*fib(x-2);
+};

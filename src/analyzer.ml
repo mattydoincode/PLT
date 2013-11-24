@@ -284,31 +284,35 @@ let rec collect_expr (e : Sast.aExpr) : (Sast.t * Sast.t) list =
         | TList(x) -> List.map (fun m-> (type_of m, x)) members
         | _ -> failwith "not a list!?")
     | ASublist(mylist, e1, e2, ty) ->
-        let e1_constraints = 
-          match e1 with
-            | Some(x) -> [(type_of x, TNum)]
-            | None -> []
-        in
-        let e2_constraints = 
-          match e2 with 
-            | Some(x) -> [(type_of x, TNum)]
+        let e_constraint = fun e_opt ->
+          match e_opt with
+            | Some(x) -> (type_of x, TNum) :: collect_expr x
             | None -> []
         in
         let list_type = type_of mylist in
-        [(list_type, ty)] @ e1_constraints @ e2_constraints
+        [(list_type, ty)] @ e_constraint e1 @ e_constraint e2
     | AObjCreate(props, ty) -> []
     | ABinop(e1, op, e2, ty) ->
         let e1t = type_of e1 in
         let e2t = type_of e2 in
-        (match op with
-        | Add | Sub | Mult | Div | Mod -> [(e1t, TNum); (e2t, TNum); (ty, TNum)]
-        | Equal | Neq -> [(e1t,e2t); (ty, TBool)]
-        | Less | Leq | Greater | Geq -> [(e1t, TNum); (e2t, TNum); (ty, TBool)]
-        | Concat -> let new_type = next_type_var() in
-          [(e1t, e2t); (ty, e1t); (ty, TList(new_type))]
-        | And | Or -> [(e1t, TBool); (e2t, TBool); (ty, TBool)])
+        let opc = 
+          (match op with
+          | Add | Sub | Mult | Div | Mod -> 
+              [(e1t, TNum); (e2t, TNum); (ty, TNum)] 
+          | Equal | Neq -> 
+              [(e1t,e2t); (ty, TBool)]
+          | Less | Leq | Greater | Geq -> 
+              [(e1t, TNum); (e2t, TNum); (ty, TBool)]
+          | Concat -> 
+              let new_type = next_type_var() in
+              [(e1t, e2t); (ty, e1t); (ty, TList(new_type))]
+          | And | Or -> 
+              [(e1t, TBool); (e2t, TBool); (ty, TBool)])
+        in
+        (collect_expr e1) @ (collect_expr e2) @ opc
     | ANot(e, ty) -> 
-        [(type_of e, TBool); (ty, TBool)]
+        let notc = [(type_of e, TBool); (ty, TBool)] in
+        (collect_expr e) @ notc
 
 and collect_stmt (s : aStmt) : (Sast.t * Sast.t) list =
   match s with
