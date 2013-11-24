@@ -18,9 +18,9 @@ and gen_program fileName prog = (*have a writetofile*)
       public static void main(String[] args){
       %s
       } 
-  } " fileName stmtString;
-  let x = open_out (fileName ^ ".java")
-  writeToFile x  
+  } " fileName stmtString(*;
+  let x = open_out (fileName ^ ".java") in 
+  writeToFile x stmtString*) 
 
 
 and writeStmtList stmtList = 
@@ -63,7 +63,7 @@ and gen_expr = function
 
 and writeReturnStmt exp = 
   let expStr = (gen_expr exp) in
-    sprintf "return %s;" expStr
+    sprintf "return %s;\n" expStr
 
 and writeIfStmt condTupleList elseStmtList = 
   let string_of_tuple (condExpr, stmtList) =
@@ -82,7 +82,7 @@ and writeIfStmt condTupleList elseStmtList =
         Some(str) -> "else{\n" ^ writeStmtList str ^ "\n}"
       | None -> ""
     in checkForNone elseStmtList 
-in sprintf "%s\n%s" ifString elseString
+in sprintf "%s\n%s\n" ifString elseString
 
 and writeForLoop asnTuple cond incrTuple stmtList =
   let asn = 
@@ -102,7 +102,7 @@ and writeForLoop asnTuple cond incrTuple stmtList =
       | None -> ""
     in matchTuple incrTuple
   in
-  sprintf "for(%s;%s;%s){\n%s\n}" asn cond incrString stmtString
+  sprintf "for(%s;%s;%s){\n%s\n}\n" asn cond incrString stmtString
 
 and writeWhileLoop cond stmtList =
   let condString = gen_expr cond 
@@ -111,12 +111,12 @@ and writeWhileLoop cond stmtList =
 
 and writeAssign expr1 expr2 =
   let e1 = gen_expr expr1 and e2 = gen_expr expr2 in
-  sprintf "%s = %s;" e1 e2
+  sprintf "%s = %s;\n" e1 e2
 
 and writeFuncCallStmt fNameExpr paramsListExpr = 
   let fName = gen_expr fNameExpr 
   and params = params_to_string paramsListExpr in
-  sprintf "%s.call(%s);" fName params
+  sprintf "%s.call(%s);\n" fName params
 
 
 
@@ -158,7 +158,7 @@ and pNames_to_string paramTupleList =
 in List.fold_left (fun a b -> a^b) "" pNameList
 
 
-
+  
 
 (*******************************************************************************  
     List and Object handling - helper functions
@@ -167,7 +167,7 @@ in List.fold_left (fun a b -> a^b) "" pNameList
 
 and writeObjectAccess objNameExpr fieldName =
   let objName = gen_expr objNameExpr in 
-    sprintf "%s.get(%s)" objName fieldName
+    sprintf "%s.get(\"%s\")" objName fieldName
 
 and writeListAccess listNameExpr idxExpr =
   let listName = gen_expr listNameExpr and idx = gen_expr idxExpr in
@@ -195,7 +195,7 @@ and writeSubList listNameExpr startIdxExpr endIdxExpr =
 and writeObjCreate kvt_list = 
   let string_of_tuple (k , vExpr)  = 
     let v = gen_expr vExpr in
-    sprintf ".set(\"%s\",%s)" k v
+    sprintf "\n.set(\"%s\",%s)" k v
   in let stringList = List.map string_of_tuple kvt_list; in 
     List.fold_left (fun a b -> a^b) "new PCObject()" stringList
 
@@ -242,7 +242,7 @@ and writeID idName = function
     Literal expression handling - helper functions
 ********************************************************************************)
 and writeNumLit numLit = 
-  sprintf "new PCObject(%f).getbase()" numLit
+  sprintf "new PCObject(%f)" numLit
 
 and writeBoolLit boolLit = 
   sprintf "new PCObject(%b)" boolLit
