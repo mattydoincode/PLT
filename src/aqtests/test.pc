@@ -1,5 +1,6 @@
 /*
 
+// TODO RECURSION
 fib = (fib,x) -> {
   if (x < 2) {
   	return 1;
@@ -9,14 +10,16 @@ fib = (fib,x) -> {
 y = fib(fib, 9); // same as fib.fib(9)
 
 
-myList = [1,2,3];
-
-(myList.where)();
-
-ACCESS -> 
-	ID myList
-	where
-
+// UTILITIES
+a = print("hey");
+b = read();
+c = printFile("hey", "dude");
+d = readFile("hey");
+e = download("asdf");
+g = where([1,2,3], (x) -> { return x%2 == 0; });
+i = find([1,2,3,4], 3);
+j = split("hi there dude", ' ');
+k = range(2, 10);
 
 
 
@@ -39,10 +42,15 @@ r = myFunc(o.d(o.c));
 
 */
 
-print("hey");
 
-x = () -> { print("hey"); return 4; };
-
+f = distribute(["a", "b", "c"], (x) -> { return 8; });
 
 
+/*
+
+[TList(mapping_type); TFunc([mapping_type], mapped_type)] --> TList(mapped_type);
+
+f [NEW TList(TVar('B\145))]
+h [NEW TList(TVar('B\151))]
+*/
 

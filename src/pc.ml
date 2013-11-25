@@ -23,10 +23,8 @@ let _ =
   | Sast ->
       let ap = Analyzer.annotate_prog program in
       let constraints = Analyzer.collect_prog ap in
-      let subs = Analyzer.unify (List.rev constraints) in
+      let subs = Analyzer.unify (List.rev constraints) false in
       let aProgram = Analyzer.infer_prog program in
-      print_string "\n******** AST ********\n";
-      print_string (Ast.string_of_program program);
       print_string "\n******* ORIG SAST ********\n";
       print_string (Sast.string_of_program ap);
       print_string "\n******** CONSTRAINTS ********\n";
@@ -38,8 +36,7 @@ let _ =
       print_string "\n"
   | Java ->
       let ap = Analyzer.infer_prog program in
-      let jp = Javagen.gen_program "alden" ap in
-      print_string jp;
+
       print_string "\n"
   | Compile -> 
       print_string "not yet!"

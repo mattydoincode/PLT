@@ -40,15 +40,17 @@ let reset_type_vars() =
 let next_type_var() : Sast.t =
   let c1 = !code1 in
   let c2 = !code2 in
-    (
-      if c2 == Char.code 'Z' 
-      then (incr code1; code2 := Char.code 'a')
-      else incr code2;
-      if c1 >= Char.code 'Z'
-      then code1 := Char.code 'a'
-      else ();
-      TVar((Char.escaped (Char.chr c1)) ^ (Char.escaped (Char.chr c2)))
-    )
+    if c2 = Char.code 'Z'
+    then code2 := Char.code 'a'
+    else incr code2;
+    if c2 = Char.code 'z'
+    then (incr code1; code2 := Char.code 'A')
+    else ();
+    if c1 = Char.code 'Z'
+    then code1 := Char.code 'a'
+    else ();
+    let name = (Char.escaped (Char.chr c1)) ^ (Char.escaped (Char.chr c2)) in
+    TVar(name)
 
 let type_of (ae : Sast.aExpr) : Sast.t =
   match ae with
@@ -78,13 +80,15 @@ let new_env() : environment =
   let where_type = next_type_var() in
   let mapping_type = next_type_var() in
   let mapped_type = next_type_var() in
-  let s = { variables = [
+  let find_type = next_type_var() in
+  let split_type = next_type_var() in
+  let utilities = [
     ("print", TFunc([TList(TChar)], 
                     TList(TChar)));
     ("read", TFunc([],
                    TList(TList(TChar))));
     ("printFile", TFunc([TList(TChar); TList(TChar)],
-                        TList(TList(TChar))));
+                        TList(TChar)));
     ("readFile", TFunc([TList(TChar)],
                        TList(TList(TChar))));
     ("download", TFunc([TList(TChar)],
@@ -94,8 +98,15 @@ let new_env() : environment =
     ("where", TFunc([TList(where_type); TFunc([where_type], TBool)],
                     TList(where_type)));
     ("map", TFunc([TList(mapping_type); TFunc([mapping_type], mapped_type)],
-                  TList(mapped_type)))
-  ]; parent = None } in
+                  TList(mapped_type)));
+    ("find", TFunc([TList(find_type); find_type], 
+                   TNum));
+    ("split", TFunc([TList(split_type); split_type],
+                    TList(TList(split_type))));
+    ("range", TFunc([TNum; TNum], 
+                    TList(TNum)))
+  ] in
+  let s = { variables = utilities; parent = None } in
   { scope = s; cur_func_return_type = None; }
 
 
@@ -436,7 +447,7 @@ let rec copy_type (typ : Sast.t) (table : symbol_table) : Sast.t =
   | TBool -> typ
 
 (* unify one pair *)
-let rec unify_one (a : Sast.t) (b : Sast.t) : substitution =
+let rec unify_one (a : Sast.t) (b : Sast.t) (c: bool) : substitution =
   match (a, b) with
   | (TVar(x), TVar(y)) -> 
       if x = y then [] else [(x, b)]
@@ -448,30 +459,51 @@ let rec unify_one (a : Sast.t) (b : Sast.t) : substitution =
   | (TVar(x), (TChar as z))            | ((TChar as z), TVar(x))
   | (TVar(x), (TBool as z))            | ((TBool as z), TVar(x)) ->
       [(x, z)]
-  | (TFunc(params1, x), (TFunc(_, _) as z)) ->
+  | (TFunc(params1, x), (TFunc(params2, y) as z)) ->
+      print_string "\nIM HERE\n"; 
+      print_string (String.concat ", " (List.map Sast.string_of_type params1) ^ " ---> " ^ Sast.string_of_type x);
+      print_string "\n";
+      print_string (String.concat ", " (List.map Sast.string_of_type params2) ^ " ---> " ^ Sast.string_of_type y);
+      print_string "\n";
+      if c
+      then
+        (try
+        let pairs = List.map2 (fun u v -> (u,v)) params1 params2 in
+          unify ((x,y)::pairs) c
+        with Invalid_argument(_) ->
+          failwith "Type mismatch: Calling function with wrong # of parameters.")
+      else
       let existing_func = copy_type z { variables = []; parent = None } in
       (match existing_func with
       | TFunc(new_params2, new_y) ->
-        (try
-        let pairs = List.map2 (fun u v -> (u,v)) params1 new_params2 in
-          unify ((x,new_y)::pairs)
-        with Invalid_argument(_) ->
-          failwith "Type mismatch: Calling function with wrong # of parameters.")
+          print_string (String.concat ", " (List.map Sast.string_of_type new_params2) ^ " ---> " ^ Sast.string_of_type new_y);
+          print_string "\n";
+          (try
+          let pairs = List.map2 (fun u v -> (u,v)) params1 new_params2 in
+          let u1 = unify ((x,new_y)::pairs) true in
+          let u2 = unify ((x,new_y)::pairs) false in
+          print_string "\nU1\n";
+          print_string (Sast.string_of_subst u1);
+          print_string "\nU2\n";
+          print_string (Sast.string_of_subst u2);
+          u1 (*unify ((x,new_y)::pairs) true*)
+          with Invalid_argument(_) ->
+            failwith "Type mismatch: Calling function with wrong # of parameters.")
       | _ -> failwith "Internal error, should never happen: copying TFunc failed.")
   | (TFunc(_, _), TList(_))         | (TList(_), TFunc(_, _)) ->
       failwith "Type mismatch: function with list."
   | (TFunc(_, _), TObjCreate(_))    | (TObjCreate(_), TFunc(_, _)) ->
       failwith "Type mismatch: function with object."
   | ((TFunc(_, _) as z), TObjAccess(_, y)) | (TObjAccess(_, y), (TFunc(_, _) as z)) ->
-      unify_one y z
+      unify_one y z c
   | (TFunc(_, _), TNum)             | (TNum, TFunc(_, _))
   | (TFunc(_, _), TChar)            | (TChar, TFunc(_, _))
   | (TFunc(_, _), TBool)            | (TBool, TFunc(_, _)) ->
       failwith "Type mismatch: function with primitive."
   | (TList(x), TList(y)) -> 
-      unify_one x y
+      unify_one x y c
   | ((TList(_) as z), TObjAccess(_, y)) | (TObjAccess(_, y), (TList(_) as z))  ->
-      unify_one y z
+      unify_one y z c
   | (TList(_), TObjCreate(_)) | (TObjCreate(_), TList(_)) ->
       failwith "Type mismatch: list with object."
   | (TList(_), TNum)          | (TNum, TList(_))
@@ -486,11 +518,11 @@ let rec unify_one (a : Sast.t) (b : Sast.t) : substitution =
         with Not_found ->
           failwith "Type mistmatch: object with object."
       in
-      unify (List.map mapper props1)
+      unify (List.map mapper props1) c
   | (TObjCreate(props), TObjAccess(name, y)) | (TObjAccess(name, y), TObjCreate(props)) ->
       (try
       let found = List.find (fun cProp -> (fst cProp) = name) props in
-        unify_one (snd found) y
+        unify_one (snd found) y c
       with Not_found -> 
         failwith "Type mistmatch: property does not exist on object.")
   | (TObjCreate(_), TNum)  | (TNum, TObjCreate(_))
@@ -498,11 +530,11 @@ let rec unify_one (a : Sast.t) (b : Sast.t) : substitution =
   | (TObjCreate(_), TBool) | (TBool, TObjCreate(_)) ->
       failwith "Type mistmatch: object with primitive."
   | (TObjAccess(_, x), TObjAccess(_, y)) ->
-      unify_one x y
+      unify_one x y c
   | (TObjAccess(_, y), (TNum as z))  | ((TNum as z), TObjAccess(_, y))
   | (TObjAccess(_, y), (TChar as z)) | ((TChar as z), TObjAccess(_, y))
   | (TObjAccess(_, y), (TBool as z)) | ((TBool as z), TObjAccess(_, y)) ->
-      unify_one y z
+      unify_one y z c
   | (TNum, TChar)  | (TChar, TNum)
   | (TNum, TBool)  | (TBool, TNum)
   | (TChar, TBool) | (TBool, TChar) ->
@@ -513,12 +545,12 @@ let rec unify_one (a : Sast.t) (b : Sast.t) : substitution =
       []
 
 (* unify a list of pairs *)
-and unify (s : (Sast.t * Sast.t) list) : substitution =
+and unify (s : (Sast.t * Sast.t) list) (c: bool) : substitution =
   match s with
   | [] -> []
   | (x, y) :: tl ->
-      let t2 = unify tl in
-      let t1 = unify_one (apply t2 x) (apply t2 y) in
+      let t2 = unify tl c in
+      let t1 = unify_one (apply t2 x) (apply t2 y) c in
       t1 @ t2
 
 
@@ -607,7 +639,7 @@ and apply_stmts (stmts : Sast.aStmt list) (subs : substitution) : Sast.aStmt lis
 let infer_prog (p : Ast.program) : Sast.aProgram =
   let ap = annotate_prog p in
   let constraints = collect_prog ap in
-  let subs = unify (List.rev constraints) in
+  let subs = unify (List.rev constraints) false in
   apply_stmts ap subs
 
 
