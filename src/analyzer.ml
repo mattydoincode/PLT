@@ -443,14 +443,6 @@ let rec unify_one (a : Sast.t) (b : Sast.t) : substitution =
   match (a, b) with
   | (TVar(x), TVar(y)) -> 
       if x = y then [] else [(x, b)]
-  | (TVar(x), (TFunc(_, _) as z))      | ((TFunc(_, _) as z), TVar(x))
-  | (TVar(x), (TList(_) as z))         | ((TList(_) as z), TVar(x))
-  | (TVar(x), (TObj(_) as z))          | ((TObj(_) as z), TVar(x))
-  | (TVar(x), (TObjAccess(_, _) as z)) | ((TObjAccess(_, _) as z), TVar(x))
-  | (TVar(x), (TNum as z))             | ((TNum as z), TVar(x))
-  | (TVar(x), (TChar as z))            | ((TChar as z), TVar(x))
-  | (TVar(x), (TBool as z))            | ((TBool as z), TVar(x)) ->
-      [(x, z)]
   | (TFunc(params1, x), (TFunc(params2, y) as z)) ->
       let copy = copy_type z { variables = []; parent = None } in
       (match copy with
@@ -461,23 +453,6 @@ let rec unify_one (a : Sast.t) (b : Sast.t) : substitution =
           with Invalid_argument(_) ->
             unify_failed a b "Function has wrong # of parameters.\n")
       | _ -> failwith "Internal error, should never happen: copying TFunc failed.")
-  | ((TFunc(_, _) as z), TObjAccess(_, y)) | (TObjAccess(_, y), (TFunc(_, _) as z)) ->
-      unify_one y z
-  | (TFunc(_, _), TList(_)) | (TList(_), TFunc(_, _))
-  | (TFunc(_, _), TObj(_))  | (TObj(_), TFunc(_, _))
-  | (TFunc(_, _), TNum)     | (TNum, TFunc(_, _))
-  | (TFunc(_, _), TChar)    | (TChar, TFunc(_, _))
-  | (TFunc(_, _), TBool)    | (TBool, TFunc(_, _)) ->
-      unify_failed a b ""
-  | (TList(x), TList(y)) -> 
-      unify_one x y
-  | ((TList(_) as z), TObjAccess(_, y)) | (TObjAccess(_, y), (TList(_) as z))  ->
-      unify_one y z
-  | (TList(_), TObj(_)) | (TObj(_), TList(_))
-  | (TList(_), TNum)    | (TNum, TList(_))
-  | (TList(_), TChar)   | (TChar, TList(_))
-  | (TList(_), TBool)   | (TBool, TList(_))->
-      unify_failed a b ""
   | (TObj(props1), TObj(props2)) ->
       let mapper = fun prop1 props2 -> 
         try
@@ -488,30 +463,21 @@ let rec unify_one (a : Sast.t) (b : Sast.t) : substitution =
       in
       let _ = (List.map (fun prop2 -> mapper prop2 props1) props2) in
       unify (List.map (fun prop1 -> mapper prop1 props2) props1)
+  | (TList(x), TList(y)) | (TObjAccess(_, x), TObjAccess(_, y)) ->
+      unify_one x y
+  | (TNum, TNum) | (TChar, TChar) | (TBool, TBool) -> 
+      []
+  | (TVar(x), z) | (z, TVar(x)) ->
+      [(x, z)]
   | (TObj(props), TObjAccess(name, y)) | (TObjAccess(name, y), TObj(props)) ->
       (try
         let found = List.find (fun cProp -> (fst cProp) = name) props in
         unify_one y (snd found)
       with Not_found -> 
         unify_failed a b ("Object missing property '" ^ name ^ "'.\n"))
-  | (TObj(_), TNum)  | (TNum, TObj(_))
-  | (TObj(_), TChar) | (TChar, TObj(_))
-  | (TObj(_), TBool) | (TBool, TObj(_)) ->
-      unify_failed a b ""
-  | (TObjAccess(_, x), TObjAccess(_, y)) ->
-      unify_one x y
-  | (TObjAccess(_, y), (TNum as z))  | ((TNum as z), TObjAccess(_, y))
-  | (TObjAccess(_, y), (TChar as z)) | ((TChar as z), TObjAccess(_, y))
-  | (TObjAccess(_, y), (TBool as z)) | ((TBool as z), TObjAccess(_, y)) ->
+  | (TObjAccess(_, y), z) | (z, TObjAccess(_, y)) ->
       unify_one y z
-  | (TNum, TChar)  | (TChar, TNum)
-  | (TNum, TBool)  | (TBool, TNum)
-  | (TChar, TBool) | (TBool, TChar) ->
-      unify_failed a b ""
-  | (TNum, TNum) 
-  | (TChar, TChar) 
-  | (TBool, TBool) -> 
-      []
+  | (_, _) -> unify_failed a b ""
 
 (* unify a list of pairs *)
 and unify (s : (Sast.t * Sast.t) list) : substitution =
