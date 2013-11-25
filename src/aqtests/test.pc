@@ -9,6 +9,23 @@ fib = (fib,x) -> {
 };
 y = fib(fib, 9); // same as fib.fib(9)
 
+// AWESOME INFERENCE 1
+myFunc = (a, b) -> {
+	return a[1:b];
+};
+result = myFunc("hey dude", 2);
+print(result);
+
+// AWESOME INFERENCE 2
+o = {
+	b: 9,
+	c: "hey",
+	d: (x) -> { return { e: x }; }
+};
+myFunc = (obj) -> { return obj.e; };
+r = myFunc(o.d(o.c));
+
+*/
 
 // UTILITIES
 a = print("hey");
@@ -16,41 +33,9 @@ b = read();
 c = printFile("hey", "dude");
 d = readFile("hey");
 e = download("asdf");
+f = distribute(["a", "b", "c"], (x) -> { return 8; });
 g = where([1,2,3], (x) -> { return x%2 == 0; });
 i = find([1,2,3,4], 3);
 j = split("hi there dude", ' ');
 k = range(2, 10);
-
-
-
-myFunc = (a, b) -> {
-	return a[1:b];
-};
-result = myFunc("hey dude", 2);
-print(result);
-
-o = {
-	a: () -> { return 7; },
-	b: 9,
-	c: "hey",
-	d: (x) -> { return { e: x }; }
-};
-
-myFunc = (obj) -> { return obj.e; };
-
-r = myFunc(o.d(o.c));
-
-*/
-
-
-f = distribute(["a", "b", "c"], (x) -> { return 8; });
-
-
-/*
-
-[TList(mapping_type); TFunc([mapping_type], mapped_type)] --> TList(mapped_type);
-
-f [NEW TList(TVar('B\145))]
-h [NEW TList(TVar('B\151))]
-*/
 

@@ -447,7 +447,7 @@ let rec copy_type (typ : Sast.t) (table : symbol_table) : Sast.t =
   | TBool -> typ
 
 (* unify one pair *)
-let rec unify_one (a : Sast.t) (b : Sast.t) (c: bool) : substitution =
+let rec unify_one (a : Sast.t) (b : Sast.t) (in_copy: bool) : substitution =
   match (a, b) with
   | (TVar(x), TVar(y)) -> 
       if x = y then [] else [(x, b)]
@@ -460,50 +460,37 @@ let rec unify_one (a : Sast.t) (b : Sast.t) (c: bool) : substitution =
   | (TVar(x), (TBool as z))            | ((TBool as z), TVar(x)) ->
       [(x, z)]
   | (TFunc(params1, x), (TFunc(params2, y) as z)) ->
-      print_string "\nIM HERE\n"; 
-      print_string (String.concat ", " (List.map Sast.string_of_type params1) ^ " ---> " ^ Sast.string_of_type x);
-      print_string "\n";
-      print_string (String.concat ", " (List.map Sast.string_of_type params2) ^ " ---> " ^ Sast.string_of_type y);
-      print_string "\n";
-      if c
+      if in_copy
       then
         (try
         let pairs = List.map2 (fun u v -> (u,v)) params1 params2 in
-          unify ((x,y)::pairs) c
+          unify ((x,y)::pairs) in_copy
         with Invalid_argument(_) ->
           failwith "Type mismatch: Calling function with wrong # of parameters.")
       else
-      let existing_func = copy_type z { variables = []; parent = None } in
-      (match existing_func with
-      | TFunc(new_params2, new_y) ->
-          print_string (String.concat ", " (List.map Sast.string_of_type new_params2) ^ " ---> " ^ Sast.string_of_type new_y);
-          print_string "\n";
-          (try
-          let pairs = List.map2 (fun u v -> (u,v)) params1 new_params2 in
-          let u1 = unify ((x,new_y)::pairs) true in
-          let u2 = unify ((x,new_y)::pairs) false in
-          print_string "\nU1\n";
-          print_string (Sast.string_of_subst u1);
-          print_string "\nU2\n";
-          print_string (Sast.string_of_subst u2);
-          u1 (*unify ((x,new_y)::pairs) true*)
-          with Invalid_argument(_) ->
-            failwith "Type mismatch: Calling function with wrong # of parameters.")
-      | _ -> failwith "Internal error, should never happen: copying TFunc failed.")
+        let copy = copy_type z { variables = []; parent = None } in
+        (match copy with
+        | TFunc(new_params2, new_y) ->
+            (try
+            let pairs = List.map2 (fun u v -> (u,v)) params1 new_params2 in
+            unify ((x,new_y)::pairs) true
+            with Invalid_argument(_) ->
+              failwith "Type mismatch: Calling function with wrong # of parameters.")
+        | _ -> failwith "Internal error, should never happen: copying TFunc failed.")
   | (TFunc(_, _), TList(_))         | (TList(_), TFunc(_, _)) ->
       failwith "Type mismatch: function with list."
   | (TFunc(_, _), TObjCreate(_))    | (TObjCreate(_), TFunc(_, _)) ->
       failwith "Type mismatch: function with object."
   | ((TFunc(_, _) as z), TObjAccess(_, y)) | (TObjAccess(_, y), (TFunc(_, _) as z)) ->
-      unify_one y z c
+      unify_one y z in_copy
   | (TFunc(_, _), TNum)             | (TNum, TFunc(_, _))
   | (TFunc(_, _), TChar)            | (TChar, TFunc(_, _))
   | (TFunc(_, _), TBool)            | (TBool, TFunc(_, _)) ->
       failwith "Type mismatch: function with primitive."
   | (TList(x), TList(y)) -> 
-      unify_one x y c
+      unify_one x y in_copy
   | ((TList(_) as z), TObjAccess(_, y)) | (TObjAccess(_, y), (TList(_) as z))  ->
-      unify_one y z c
+      unify_one y z in_copy
   | (TList(_), TObjCreate(_)) | (TObjCreate(_), TList(_)) ->
       failwith "Type mismatch: list with object."
   | (TList(_), TNum)          | (TNum, TList(_))
@@ -518,11 +505,11 @@ let rec unify_one (a : Sast.t) (b : Sast.t) (c: bool) : substitution =
         with Not_found ->
           failwith "Type mistmatch: object with object."
       in
-      unify (List.map mapper props1) c
+      unify (List.map mapper props1) in_copy
   | (TObjCreate(props), TObjAccess(name, y)) | (TObjAccess(name, y), TObjCreate(props)) ->
       (try
       let found = List.find (fun cProp -> (fst cProp) = name) props in
-        unify_one (snd found) y c
+        unify_one (snd found) y in_copy
       with Not_found -> 
         failwith "Type mistmatch: property does not exist on object.")
   | (TObjCreate(_), TNum)  | (TNum, TObjCreate(_))
@@ -530,11 +517,11 @@ let rec unify_one (a : Sast.t) (b : Sast.t) (c: bool) : substitution =
   | (TObjCreate(_), TBool) | (TBool, TObjCreate(_)) ->
       failwith "Type mistmatch: object with primitive."
   | (TObjAccess(_, x), TObjAccess(_, y)) ->
-      unify_one x y c
+      unify_one x y in_copy
   | (TObjAccess(_, y), (TNum as z))  | ((TNum as z), TObjAccess(_, y))
   | (TObjAccess(_, y), (TChar as z)) | ((TChar as z), TObjAccess(_, y))
   | (TObjAccess(_, y), (TBool as z)) | ((TBool as z), TObjAccess(_, y)) ->
-      unify_one y z c
+      unify_one y z in_copy
   | (TNum, TChar)  | (TChar, TNum)
   | (TNum, TBool)  | (TBool, TNum)
   | (TChar, TBool) | (TBool, TChar) ->
@@ -545,12 +532,12 @@ let rec unify_one (a : Sast.t) (b : Sast.t) (c: bool) : substitution =
       []
 
 (* unify a list of pairs *)
-and unify (s : (Sast.t * Sast.t) list) (c: bool) : substitution =
+and unify (s : (Sast.t * Sast.t) list) (in_copy: bool) : substitution =
   match s with
   | [] -> []
   | (x, y) :: tl ->
-      let t2 = unify tl c in
-      let t1 = unify_one (apply t2 x) (apply t2 y) c in
+      let t2 = unify tl in_copy in
+      let t1 = unify_one (apply t2 x) (apply t2 y) in_copy in
       t1 @ t2
 
 
