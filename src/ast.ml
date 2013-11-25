@@ -108,5 +108,5 @@ and string_of_cond cond =
 and string_of_assign ((e1, e2)) = 
   string_of_expr e1 ^ " = " ^ string_of_expr e2
 
-let string_of_program prog = 
+let string_of_prog prog = 
   string_of_stmts prog

@@ -25,6 +25,13 @@ o = {
 myFunc = (obj) -> { return obj.e; };
 r = myFunc(o.d(o.c));
 
+// AWESOME INFERENCE 3
+x1 = (o) -> { return map("hey", o.a); };
+x2 = (x) -> { return x; };
+x3 = map([1,2,3], x2);
+x4 = { a: (c) -> { return [c, c, c]; } };
+x5 = find(x1(x4), "eee");
+
 // UTILITIES
 a = print("hey");
 b = read();
@@ -39,6 +46,12 @@ k = range(2, 10);
 
 */
 
-j = (o) -> { return map("hey", o.a); };
-i = (x) -> { return x; };
-g = map([1,2,3], i);
+
+// LET ME BLOW YOUR MIND
+
+x1 = (o) -> { return map("hey", o.a); };
+x2 = (x) -> { return x; };
+x3 = map([1,2,3], x2);
+x4 = { a: (c) -> { return [c, c, c]; } };
+x5 = find(x1(x4), "eee");
+

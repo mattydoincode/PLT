@@ -19,20 +19,22 @@ let _ =
   let program = Parser.program Scanner.token lexbuf in
   match action with
   | Ast -> 
-      print_string (Ast.string_of_program program)
+      print_string (Ast.string_of_prog program)
   | Sast ->
       let ap = Analyzer.annotate_prog program in
       let constraints = Analyzer.collect_prog ap in
       let subs = Analyzer.unify (List.rev constraints) false in
       let aProgram = Analyzer.apply_stmts ap subs in
       print_string "\n******* ORIG SAST ********\n";
-      print_string (Sast.string_of_program ap);
+      print_string (Sast.string_of_prog ap);
       print_string "\n******** CONSTRAINTS ********\n";
-      print_string (Sast.string_of_collect constraints);
+      print_string (Sast.string_of_constraints constraints);
       print_string "\n******* SUBS ********\n";
-      print_string (Sast.string_of_subst subs);
+      print_string (Sast.string_of_subs subs);
       print_string "\n******* SAST ********\n";
-      print_string (Sast.string_of_program aProgram);
+      print_string (Sast.string_of_prog aProgram);
+      print_string "\n******* INFERENCES ********\n";
+      print_string (Sast.string_of_inferred_prog aProgram);
       print_string "\n"
   | Java ->
       let ap = Analyzer.infer_prog program in

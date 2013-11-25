@@ -39,10 +39,10 @@ rule token = parse
 | "return"             { RETURN }
 | "true"               { BOOLEAN_LIT(true) }
 | "false"              { BOOLEAN_LIT(false) }
-| ('\'' ([' '-'&' '('-'[' ']'-'~']) '\'') as lxm 
+| ('\'' ([' '-'&' '('-'[' ']'-'~'] as c) '\'')
   (* from www.asciitable.com, all chars except ' and \
      NEED TO HANDLE 5 THINGS: \', \\, \t, \n, \r *)
-					   { CHAR_LIT(String.get lxm 2) }
+					   { CHAR_LIT(c) }
 | ('0' | ['1'-'9']+['0'-'9']*)(['.']['0'-'9']+)? as lxm 
 					   { NUM_LIT(float_of_string lxm) }
 | '"' ([^'"']* as s) '"' 
