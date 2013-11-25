@@ -22,15 +22,15 @@ let _ =
       print_string (Ast.string_of_prog program)
   | Sast ->
       let ap = Analyzer.annotate_prog program in
-      let constraints = Analyzer.collect_prog ap in
-      let subs = Analyzer.unify (List.rev constraints) false in
-      let aProgram = Analyzer.apply_stmts ap subs in
       print_string "\n******* ORIG SAST ********\n";
       print_string (Sast.string_of_prog ap);
+      let constraints = Analyzer.collect_prog ap in
       print_string "\n******** CONSTRAINTS ********\n";
       print_string (Sast.string_of_constraints constraints);
+      let subs = Analyzer.unify (List.rev constraints) in
       print_string "\n******* SUBS ********\n";
       print_string (Sast.string_of_subs subs);
+      let aProgram = Analyzer.apply_stmts ap subs in
       print_string "\n******* SAST ********\n";
       print_string (Sast.string_of_prog aProgram);
       print_string "\n******* INFERENCES ********\n";

@@ -115,6 +115,11 @@ else_opt:
   2. x -> body
   3. (x) -> body 
   4. (x,y,z) -> body 
+
+func_body:
+  body               { $1 }
+  LBRACE expr RBRACE { [Return($2)] }
+
 */
 func_create:
     LPAREN RPAREN ARROW body              { FuncCreate([], $4) }

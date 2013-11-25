@@ -1,0 +1,21 @@
+
+func = (o) -> { return o.coolProp; };
+
+obj = {
+	b: 9,
+	c: "hey",
+	d: (x) -> { return { coolProp: x }; }
+};
+
+result = func(obj.d(obj.b));
+
+
+
+
+x1 = (o) -> { return map("hey", o.a); };
+
+x2 = x -> { return x; };
+
+x3 = map([1,2,3], x2);
+
+x4 = x1({ a: x2 });

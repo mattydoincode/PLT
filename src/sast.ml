@@ -9,7 +9,7 @@ type t =
     TVar of string
   | TFunc of t list * t
   | TList of t
-  | TObjCreate of (string * t) list
+  | TObj of (string * t) list
   | TObjAccess of string * t
   | TNum
   | TChar
@@ -53,10 +53,10 @@ let string_of_opt string_of = function
   | None -> ""
 
 let rec string_of_type = function
-    TVar(s) -> "TVar('" ^ s ^ ")"
+    TVar(s) -> "'" ^ s
   | TFunc(tlist, t) -> "TFunc(" ^ String.concat "," (List.map string_of_type tlist) ^ " -> " ^ string_of_type t ^ ")"
   | TList(t) -> "TList(" ^ string_of_type t ^ ")"
-  | TObjCreate(props) -> "TObjCreate(" ^ String.concat "," (List.map (fun (s, t) -> s ^ ":" ^ string_of_type t) props) ^ ")"
+  | TObj(props) -> "TObj(" ^ String.concat ", " (List.map (fun (s, t) -> s ^ ":" ^ string_of_type t) props) ^ ")"
   | TObjAccess(s, t) -> "TObjAccess(" ^ s ^ ":" ^ string_of_type t ^ ")"
   | TNum -> "TNum"
   | TChar -> "TChar"

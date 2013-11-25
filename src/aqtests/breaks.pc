@@ -1,4 +1,9 @@
 
-x = 4;
+fib = (fib,x) -> {
+  if (x < 2) {
+  	return 1;
+  }
+  return fib(fib,x-1)+fib(fib,x-2);
+};
 
-x = "hey";
+b = fib((a,b) -> { return a + b; }, 4);
