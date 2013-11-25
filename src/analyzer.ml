@@ -106,6 +106,15 @@ let new_env() : environment =
   let s = { variables = utilities; parent = None } in
   { scope = s; func_return_type = None; }
 
+let is_keyword (name : string) : bool = 
+  let rec helper (name : string) (words : string list) : bool =
+    match words with
+    | [] -> false
+    | h::t -> name = h || helper name t
+  in
+  helper name ["rec"; "print"; "read"; "printFile"; "readFile"; "download";
+               "distribute"; "where"; "map"; "find"; "split"; "range"]
+
 
 
 
@@ -125,6 +134,9 @@ let rec annotate_expr (e : Ast.expr) (env : environment) : Sast.aExpr =
       | Some(x) -> AId(s, false, x)
       | None -> failwith ("Unrecognized identifier " ^ s ^ "."))
   | FuncCreate(formals, body) ->
+      if List.exists is_keyword formals
+      then failwith "Function parameter cannot be keyword."
+      else
       let new_type = next_type_var() in
       let new_env = new_env() in
       let formals_with_type = List.map (fun x -> (x, next_type_var())) formals in
@@ -166,8 +178,11 @@ let rec annotate_expr (e : Ast.expr) (env : environment) : Sast.aExpr =
           [] -> false
         | (h::t) -> if List.mem h t then true else check_dups t
       in
-      if check_dups (List.map (fun (name, _) -> name) props)
+      let prop_names = List.map fst props in
+      if check_dups prop_names
       then failwith "Duplicate property names on object."
+      else if List.exists is_keyword prop_names
+      then failwith "Ojbect property cannot be keyword."
       else
       let aProps = List.map (fun (name, e) -> (name, annotate_expr e env)) props in
       let types = List.map (fun (name, ae) -> (name, type_of ae)) aProps in
@@ -181,18 +196,18 @@ let rec annotate_expr (e : Ast.expr) (env : environment) : Sast.aExpr =
       let ae = annotate_expr e env in
       ANot(ae, TBool)
 
-and annotate_assign (e1 : Ast.expr) (e2 : Ast.expr) (env : environment) (must_exist : bool) : Sast.aExpr * Sast.aExpr = 
+and annotate_assign (e1 : Ast.expr) (e2 : Ast.expr) (env : environment) : Sast.aExpr * Sast.aExpr = 
   let ae2 = annotate_expr e2 env in
   match e1 with
   | Id(x) -> 
+      if is_keyword x
+      then failwith "Cannot assign keyword."
+      else
       let typ = find_variable env.scope x in
       (match typ with
       | Some(t) -> 
           (AId(x, false, t), ae2)
       | None -> 
-        if must_exist
-        then failwith "Invalid assignment."
-        else 
           let new_type = next_type_var() in
           env.scope.variables <- (x, new_type) :: env.scope.variables;
           (AId(x, true, new_type), ae2))
@@ -213,7 +228,7 @@ and annotate_stmt (s : Ast.stmt) (env : environment) : Sast.aStmt =
         let ae = annotate_expr expr env in
         AReturn(ae, x))
   | Assign(e1, e2) -> 
-      let (ae1, ae2) = annotate_assign e1 e2 env false in
+      let (ae1, ae2) = annotate_assign e1 e2 env in
       AAssign(ae1, ae2)
   | If(conds, elsebody) -> 
       let aIfFunc = fun cond -> 
@@ -231,19 +246,23 @@ and annotate_stmt (s : Ast.stmt) (env : environment) : Sast.aStmt =
   | For(a1, e, a2, body) ->
     let scoped_env = nest_scope env in
     let aa1 = 
-      (match a1 with
-      | Some(e1, e2) -> Some(annotate_assign e1 e2 scoped_env false)
-      | None -> None)
+      match a1 with
+      | Some(e1, e2) -> Some(annotate_assign e1 e2 scoped_env)
+      | None -> None
     in
     let ae = 
-      (match e with
+      match e with
       | Some(x) -> Some(annotate_expr x scoped_env)
-      | None -> None)
+      | None -> None
     in
     let aa2 = 
-      (match a2 with
-      | Some(e1, e2) -> Some(annotate_assign e1 e2 scoped_env true)
-      | None -> None)
+      match a2 with
+      | Some(e1, e2) ->
+        let assign = annotate_assign e1 e2 scoped_env in
+        (match assign with
+        | (AId(_, true, _), _) -> failwith "Cannot create variable at end of for loop."
+        | _ -> Some(assign))
+      | None -> None
     in
     let aBody = annotate_stmts body scoped_env in
     AFor(aa1, ae, aa2, aBody)
@@ -283,7 +302,8 @@ let rec collect_expr (e : Sast.aExpr) : (Sast.t * Sast.t) list =
     | AFuncCallExpr(fExpr, params, ty) -> 
         let ftype = type_of fExpr in
         let myCreatedType = TFunc(List.map (fun p -> type_of p) params, ty) in
-        (List.fold_left (fun l p -> l @ collect_expr p) [] params) @ collect_expr fExpr @ [(myCreatedType, ftype)]
+        let param_constraints = (List.fold_left (fun l p -> l @ collect_expr p) [] params) in
+        param_constraints @ collect_expr fExpr @ [(myCreatedType, ftype)]
     | AObjAccess(oExpr, name, ty) -> 
         let oType = type_of oExpr in
         (oType, TObjAccess(name, ty)) :: collect_expr oExpr
@@ -377,7 +397,8 @@ and collect_stmt (s : aStmt) : (Sast.t * Sast.t) list =
     | AFuncCallStmt (fExpr, params) -> 
       let ftype = type_of fExpr in
       let myCreatedType = TFunc(List.map (fun p-> type_of p) params, next_type_var()) in
-      [(myCreatedType, ftype)] @ (List.fold_left (fun l p -> l @ collect_expr p) [] params) @ collect_expr fExpr
+      let param_constraints = (List.fold_left (fun l p -> l @ collect_expr p) [] params) in
+      [(myCreatedType, ftype)] @ param_constraints @ collect_expr fExpr
 
 and collect_stmts (stmts : Sast.aStmt list) : (Sast.t * Sast.t) list = 
  List.fold_left (fun l s -> l @ (collect_stmt s)) [] stmts
@@ -421,7 +442,7 @@ let rec copy_type (typ : Sast.t) (table : symbol_table) : Sast.t =
           let new_type = next_type_var() in
           table.variables <- (name, new_type) :: table.variables;
           new_type)
-  | TFunc(params, y) -> TFunc(List.map (fun param -> copy_type param table) params, copy_type y table)
+  | TFunc(params, y) -> TFunc(List.map (fun p -> copy_type p table) params, copy_type y table)
   | TList(y) -> TList(copy_type y table)
   | TObj(props) -> TObj(List.map (fun prop -> (fst prop, copy_type (snd prop) table)) props)
   | TObjAccess(name, y) -> TObjAccess(name, copy_type y table)

@@ -1,28 +1,18 @@
 
+/*
+
+for (i = 1; i < 10; j = i + 1) {}
+
+o = { print: 4 };
+
+download = 8;
+
+r = (a,b,c,map) -> { return 0; };
+
 o1 = { a: 2 };
-
-// o1 = { b: 2 };
-
-// myB = o1.b;
+o1 = { b: 2 };
 
 x = 4;
+x = [true];
 
-// x = [true];
-
-// x = o1;
-
-
-
-
-
-
-/*
-fib = (fib,x) -> {
-  if (x < 2) {
-  	return 1;
-  }
-  return fib(fib,x-1)+fib(fib,x-2);
-};
-
-b = fib((a,b) -> { return a + b; }, 4);
 */
