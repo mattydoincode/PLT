@@ -1,21 +1,32 @@
 
-func = (o) -> { return o.coolProp; };
+x1 = x -> { return x; };
+
+// x1 ==> TFunc('AH -> 'AH)
+
+
+
+x2 = map([1,2,3], x1);
+
+// x2 ==> TList(TNum)
+
+
+
+x3 = (o) -> { return map("hey", o.a.b[0]); };
+
+// x3 ==> TFunc(TObjAccess(a:TObjAccess(b:TList(TFunc(TChar -> 'BC)))) -> TList('BC))
+
+
 
 obj = {
-	b: 9,
-	c: "hey",
-	d: (x) -> { return { coolProp: x }; }
+    i: x1,
+	wrap: (x) -> { return { a: { b: [x] } }; }
 };
 
-result = func(obj.d(obj.b));
+// obj ==> TObj(i:TFunc('AH -> 'AH), wrap:TFunc('As -> TObj(a:TObj(b:TList('As)))))
 
 
 
+x4 = x3(obj.wrap(obj.i));
 
-x1 = (o) -> { return map("hey", o.a.b); };
+// x4 ==> TList(TChar)
 
-x2 = x -> { return x; };
-
-x3 = map([1,2,3], x2);
-
-x4 = x1({ a: { b: x2 } });

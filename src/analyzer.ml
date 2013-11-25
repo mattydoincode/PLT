@@ -433,8 +433,9 @@ let rec copy_type (typ : Sast.t) (table : symbol_table) : Sast.t =
   | TChar -> typ
   | TBool -> typ
 
-let unify_failed (a : Sast.t) (b : Sast.t) = 
-  let msg = "Type mismatch:  " ^ Sast.string_of_type a ^ "  <>  " ^ Sast.string_of_type b ^ "  " in
+let unify_failed (a : Sast.t) (b : Sast.t) (msg : string) = 
+  let msg = "\n\n*************\nType mismatch\n*************\n" ^ msg ^
+            Sast.string_of_type a ^ " <> " ^ Sast.string_of_type b ^ "\n\n" in
   failwith msg
 
 (* unify one pair *)
@@ -458,7 +459,7 @@ let rec unify_one (a : Sast.t) (b : Sast.t) : substitution =
             let pairs = List.map2 (fun u v -> (u,v)) new_params2 params1 in
             unify ((x,new_y)::pairs)
           with Invalid_argument(_) ->
-            failwith "Type mismatch: function has wrong # of parameters.")
+            unify_failed a b "Function has wrong # of parameters.\n")
       | _ -> failwith "Internal error, should never happen: copying TFunc failed.")
   | ((TFunc(_, _) as z), TObjAccess(_, y)) | (TObjAccess(_, y), (TFunc(_, _) as z)) ->
       unify_one y z
@@ -467,7 +468,7 @@ let rec unify_one (a : Sast.t) (b : Sast.t) : substitution =
   | (TFunc(_, _), TNum)     | (TNum, TFunc(_, _))
   | (TFunc(_, _), TChar)    | (TChar, TFunc(_, _))
   | (TFunc(_, _), TBool)    | (TBool, TFunc(_, _)) ->
-      unify_failed a b
+      unify_failed a b ""
   | (TList(x), TList(y)) -> 
       unify_one x y
   | ((TList(_) as z), TObjAccess(_, y)) | (TObjAccess(_, y), (TList(_) as z))  ->
@@ -476,14 +477,14 @@ let rec unify_one (a : Sast.t) (b : Sast.t) : substitution =
   | (TList(_), TNum)    | (TNum, TList(_))
   | (TList(_), TChar)   | (TChar, TList(_))
   | (TList(_), TBool)   | (TBool, TList(_))->
-      unify_failed a b
+      unify_failed a b ""
   | (TObj(props1), TObj(props2)) ->
       let mapper = fun prop1 props2 -> 
         try
           let found = List.find (fun prop2 -> (fst prop1) = (fst prop2)) props2 in
           ((snd prop1), (snd found))
         with Not_found ->
-          unify_failed a b
+          unify_failed a b ("Object missing property '" ^ fst prop1 ^ "'.\n")
       in
       let _ = (List.map (fun prop2 -> mapper prop2 props1) props2) in
       unify (List.map (fun prop1 -> mapper prop1 props2) props1)
@@ -492,11 +493,11 @@ let rec unify_one (a : Sast.t) (b : Sast.t) : substitution =
         let found = List.find (fun cProp -> (fst cProp) = name) props in
         unify_one y (snd found)
       with Not_found -> 
-        failwith ("Type mistmatch: property '" ^ name ^ "' does not exist on object."))
+        unify_failed a b ("Object missing property '" ^ name ^ "'.\n"))
   | (TObj(_), TNum)  | (TNum, TObj(_))
   | (TObj(_), TChar) | (TChar, TObj(_))
   | (TObj(_), TBool) | (TBool, TObj(_)) ->
-      unify_failed a b
+      unify_failed a b ""
   | (TObjAccess(_, x), TObjAccess(_, y)) ->
       unify_one x y
   | (TObjAccess(_, y), (TNum as z))  | ((TNum as z), TObjAccess(_, y))
@@ -506,7 +507,7 @@ let rec unify_one (a : Sast.t) (b : Sast.t) : substitution =
   | (TNum, TChar)  | (TChar, TNum)
   | (TNum, TBool)  | (TBool, TNum)
   | (TChar, TBool) | (TBool, TChar) ->
-      unify_failed a b
+      unify_failed a b ""
   | (TNum, TNum) 
   | (TChar, TChar) 
   | (TBool, TBool) -> 

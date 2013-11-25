@@ -34,8 +34,7 @@ let _ =
       print_string "\n******* SAST ********\n";
       print_string (Sast.string_of_prog aProgram);
       print_string "\n******* INFERENCES ********\n";
-      print_string (Sast.string_of_inferred_prog aProgram);
-      print_string "\n"
+      print_string (Sast.string_of_inferred_prog aProgram)
   | Java ->
       let ap = Analyzer.infer_prog program in
       let jp = Javagen.gen_program "alden" ap in
