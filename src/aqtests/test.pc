@@ -25,8 +25,6 @@ o = {
 myFunc = (obj) -> { return obj.e; };
 r = myFunc(o.d(o.c));
 
-*/
-
 // UTILITIES
 a = print("hey");
 b = read();
@@ -39,3 +37,8 @@ i = find([1,2,3,4], 3);
 j = split("hi there dude", ' ');
 k = range(2, 10);
 
+*/
+
+j = (o) -> { return map("hey", o.a); };
+i = (x) -> { return x; };
+g = map([1,2,3], i);

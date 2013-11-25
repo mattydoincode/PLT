@@ -429,7 +429,7 @@ let apply (s : substitution) (typ : Sast.t) : Sast.t =
   List.fold_right (fun (x, e) -> subst e x) s typ
 
 let rec copy_type (typ : Sast.t) (table : symbol_table) : Sast.t =
-    match typ with
+  match typ with
   | TVar(name) -> 
       let typ = find_variable table name in
       (match typ with
@@ -451,7 +451,6 @@ let rec unify_one (a : Sast.t) (b : Sast.t) (in_copy: bool) : substitution =
   match (a, b) with
   | (TVar(x), TVar(y)) -> 
       if x = y then [] else [(x, b)]
-  | (TVar(x), (TFunc(_, _) as z))      | ((TFunc(_, _) as z), TVar(x))
   | (TVar(x), (TList(_) as z))         | ((TList(_) as z), TVar(x))
   | (TVar(x), (TObjCreate(_) as z))    | ((TObjCreate(_) as z), TVar(x))
   | (TVar(x), (TObjAccess(_, _) as z)) | ((TObjAccess(_, _) as z), TVar(x))
@@ -459,20 +458,35 @@ let rec unify_one (a : Sast.t) (b : Sast.t) (in_copy: bool) : substitution =
   | (TVar(x), (TChar as z))            | ((TChar as z), TVar(x))
   | (TVar(x), (TBool as z))            | ((TBool as z), TVar(x)) ->
       [(x, z)]
+  | (TVar(x), (TFunc(_, _) as z))      | ((TFunc(_, _) as z), TVar(x))
+      -> 
+      print_string ("\nID " ^ x ^ " " ^ Sast.string_of_type z ^ "\n");
+      [(x, z)]
   | (TFunc(params1, x), (TFunc(params2, y) as z)) ->
-      if in_copy
+      print_string "\nIM HERE\n"; 
+      print_string (String.concat ", " (List.map Sast.string_of_type params1) ^ " ---> " ^ Sast.string_of_type x);
+      print_string "\n";
+      print_string (String.concat ", " (List.map Sast.string_of_type params2) ^ " ---> " ^ Sast.string_of_type y);
+      print_string "\n";
+      if in_copy && false
       then
         (try
-        let pairs = List.map2 (fun u v -> (u,v)) params1 params2 in
+        let pairs = List.map2 (fun u v -> (v,u)) params1 params2 in
           unify ((x,y)::pairs) in_copy
         with Invalid_argument(_) ->
           failwith "Type mismatch: Calling function with wrong # of parameters.")
       else
         let copy = copy_type z { variables = []; parent = None } in
+        let new_params1 = List.map (fun p -> copy_type p { variables = []; parent = None }) params1 in
         (match copy with
         | TFunc(new_params2, new_y) ->
+            print_string (String.concat ", " (List.map Sast.string_of_type new_params1) ^ " ---> " ^ Sast.string_of_type x);
+            print_string "\n";
+            print_string (String.concat ", " (List.map Sast.string_of_type new_params2) ^ " ---> " ^ Sast.string_of_type new_y);
+            print_string "\n";
             (try
-            let pairs = List.map2 (fun u v -> (u,v)) params1 new_params2 in
+            (* PUTTING PARAMS1 ON THE RIGHT SIDE OF THE PAIRS IS INTENTIONAL, DONT MESS WITH IT *)
+            let pairs = List.map2 (fun u v -> (u,v)) new_params2 params1 in
             unify ((x,new_y)::pairs) true
             with Invalid_argument(_) ->
               failwith "Type mismatch: Calling function with wrong # of parameters.")
