@@ -18,7 +18,7 @@ type symbol_table = {
 }
 
 type environment = {
-	mutable cur_func_return_type : Sast.t option; (* Function’s return type *)
+	mutable func_return_type : Sast.t option; (* Function’s return type *)
 	scope : symbol_table;        (* symbol table for vars *)
 }
 
@@ -28,14 +28,11 @@ let rec find_variable (scope : symbol_table) (name : string) : Sast.t option =
     Some(typ)
   with Not_found ->
     match scope.parent with
-      Some(parent) -> find_variable parent name
-      | _ -> None
+    | Some(p) -> find_variable p name
+    | _ -> None
 
 let code1 = ref (Char.code 'A')
 let code2 = ref (Char.code 'A')
-
-let reset_type_vars() = 
-  (code1 := Char.code 'A'; code2 := Char.code 'A')
 
 let next_type_var() : Sast.t =
   let c1 = !code1 in
@@ -107,7 +104,7 @@ let new_env() : environment =
                     TList(TNum)))
   ] in
   let s = { variables = utilities; parent = None } in
-  { scope = s; cur_func_return_type = None; }
+  { scope = s; func_return_type = None; }
 
 
 
@@ -130,12 +127,12 @@ let rec annotate_expr (e : Ast.expr) (env : environment) : Sast.aExpr =
   | FuncCreate(formals, body) ->
       let new_type = next_type_var() in
       let new_env = new_env() in
-      new_env.cur_func_return_type <- Some(new_type); (* side effect *)
       let formals_with_type = List.map (fun x -> (x, next_type_var())) formals in
-      let formal_types = List.map (fun (_, t) -> t) formals_with_type in
-      new_env.scope.variables <- formals_with_type @ new_env.scope.variables; (* side effect *)
+      let func_type = TFunc(List.map snd formals_with_type, new_type) in
+      new_env.func_return_type <- Some(new_type);
+      new_env.scope.variables <- formals_with_type @ [("rec", func_type)] @ new_env.scope.variables;
       let aBody = annotate_stmts body new_env in
-      AFuncCreate(formals_with_type, aBody, TFunc(formal_types, new_type))
+      AFuncCreate(formals_with_type, aBody, func_type)
   | FuncCallExpr(e, elist) -> 
       let ae = annotate_expr e env in
       let aelist = List.map (fun x -> annotate_expr x env) elist in
@@ -197,7 +194,7 @@ and annotate_assign (e1 : Ast.expr) (e2 : Ast.expr) (env : environment) (must_ex
         then failwith "Invalid assignment."
         else 
           let new_type = next_type_var() in
-          env.scope.variables <- (x, new_type) :: env.scope.variables; (* side effect *)
+          env.scope.variables <- (x, new_type) :: env.scope.variables;
           (AId(x, true, new_type), ae2))
   | ObjAccess(_, _) ->
       let ae1 = annotate_expr e1 env in
@@ -210,7 +207,7 @@ and annotate_assign (e1 : Ast.expr) (e2 : Ast.expr) (env : environment) (must_ex
 and annotate_stmt (s : Ast.stmt) (env : environment) : Sast.aStmt =
   match s with
   | Return(expr) -> 
-    (match env.cur_func_return_type with
+    (match env.func_return_type with
     | None -> failwith "Invalid return statement."
     | Some(x) -> 
         let ae = annotate_expr expr env in
@@ -264,7 +261,6 @@ and annotate_stmts (stmts : Ast.stmt list) (env : environment) : Sast.aStmt list
   List.map (fun x -> annotate_stmt x env) stmts
   
 let annotate_prog (p : Ast.program) : Sast.aProgram =
-  reset_type_vars();
   let env = new_env() in
   annotate_stmts p env
 
