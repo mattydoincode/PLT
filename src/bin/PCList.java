@@ -1,5 +1,3 @@
-package pubCrawl.core;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Iterator;
@@ -15,6 +13,13 @@ public class PCList extends PCObject implements Iterable {
     public PCList(List<PCObject> items) {
         for (PCObject item : items) {
             _list.add(item);
+        }
+    }
+
+    public PCList(String mystring) {
+        char[] myarray = mystring.toCharArray();
+        for(int i = 0; i < myarray.length; i++){
+            _list.add(new PCObject(myarray[i]));
         }
     }
 

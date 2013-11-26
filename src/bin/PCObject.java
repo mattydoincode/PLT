@@ -1,4 +1,4 @@
-package pubCrawl.core;
+//package pubCrawl.core;
 
 import java.io.Serializable;
 import java.util.HashMap;

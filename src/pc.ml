@@ -37,7 +37,7 @@ let _ =
       print_string (Sast.string_of_inferred_prog aProgram)
   | Java ->
       let ap = Analyzer.infer_prog program in
-      let jp = Javagen.gen_program "alden" ap in
+      let jp = Javagen.gen_program "output" ap in
       print_string jp;
       print_string "\n"
   | Compile -> 

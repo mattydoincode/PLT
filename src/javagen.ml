@@ -1,26 +1,50 @@
 open Sast
 open Printf
 
+(*import PCObject;
+  import PCList;  killed these guys for now...*)
+
+
+(************
+HELPERS
+************)
+
+let type_of (ae : Sast.aExpr) : Sast.t =
+  match ae with
+  | ANumLit(_, t) -> t
+  | ABoolLit(_, t) -> t
+  | ACharLit(_, t) -> t
+  | AId(_, _, t) -> t
+  | AFuncCreate(_, _, t) -> t
+  | AFuncCallExpr(_, _, t) -> t
+  | AObjAccess(_, _, t) -> t
+  | AListAccess(_, _, t) -> t
+  | AListCreate(_, t) -> t
+  | ASublist(_, _, _, t) -> t
+  | AObjCreate(_, t) -> t
+  | ABinop(_, _, _, t) -> t
+  | ANot(_, t) -> t
+
+
 (*******************************************************************************
   Expression and statement evaluation
 ********************************************************************************)
 
 let rec writeToFile fileName progString = 
-  let file = open_out fileName in
+  let file = open_out ("bin/" ^ fileName ^ ".java") in
     fprintf file "%s"  progString
 
 and gen_program fileName prog = (*have a writetofile*)
   let stmtString = writeStmtList prog in
-  sprintf "import PCObject;
-  import PCList;
+  let out = sprintf "
 
   public class %s{
       public static void main(String[] args){
       %s
       } 
-  } " fileName stmtString(*;
-  let x = open_out (fileName ^ ".java") in 
-  writeToFile x stmtString*) 
+  } " fileName stmtString in
+  writeToFile fileName out;
+  out
 
 
 and writeStmtList stmtList = 
@@ -55,6 +79,7 @@ and gen_expr = function
   | AObjCreate(nVTplList, _) ->  writeObjCreate nVTplList
   | ABinop(ope1, op, ope2, _) -> writeBinop ope1 op ope2
   | ANot(exp, _) -> writeUnaryNot exp
+
 
 
 (*******************************************************************************
@@ -109,12 +134,31 @@ and writeWhileLoop cond stmtList =
   and stmtString = writeStmtList stmtList in 
     sprintf "while(%s)\n{\n    %s\n}" condString stmtString
 
+
+(*ASSIGNING IS SPECIAL SO WE HANDWROTE THESE WITH LOVE*)
 and writeAssign expr1 expr2 =
-  let e1 = gen_expr expr1 and e2 = gen_expr expr2 in
-  sprintf "%s = %s;\n" e1 e2
+    let lhs_type = match type_of expr2 with
+      | TFunc(a,b) -> "IPCFunction" 
+      | _ ->  "PCObject"
+    in
+    let e2string = gen_expr expr2 in
+      match expr1 with
+        | AId(name, typed, typ) -> 
+          let typeString = if typed then lhs_type else "" in
+          let e1string = typeString ^ " " ^ name in
+          sprintf "%s = %s;\n" e1string e2string
+        | AListAccess(listName, idx, _) -> 
+          let listNamestring = gen_expr listName and idxstring = gen_expr idx in
+          sprintf "%s.set(%s,%s);\n" listNamestring idxstring e2string
+        | AObjAccess(objName, fieldName, _)->
+          let objNamestring = gen_expr objName in 
+          sprintf "%s.set(\"%s\", %s)" objNamestring fieldName e2string
+
+        | _ -> failwith "How'd we get all the way to java with this!!!! Not a valid LHS"
+    
 
 and writeFuncCallStmt fNameExpr paramsListExpr = 
-  let fName = gen_expr fNameExpr 
+  let fName = gen_expr fNameExpr
   and params = params_to_string paramsListExpr in
   sprintf "%s.call(%s);\n" fName params
 
@@ -126,16 +170,27 @@ and writeFuncCallStmt fNameExpr paramsListExpr =
 
 and writeFunc params stmtList = 
   let fName = function_name_gen() in
-  let fileName = fName ^ ".java" in 
+  let fileName = "bin/" ^ fName ^ ".java" in 
    let file = open_out fileName in
-    let paramsString = pNames_to_string params 
+    let paramSetting = snd (List.fold_left (
+                            fun a p -> 
+                              let count = fst a in
+                              let sofar = snd a in 
+                              let newString = "PCObject " ^ (fst p) ^
+                              " = args[" ^ string_of_int count ^ "];\n"
+                              in
+                              (count +1, sofar ^ newString)
+                          ) (0, "") params)
+
     and body = writeStmtList stmtList in
-      fprintf file "public class %s extends PCObject implements IPCFunction, Serializable{
+      fprintf file "import java.io.Serializable; 
+      public class %s extends PCObject implements IPCFunction, Serializable{
   public %s(){}
 
-  public PCObject call(%s){
+  public PCObject call(PCObject... args){
+  %s
   %s\n}
-  }" fName fName paramsString body;
+  }" fName fName paramSetting body;
   sprintf "new %s()" fName
 
 
@@ -172,6 +227,7 @@ and writeObjectAccess objNameExpr fieldName =
 and writeListAccess listNameExpr idxExpr =
   let listName = gen_expr listNameExpr and idx = gen_expr idxExpr in
   sprintf "%s.get(%s)" listName idx
+
 
 and writeListCreate exprList =
   let concatAdds = (fun a b -> a^(sprintf(".add(%s)") b)) 
@@ -212,20 +268,20 @@ and writeUnaryNot boolExpr =
 and writeBinop expr1 op expr2 = 
   let e1 = gen_expr expr1 and e2 = gen_expr expr2 in
     let writeBinopHelper e1 op e2 = match op with
-        Add  -> sprintf "new PCObject(%s.getBase() + %s.getBase())" e1 e2
-      | Sub  -> sprintf "new PCObject(%s.getBase() - %s.getBase())" e1 e2  
-      | Mult -> sprintf "new PCObject(%s.getBase() * %s.getBase())" e1 e2
-      | Div  -> sprintf "new PCObject(%s.getBase() / %s.getBase())" e1 e2
-      | Mod -> sprintf "new PCObject(%s.getBase() %% %s.getBase())" e1 e2
-      | Less -> sprintf "new PCObject(%s.getBase() < %s.getBase())" e1 e2
-      | Leq -> sprintf "new PCObject(%s.getBase() <= %s.getBase())" e1 e2   
-      | Greater -> sprintf "new PCObject(%s.getBase() > %s.getBase())" e1 e2 
-      | Geq -> sprintf "new PCObject(%s.getBase() >= %s.getBase())" e1 e2
-      | And -> sprintf "new PCObject(%s.getBase() && %s.getBase())" e1 e2    
-      | Or -> sprintf "new PCObject(%s.getBase() ||h %s.getBase())" e1 e2 
-      | Equal -> ""
-      | Neq -> ""
-      | Concat -> "" 
+        Add  -> sprintf "new PCObject(%s.<Double>getBase() + %s.<Double>getBase())" e1 e2
+      | Sub  -> sprintf "new PCObject(%s.<Double>getBase() - %s.<Double>getBase())" e1 e2  
+      | Mult -> sprintf "new PCObject(%s.<Double>getBase() * %s.<Double>getBase())" e1 e2
+      | Div  -> sprintf "new PCObject(%s.<Double>getBase() / %s.<Double>getBase())" e1 e2
+      | Mod -> sprintf "new PCObject(%s.<Double>getBase() %% %s.<Double>getBase())" e1 e2
+      | Less -> sprintf "new PCObject(%s.<Double>getBase() < %s.<Double>getBase())" e1 e2
+      | Leq -> sprintf "new PCObject(%s.<Double>getBase() <= %s.<Double>getBase())" e1 e2   
+      | Greater -> sprintf "new PCObject(%s.<Double>getBase() > %s.<Double>getBase())" e1 e2 
+      | Geq -> sprintf "new PCObject(%s.<Double>getBase() >= %s.<Double>getBase())" e1 e2
+      | And -> sprintf "new PCObject(%s.<Boolean>getBase() && %s.<Boolean>getBase())" e1 e2    
+      | Or -> sprintf "new PCObject(%s.<Boolean>getBase() ||h %s.<Boolean>getBase())" e1 e2 
+      | Equal -> "new PCObject(%s == %s)" (*PATTERN MATCH ON TYPE*)
+      | Neq -> "new PCObject(%s != %s)" 
+      | Concat -> "new PCList(\"TODO GET THIS WORKING\")"
     in writeBinopHelper e1 op e2
 
 
