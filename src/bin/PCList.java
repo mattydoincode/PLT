@@ -2,7 +2,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Iterator;
 
-public class PCList extends PCObject implements Iterable {
+public class PCList extends PCObject implements Iterable<PCObject> {
 
     private final ArrayList<PCObject> _list = new ArrayList<PCObject>();
 
