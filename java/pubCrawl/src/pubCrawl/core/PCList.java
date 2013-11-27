@@ -30,8 +30,9 @@ public class PCList extends PCObject implements Iterable {
         _list.set(idx, val);
     }
 
-    public void add(PCObject val) {
+    public PCList add(PCObject val) {
         _list.add(val);
+        return this;
     }
 
     //  TODO update docs for removeAt
