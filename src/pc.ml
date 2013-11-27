@@ -38,7 +38,7 @@ let _ =
   | Java ->
       let ap = Analyzer.infer_prog program in
       let jp = Javagen.gen_program "output" ap in
-      print_string jp;
+      ignore(jp); print_string "done";
       print_string "\n"
   | Compile -> 
       print_string "not yet!"
