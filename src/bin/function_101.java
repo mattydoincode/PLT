@@ -6,7 +6,7 @@ import java.io.Serializable;
   PCObject a = args[0];
 PCObject b = args[1];
 
-  return new PCObject(a.<Double>getBase() + b.<Double>getBase());
+  return new PCObject(a.equals(b));
 
 }
   }

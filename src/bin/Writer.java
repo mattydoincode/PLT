@@ -2,11 +2,12 @@ import java.util.Iterator;
 
 public class Writer{
     
-    public static PCList print(PCList toPrint){
-        for(Iterator<PCObject> it = toPrint.iterator();it.hasNext();){
+    public static PCList print(PCObject toPrint){
+    	PCList mylist = (PCList) toPrint;
+        for(Iterator<PCObject> it = mylist.iterator();it.hasNext();){
             System.out.printf("%c", it.next().getBase());
         }
 
-        return toPrint;
+        return mylist;
     }
 }

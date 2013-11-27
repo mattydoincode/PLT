@@ -139,6 +139,7 @@ and writeWhileLoop cond stmtList =
 and writeAssign expr1 expr2 =
     let lhs_type = match type_of expr2 with
       | TFunc(a,b) -> "IPCFunction" 
+      | TList(a) -> "PCList"
       | _ ->  "PCObject"
     in
     let e2string = gen_expr expr2 in
@@ -158,9 +159,7 @@ and writeAssign expr1 expr2 =
     
 
 and writeFuncCallStmt fNameExpr paramsListExpr = 
-  let fName = gen_expr fNameExpr
-  and params = params_to_string paramsListExpr in
-  sprintf "%s.call(%s);\n" fName params
+  (writeFuncCall fNameExpr paramsListExpr) ^ ";\n"
 
 
 
@@ -197,7 +196,10 @@ and writeFunc params stmtList =
   
 and writeFuncCall toCallExp paramsExp =
   let toCall = (gen_expr toCallExp) and params = (params_to_string paramsExp) in 
-  sprintf "%s.call(%s)" toCall params
+  match toCall with 
+    | "print" -> sprintf "Writer.print(%s)" params
+    | "read" -> sprintf "Reader.read(%s)" params
+    | _ -> sprintf "%s.call(%s)" toCall params
 
 
 and params_to_string paramsList= 
@@ -279,9 +281,9 @@ and writeBinop expr1 op expr2 =
       | Geq -> sprintf "new PCObject(%s.<Double>getBase() >= %s.<Double>getBase())" e1 e2
       | And -> sprintf "new PCObject(%s.<Boolean>getBase() && %s.<Boolean>getBase())" e1 e2    
       | Or -> sprintf "new PCObject(%s.<Boolean>getBase() ||h %s.<Boolean>getBase())" e1 e2 
-      | Equal -> "new PCObject(%s.equals(%s))" (*PATTERN MATCH ON TYPE*)
-      | Neq -> "new PCObject(!(%s.equals(%s)))" 
-      | Concat -> "new PCList(%s,%s)"
+      | Equal -> sprintf "new PCObject(%s.equals(%s))" e1 e2
+      | Neq -> sprintf "new PCObject(!(%s.equals(%s)))" e1 e2
+      | Concat -> sprintf "new PCList(%s,%s)" e1 e2
     in writeBinopHelper e1 op e2
 
 

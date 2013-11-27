@@ -40,6 +40,10 @@ public class PCList extends PCObject implements Iterable {
         return _list.get(idx);
     }
 
+    public PCObject get(PCObject idx){
+        return _list.get((int)idx.<Double>getBase().doubleValue());
+    }
+
     public void set(int idx, PCObject val) {
         _list.set(idx, val);
     }
