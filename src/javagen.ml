@@ -183,7 +183,7 @@ and writeFunc params stmtList =
 
     and body = writeStmtList stmtList in
       fprintf file "import java.io.Serializable; 
-      public class %s extends PCObject implements IPCFunction, Serializable{
+      public class %s extends IPCFunction implements Serializable{
   public %s(){}
 
   public PCObject call(PCObject... args){

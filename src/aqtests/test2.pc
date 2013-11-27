@@ -7,7 +7,7 @@ nope = x==5;
 
 yup = (x+1)==5;
 
-print("shit man");
+print("hello world");
 
 myotherthing = read();
 
