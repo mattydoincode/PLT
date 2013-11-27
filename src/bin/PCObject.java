@@ -41,4 +41,8 @@ public class PCObject implements Serializable {
         return get(_base);
     }
 
+    public bool equals(PCObject other) {
+        
+    }
+
 }
