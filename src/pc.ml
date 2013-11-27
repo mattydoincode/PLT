@@ -19,26 +19,25 @@ let _ =
   let program = Parser.program Scanner.token lexbuf in
   match action with
   | Ast -> 
-      print_string (Ast.string_of_program program)
+      print_string (Ast.string_of_prog program)
   | Sast ->
       let ap = Analyzer.annotate_prog program in
-      let constraints = Analyzer.collect_prog ap in
-      let subs = Analyzer.unify (List.rev constraints) in
-      let aProgram = Analyzer.infer_prog program in
-      print_string "\n******** AST ********\n";
-      print_string (Ast.string_of_program program);
       print_string "\n******* ORIG SAST ********\n";
-      print_string (Sast.string_of_program ap);
+      print_string (Sast.string_of_prog ap);
+      let constraints = Analyzer.collect_prog ap in
       print_string "\n******** CONSTRAINTS ********\n";
-      print_string (Sast.string_of_collect constraints);
+      print_string (Sast.string_of_constraints constraints);
+      let subs = Analyzer.unify (List.rev constraints) in
       print_string "\n******* SUBS ********\n";
-      print_string (Sast.string_of_subst subs);
+      print_string (Sast.string_of_subs subs);
+      let aProgram = Analyzer.apply_stmts ap subs in
       print_string "\n******* SAST ********\n";
-      print_string (Sast.string_of_program aProgram);
-      print_string "\n"
+      print_string (Sast.string_of_prog aProgram);
+      print_string "\n******* INFERENCES ********\n";
+      print_string (Sast.string_of_inferred_prog aProgram)
   | Java ->
       let ap = Analyzer.infer_prog program in
-      let jp = Javagen.gen_program "alden" ap in
+      let jp = Javagen.gen_program "output" ap in
       print_string jp;
       print_string "\n"
   | Compile -> 

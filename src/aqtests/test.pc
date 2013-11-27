@@ -1,48 +1,59 @@
-/*
 
-fib = (fib,x) -> {
+
+fib = (x) -> {
   if (x < 2) {
   	return 1;
   }
-  return fib(x-1)*fib(x-2);
+  inner = (x) -> { return rec(x-1)*rec(x-2); };
+  return inner(x) * rec(1);
 };
-y = fib(fib, 9); // same as fib.fib(9)
 
-
-myList = [1,2,3];
-
-(myList.where)();
-
-ACCESS -> 
-	ID myList
-	where
+y = fib(9);
 
 
 
 
+
+
+
+
+/*
+
+// RECURSION
+fib = (x) -> {
+  if (x < 2) {
+  	return 1;
+  }
+  inner = (x) -> { return rec(x-1)*rec(x-2); };
+  return inner(x) * rec(1);
+};
+y = fib(9);
+
+// AWESOME INFERENCE 1
 myFunc = (a, b) -> {
 	return a[1:b];
 };
 result = myFunc("hey dude", 2);
 print(result);
 
-o = {
-	a: () -> { return 7; },
-	b: 9,
-	c: "hey",
-	d: (x) -> { return { e: x }; }
-};
+// AWESOME INFERENCE 3
+x1 = (o) -> { return map("hey", o.a); };
+x2 = (x) -> { return x; };
+x3 = map([1,2,3], x2);
+x4 = { a: (c) -> { return [c, c, c]; } };
+x5 = find(x1(x4), "eee");
 
-myFunc = (obj) -> { return obj.e; };
 
-r = myFunc(o.d(o.c));
+// UTILITIES
+a = print("hey");
+b = read();
+c = printFile("hey", "dude");
+d = readFile("hey");
+e = download("asdf");
+f = distribute(["a", "b", "c"], (x) -> { return 8; });
+g = where([1,2,3], (x) -> { return x%2 == 0; });
+i = find([1,2,3,4], 3);
+j = split("hi there dude", ' ');
+k = range(2, 10);
 
 */
-
-print("hey");
-
-x = () -> { print("hey"); return 4; };
-
-
-
-

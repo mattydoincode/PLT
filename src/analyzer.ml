@@ -18,7 +18,7 @@ type symbol_table = {
 }
 
 type environment = {
-	mutable cur_func_return_type : Sast.t option; (* Function’s return type *)
+	mutable func_return_type : Sast.t option; (* Function’s return type *)
 	scope : symbol_table;        (* symbol table for vars *)
 }
 
@@ -28,27 +28,26 @@ let rec find_variable (scope : symbol_table) (name : string) : Sast.t option =
     Some(typ)
   with Not_found ->
     match scope.parent with
-      Some(parent) -> find_variable parent name
-      | _ -> None
+    | Some(p) -> find_variable p name
+    | _ -> None
 
 let code1 = ref (Char.code 'A')
 let code2 = ref (Char.code 'A')
 
-let reset_type_vars() = 
-  (code1 := Char.code 'A'; code2 := Char.code 'A')
-
 let next_type_var() : Sast.t =
   let c1 = !code1 in
   let c2 = !code2 in
-    (
-      if c2 == Char.code 'Z' 
-      then (incr code1; code2 := Char.code 'a')
-      else incr code2;
-      if c1 >= Char.code 'Z'
-      then code1 := Char.code 'a'
-      else ();
-      TVar((Char.escaped (Char.chr c1)) ^ (Char.escaped (Char.chr c2)))
-    )
+    if c2 = Char.code 'Z'
+    then code2 := Char.code 'a'
+    else incr code2;
+    if c2 = Char.code 'z'
+    then (incr code1; code2 := Char.code 'A')
+    else ();
+    if c1 = Char.code 'Z'
+    then code1 := Char.code 'a'
+    else ();
+    let name = (Char.escaped (Char.chr c1)) ^ (Char.escaped (Char.chr c2)) in
+    TVar(name)
 
 let type_of (ae : Sast.aExpr) : Sast.t =
   match ae with
@@ -78,13 +77,15 @@ let new_env() : environment =
   let where_type = next_type_var() in
   let mapping_type = next_type_var() in
   let mapped_type = next_type_var() in
-  let s = { variables = [
+  let find_type = next_type_var() in
+  let split_type = next_type_var() in
+  let utilities = [
     ("print", TFunc([TList(TChar)], 
                     TList(TChar)));
     ("read", TFunc([],
                    TList(TList(TChar))));
     ("printFile", TFunc([TList(TChar); TList(TChar)],
-                        TList(TList(TChar))));
+                        TList(TChar)));
     ("readFile", TFunc([TList(TChar)],
                        TList(TList(TChar))));
     ("download", TFunc([TList(TChar)],
@@ -94,9 +95,25 @@ let new_env() : environment =
     ("where", TFunc([TList(where_type); TFunc([where_type], TBool)],
                     TList(where_type)));
     ("map", TFunc([TList(mapping_type); TFunc([mapping_type], mapped_type)],
-                  TList(mapped_type)))
-  ]; parent = None } in
-  { scope = s; cur_func_return_type = None; }
+                  TList(mapped_type)));
+    ("find", TFunc([TList(find_type); find_type], 
+                   TNum));
+    ("split", TFunc([TList(split_type); split_type],
+                    TList(TList(split_type))));
+    ("range", TFunc([TNum; TNum], 
+                    TList(TNum)))
+  ] in
+  let s = { variables = utilities; parent = None } in
+  { scope = s; func_return_type = None; }
+
+let is_keyword (name : string) : bool = 
+  let rec helper (name : string) (words : string list) : bool =
+    match words with
+    | [] -> false
+    | h::t -> name = h || helper name t
+  in
+  helper name ["rec"; "print"; "read"; "printFile"; "readFile"; "download";
+               "distribute"; "where"; "map"; "find"; "split"; "range"]
 
 
 
@@ -117,14 +134,17 @@ let rec annotate_expr (e : Ast.expr) (env : environment) : Sast.aExpr =
       | Some(x) -> AId(s, false, x)
       | None -> failwith ("Unrecognized identifier " ^ s ^ "."))
   | FuncCreate(formals, body) ->
+      if List.exists is_keyword formals
+      then failwith "Function parameter cannot be keyword."
+      else
       let new_type = next_type_var() in
       let new_env = new_env() in
-      new_env.cur_func_return_type <- Some(new_type); (* side effect *)
       let formals_with_type = List.map (fun x -> (x, next_type_var())) formals in
-      let formal_types = List.map (fun (_, t) -> t) formals_with_type in
-      new_env.scope.variables <- formals_with_type @ new_env.scope.variables; (* side effect *)
+      let func_type = TFunc(List.map snd formals_with_type, new_type) in
+      new_env.func_return_type <- Some(new_type);
+      new_env.scope.variables <- formals_with_type @ [("rec", func_type)] @ new_env.scope.variables;
       let aBody = annotate_stmts body new_env in
-      AFuncCreate(formals_with_type, aBody, TFunc(formal_types, new_type))
+      AFuncCreate(formals_with_type, aBody, func_type)
   | FuncCallExpr(e, elist) -> 
       let ae = annotate_expr e env in
       let aelist = List.map (fun x -> annotate_expr x env) elist in
@@ -158,12 +178,15 @@ let rec annotate_expr (e : Ast.expr) (env : environment) : Sast.aExpr =
           [] -> false
         | (h::t) -> if List.mem h t then true else check_dups t
       in
-      if check_dups (List.map (fun (name, _) -> name) props)
+      let prop_names = List.map fst props in
+      if check_dups prop_names
       then failwith "Duplicate property names on object."
+      else if List.exists is_keyword prop_names
+      then failwith "Ojbect property cannot be keyword."
       else
       let aProps = List.map (fun (name, e) -> (name, annotate_expr e env)) props in
       let types = List.map (fun (name, ae) -> (name, type_of ae)) aProps in
-      AObjCreate(aProps, TObjCreate(types))
+      AObjCreate(aProps, TObj(types))
   | Binop(e1, op, e2) -> 
       let ae1 = annotate_expr e1 env in
       let ae2 = annotate_expr e2 env in
@@ -173,20 +196,20 @@ let rec annotate_expr (e : Ast.expr) (env : environment) : Sast.aExpr =
       let ae = annotate_expr e env in
       ANot(ae, TBool)
 
-and annotate_assign (e1 : Ast.expr) (e2 : Ast.expr) (env : environment) (must_exist : bool) : Sast.aExpr * Sast.aExpr = 
+and annotate_assign (e1 : Ast.expr) (e2 : Ast.expr) (env : environment) : Sast.aExpr * Sast.aExpr = 
   let ae2 = annotate_expr e2 env in
   match e1 with
   | Id(x) -> 
+      if is_keyword x
+      then failwith "Cannot assign keyword."
+      else
       let typ = find_variable env.scope x in
       (match typ with
       | Some(t) -> 
           (AId(x, false, t), ae2)
       | None -> 
-        if must_exist
-        then failwith "Invalid assignment."
-        else 
           let new_type = next_type_var() in
-          env.scope.variables <- (x, new_type) :: env.scope.variables; (* side effect *)
+          env.scope.variables <- (x, new_type) :: env.scope.variables;
           (AId(x, true, new_type), ae2))
   | ObjAccess(_, _) ->
       let ae1 = annotate_expr e1 env in
@@ -199,13 +222,13 @@ and annotate_assign (e1 : Ast.expr) (e2 : Ast.expr) (env : environment) (must_ex
 and annotate_stmt (s : Ast.stmt) (env : environment) : Sast.aStmt =
   match s with
   | Return(expr) -> 
-    (match env.cur_func_return_type with
+    (match env.func_return_type with
     | None -> failwith "Invalid return statement."
     | Some(x) -> 
         let ae = annotate_expr expr env in
         AReturn(ae, x))
   | Assign(e1, e2) -> 
-      let (ae1, ae2) = annotate_assign e1 e2 env false in
+      let (ae1, ae2) = annotate_assign e1 e2 env in
       AAssign(ae1, ae2)
   | If(conds, elsebody) -> 
       let aIfFunc = fun cond -> 
@@ -223,19 +246,23 @@ and annotate_stmt (s : Ast.stmt) (env : environment) : Sast.aStmt =
   | For(a1, e, a2, body) ->
     let scoped_env = nest_scope env in
     let aa1 = 
-      (match a1 with
-      | Some(e1, e2) -> Some(annotate_assign e1 e2 scoped_env false)
-      | None -> None)
+      match a1 with
+      | Some(e1, e2) -> Some(annotate_assign e1 e2 scoped_env)
+      | None -> None
     in
     let ae = 
-      (match e with
+      match e with
       | Some(x) -> Some(annotate_expr x scoped_env)
-      | None -> None)
+      | None -> None
     in
     let aa2 = 
-      (match a2 with
-      | Some(e1, e2) -> Some(annotate_assign e1 e2 scoped_env true)
-      | None -> None)
+      match a2 with
+      | Some(e1, e2) ->
+        let assign = annotate_assign e1 e2 scoped_env in
+        (match assign with
+        | (AId(_, true, _), _) -> failwith "Cannot create variable at end of for loop."
+        | _ -> Some(assign))
+      | None -> None
     in
     let aBody = annotate_stmts body scoped_env in
     AFor(aa1, ae, aa2, aBody)
@@ -253,7 +280,6 @@ and annotate_stmts (stmts : Ast.stmt list) (env : environment) : Sast.aStmt list
   List.map (fun x -> annotate_stmt x env) stmts
   
 let annotate_prog (p : Ast.program) : Sast.aProgram =
-  reset_type_vars();
   let env = new_env() in
   annotate_stmts p env
 
@@ -276,7 +302,8 @@ let rec collect_expr (e : Sast.aExpr) : (Sast.t * Sast.t) list =
     | AFuncCallExpr(fExpr, params, ty) -> 
         let ftype = type_of fExpr in
         let myCreatedType = TFunc(List.map (fun p -> type_of p) params, ty) in
-        (List.fold_left (fun l p -> l @ collect_expr p) [] params) @ collect_expr fExpr @ [(myCreatedType, ftype)]
+        let param_constraints = (List.fold_left (fun l p -> l @ collect_expr p) [] params) in
+        param_constraints @ collect_expr fExpr @ [(myCreatedType, ftype)]
     | AObjAccess(oExpr, name, ty) -> 
         let oType = type_of oExpr in
         (oType, TObjAccess(name, ty)) :: collect_expr oExpr
@@ -285,7 +312,6 @@ let rec collect_expr (e : Sast.aExpr) : (Sast.t * Sast.t) list =
         let list_type = type_of lExpr in
         [(list_type, TList(return_type));(idx_type,TNum)] @ collect_expr lExpr @ collect_expr iExpr
     | AListCreate(members, ty) -> 
-        (*all must be same*)
         let constraints = 
           (match ty with 
           | TList(x) -> List.map (fun m -> (type_of m, x)) members
@@ -371,7 +397,8 @@ and collect_stmt (s : aStmt) : (Sast.t * Sast.t) list =
     | AFuncCallStmt (fExpr, params) -> 
       let ftype = type_of fExpr in
       let myCreatedType = TFunc(List.map (fun p-> type_of p) params, next_type_var()) in
-      [(myCreatedType, ftype)] @ (List.fold_left (fun l p -> l @ collect_expr p) [] params) @ collect_expr fExpr
+      let param_constraints = (List.fold_left (fun l p -> l @ collect_expr p) [] params) in
+      [(myCreatedType, ftype)] @ param_constraints @ collect_expr fExpr
 
 and collect_stmts (stmts : Sast.aStmt list) : (Sast.t * Sast.t) list = 
  List.fold_left (fun l s -> l @ (collect_stmt s)) [] stmts
@@ -389,25 +416,13 @@ let collect_prog (cprog : Sast.aProgram) : (Sast.t * Sast.t) list =
 
 type substitution = (string * Sast.t) list
 
-(* check if a variable occurs in a term *)
-let rec occurs (x : string) (typ : Sast.t) : bool =
-  match typ with
-  | TVar(name) -> x = name
-  | TFunc(params, y) -> List.exists (fun param -> occurs x param) params || occurs x y
-  | TList(y) -> occurs x y
-  | TObjCreate(props) -> List.exists (fun prop -> occurs x (snd prop)) props
-  | TObjAccess(_, y) -> occurs x y
-  | TNum -> false
-  | TChar -> false
-  | TBool -> false
-
 (* substitute term s for all occurrences of var x in term t *)
 let rec subst (s : Sast.t) (x : string) (typ : Sast.t) : Sast.t =
   match typ with
   | TVar(name) -> if x = name then s else typ
   | TFunc(params, y) -> TFunc(List.map (fun param -> subst s x param) params, subst s x y)
   | TList(y) -> TList(subst s x y)
-  | TObjCreate(props) -> TObjCreate(List.map (fun prop -> (fst prop, subst s x (snd prop))) props)
+  | TObj(props) -> TObj(List.map (fun prop -> (fst prop, subst s x (snd prop))) props)
   | TObjAccess(name, y) -> TObjAccess(name, subst s x y)
   | TNum -> typ
   | TChar -> typ
@@ -418,7 +433,7 @@ let apply (s : substitution) (typ : Sast.t) : Sast.t =
   List.fold_right (fun (x, e) -> subst e x) s typ
 
 let rec copy_type (typ : Sast.t) (table : symbol_table) : Sast.t =
-    match typ with
+  match typ with
   | TVar(name) -> 
       let typ = find_variable table name in
       (match typ with
@@ -427,90 +442,59 @@ let rec copy_type (typ : Sast.t) (table : symbol_table) : Sast.t =
           let new_type = next_type_var() in
           table.variables <- (name, new_type) :: table.variables;
           new_type)
-  | TFunc(params, y) -> TFunc(List.map (fun param -> copy_type param table) params, copy_type y table)
+  | TFunc(params, y) -> TFunc(List.map (fun p -> copy_type p table) params, copy_type y table)
   | TList(y) -> TList(copy_type y table)
-  | TObjCreate(props) -> TObjCreate(List.map (fun prop -> (fst prop, copy_type (snd prop) table)) props)
+  | TObj(props) -> TObj(List.map (fun prop -> (fst prop, copy_type (snd prop) table)) props)
   | TObjAccess(name, y) -> TObjAccess(name, copy_type y table)
   | TNum -> typ
   | TChar -> typ
   | TBool -> typ
+
+let unify_failed (a : Sast.t) (b : Sast.t) (msg : string) = 
+  let msg = "\n\n*************\nType mismatch\n*************\n" ^ msg ^
+            Sast.string_of_type a ^ " <> " ^ Sast.string_of_type b ^ "\n\n" in
+  failwith msg
 
 (* unify one pair *)
 let rec unify_one (a : Sast.t) (b : Sast.t) : substitution =
   match (a, b) with
   | (TVar(x), TVar(y)) -> 
       if x = y then [] else [(x, b)]
-  | (TVar(x), (TFunc(_, _) as z))      | ((TFunc(_, _) as z), TVar(x))
-  | (TVar(x), (TList(_) as z))         | ((TList(_) as z), TVar(x))
-  | (TVar(x), (TObjCreate(_) as z))    | ((TObjCreate(_) as z), TVar(x))
-  | (TVar(x), (TObjAccess(_, _) as z)) | ((TObjAccess(_, _) as z), TVar(x))
-  | (TVar(x), (TNum as z))             | ((TNum as z), TVar(x))
-  | (TVar(x), (TChar as z))            | ((TChar as z), TVar(x))
-  | (TVar(x), (TBool as z))            | ((TBool as z), TVar(x)) ->
-      [(x, z)]
-  | (TFunc(params1, x), (TFunc(_, _) as z)) ->
-      let existing_func = copy_type z { variables = []; parent = None } in
-      (match existing_func with
+  | (TFunc(params1, x), (TFunc(params2, y) as z)) ->
+      let copy = copy_type z { variables = []; parent = None } in
+      (match copy with
       | TFunc(new_params2, new_y) ->
-        (try
-        let pairs = List.map2 (fun u v -> (u,v)) params1 new_params2 in
-          unify ((x,new_y)::pairs)
-        with Invalid_argument(_) ->
-          failwith "Type mismatch: Calling function with wrong # of parameters.")
+          (try
+            let pairs = List.map2 (fun u v -> (u,v)) new_params2 params1 in
+            unify ((x,new_y)::pairs)
+          with Invalid_argument(_) ->
+            unify_failed a b "Function has wrong # of parameters.\n")
       | _ -> failwith "Internal error, should never happen: copying TFunc failed.")
-  | (TFunc(_, _), TList(_))         | (TList(_), TFunc(_, _)) ->
-      failwith "Type mismatch: function with list."
-  | (TFunc(_, _), TObjCreate(_))    | (TObjCreate(_), TFunc(_, _)) ->
-      failwith "Type mismatch: function with object."
-  | ((TFunc(_, _) as z), TObjAccess(_, y)) | (TObjAccess(_, y), (TFunc(_, _) as z)) ->
-      unify_one y z
-  | (TFunc(_, _), TNum)             | (TNum, TFunc(_, _))
-  | (TFunc(_, _), TChar)            | (TChar, TFunc(_, _))
-  | (TFunc(_, _), TBool)            | (TBool, TFunc(_, _)) ->
-      failwith "Type mismatch: function with primitive."
-  | (TList(x), TList(y)) -> 
-      unify_one x y
-  | ((TList(_) as z), TObjAccess(_, y)) | (TObjAccess(_, y), (TList(_) as z))  ->
-      unify_one y z
-  | (TList(_), TObjCreate(_)) | (TObjCreate(_), TList(_)) ->
-      failwith "Type mismatch: list with object."
-  | (TList(_), TNum)          | (TNum, TList(_))
-  | (TList(_), TChar)         | (TChar, TList(_))
-  | (TList(_), TBool)         | (TBool, TList(_))->
-      failwith "Type mismatch: list with primitive."
-  | (TObjCreate(props1), TObjCreate(props2)) ->
-      let mapper = fun prop1 -> 
+  | (TObj(props1), TObj(props2)) ->
+      let mapper = fun prop1 props2 -> 
         try
-        let found = List.find (fun prop2 -> (fst prop1) = (fst prop2)) props2 in
+          let found = List.find (fun prop2 -> (fst prop1) = (fst prop2)) props2 in
           ((snd prop1), (snd found))
         with Not_found ->
-          failwith "Type mistmatch: object with object."
+          unify_failed a b ("Object missing property '" ^ fst prop1 ^ "'.\n")
       in
-      unify (List.map mapper props1)
-  | (TObjCreate(props), TObjAccess(name, y)) | (TObjAccess(name, y), TObjCreate(props)) ->
-      (try
-      let found = List.find (fun cProp -> (fst cProp) = name) props in
-        unify_one (snd found) y
-      with Not_found -> 
-        failwith "Type mistmatch: property does not exist on object.")
-  | (TObjCreate(_), TNum)  | (TNum, TObjCreate(_))
-  | (TObjCreate(_), TChar) | (TChar, TObjCreate(_))
-  | (TObjCreate(_), TBool) | (TBool, TObjCreate(_)) ->
-      failwith "Type mistmatch: object with primitive."
-  | (TObjAccess(_, x), TObjAccess(_, y)) ->
+      let _ = (List.map (fun prop2 -> mapper prop2 props1) props2) in
+      unify (List.map (fun prop1 -> mapper prop1 props2) props1)
+  | (TList(x), TList(y)) | (TObjAccess(_, x), TObjAccess(_, y)) ->
       unify_one x y
-  | (TObjAccess(_, y), (TNum as z))  | ((TNum as z), TObjAccess(_, y))
-  | (TObjAccess(_, y), (TChar as z)) | ((TChar as z), TObjAccess(_, y))
-  | (TObjAccess(_, y), (TBool as z)) | ((TBool as z), TObjAccess(_, y)) ->
-      unify_one y z
-  | (TNum, TChar)  | (TChar, TNum)
-  | (TNum, TBool)  | (TBool, TNum)
-  | (TChar, TBool) | (TBool, TChar) ->
-      failwith "Type mismatch: primitive with primitive."
-  | (TNum, TNum) 
-  | (TChar, TChar) 
-  | (TBool, TBool) -> 
+  | (TNum, TNum) | (TChar, TChar) | (TBool, TBool) -> 
       []
+  | (TVar(x), z) | (z, TVar(x)) ->
+      [(x, z)]
+  | (TObj(props), TObjAccess(name, y)) | (TObjAccess(name, y), TObj(props)) ->
+      (try
+        let found = List.find (fun cProp -> (fst cProp) = name) props in
+        unify_one y (snd found)
+      with Not_found -> 
+        unify_failed a b ("Object missing property '" ^ name ^ "'.\n"))
+  | (TObjAccess(_, y), z) | (z, TObjAccess(_, y)) ->
+      unify_one y z
+  | (_, _) -> unify_failed a b ""
 
 (* unify a list of pairs *)
 and unify (s : (Sast.t * Sast.t) list) : substitution =
@@ -609,7 +593,4 @@ let infer_prog (p : Ast.program) : Sast.aProgram =
   let constraints = collect_prog ap in
   let subs = unify (List.rev constraints) in
   apply_stmts ap subs
-
-
-
 

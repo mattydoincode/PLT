@@ -1,11 +1,15 @@
 include Ast
 
+(*************************
+**** SAST ****************
+*************************)
+
 (* types for inference *)
 type t = 
     TVar of string
   | TFunc of t list * t
   | TList of t
-  | TObjCreate of (string * t) list
+  | TObj of (string * t) list
   | TObjAccess of string * t
   | TNum
   | TChar
@@ -27,6 +31,7 @@ type aExpr =
   | ABinop of aExpr * Ast.op * aExpr * t
   | ANot of aExpr * t
 
+(* annotated statment *)
 and aStmt =
     AReturn of aExpr * t
   | AIf of (aExpr * aStmt list) list * aStmt list option
@@ -35,19 +40,23 @@ and aStmt =
   | AAssign of (aExpr * aExpr)
   | AFuncCallStmt of aExpr * aExpr list
 
+(* annotated program *)
 type aProgram = aStmt list
 
 
+(*************************
+**** PRINT SAST **********
+*************************)
 
 let string_of_opt string_of = function 
     Some(x) -> string_of x 
   | None -> ""
 
 let rec string_of_type = function
-    TVar(s) -> "TVar('" ^ s ^ ")"
-  | TFunc(tlist, t) -> "TFunc((" ^ String.concat "," (List.map string_of_type tlist) ^ "), " ^ string_of_type t ^ ")"
+    TVar(s) -> "'" ^ s
+  | TFunc(tlist, t) -> "TFunc(" ^ String.concat "," (List.map string_of_type tlist) ^ " -> " ^ string_of_type t ^ ")"
   | TList(t) -> "TList(" ^ string_of_type t ^ ")"
-  | TObjCreate(props) -> "TObjCreate(" ^ String.concat "," (List.map (fun (s, t) -> s ^ ":" ^ string_of_type t) props) ^ ")"
+  | TObj(props) -> "TObj(" ^ String.concat ", " (List.map (fun (s, t) -> s ^ ":" ^ string_of_type t) props) ^ ")"
   | TObjAccess(s, t) -> "TObjAccess(" ^ s ^ ":" ^ string_of_type t ^ ")"
   | TNum -> "TNum"
   | TChar -> "TChar"
@@ -66,7 +75,7 @@ let rec string_of_expr = function
     else s ^ sot t
   | AFuncCreate(formals, body, t) -> 
       "(" ^ String.concat ", " (List.map (fun x -> fst x ^ sot (snd x)) formals) ^ ") -> {\n" ^
-      String.concat "" (List.map string_of_stmt body) ^ "\n}" ^ sot t
+      String.concat "" (List.map string_of_stmt body) ^ "}" ^ sot t
   | AFuncCallExpr(ae, ael, t) -> 
       string_of_expr ae ^ "(" ^ 
       String.concat ", " (List.map string_of_expr ael) ^ ")" ^ sot t
@@ -82,7 +91,7 @@ let rec string_of_expr = function
       string_of_opt string_of_expr aeright ^ "]" ^ sot t
   | AObjCreate(props, t) ->
       "{\n" ^ String.concat ",\n" (List.map (fun prop -> fst prop ^ ": " ^ string_of_expr (snd prop)) props) ^
-      "\n}" ^ sot t
+      "}" ^ sot t
   | ABinop(ae1, op, ae2, t) ->
       string_of_expr ae1 ^ (match op with
         Add -> " + "    | Sub -> " - "     | Mult -> " * " 
@@ -114,7 +123,7 @@ and string_of_stmt = function
       String.concat ", " (List.map string_of_expr ael) ^ ");"
 
 and string_of_stmts stmts = 
-  String.concat "\n" (List.map string_of_stmt stmts) ^ "\n"
+  String.concat "\n" (List.map string_of_stmt stmts)
 
 and string_of_cond (ae, asl) =
   " (" ^ string_of_expr ae ^ ") {\n" ^
@@ -123,17 +132,87 @@ and string_of_cond (ae, asl) =
 and string_of_assign (e1, e2) = 
   string_of_expr e1 ^ " = " ^ string_of_expr e2
 
-let string_of_program prog = 
-  string_of_stmts prog
+let string_of_prog prog = 
+  string_of_stmts prog ^ "\n"
 
 
+(*************************
+**** PRINT CONSTRAINTS ***
+*************************)
+
+let string_of_constraints (l : (t * t) list) =  
+  String.concat "\n" (List.map (fun (t1, t2) -> string_of_type t1 ^ "  " ^ string_of_type t2) l) ^ "\n"
 
 
-let string_of_collect (l : (t * t) list) =  
-  String.concat "\n" (List.map (fun g -> string_of_type (fst g) ^ "  " ^ string_of_type (snd g)) l)
+(*************************
+**** PRINT SUBSTITUTIONS *
+*************************)
 
-let string_of_subst (s : (string * t) list) =
-  String.concat "\n" (List.map (fun g -> (fst g) ^ "  " ^ string_of_type (snd g)) s)
+let string_of_subs (s : (string * t) list) =
+  String.concat "\n" (List.map (fun (g, t) -> g ^ " " ^ string_of_type t) s) ^ "\n"
 
 
+(*************************
+**** PRINT INFERENCES ****
+*************************)
+
+let rec string_of_inferred_expr = function
+    ANumLit(_, _) -> ""
+  | ABoolLit(_, _) -> ""
+  | ACharLit(_, _) -> ""
+  | AId(s, b, t) -> 
+    if b 
+    then s ^ " ==> " ^ string_of_type t ^ "\n"
+    else ""
+  | AFuncCreate(_, body, _) -> 
+      String.concat "" (List.map string_of_inferred_stmt body)
+  | AFuncCallExpr(ae, ael, _) -> 
+      string_of_inferred_expr ae ^
+      String.concat "" (List.map string_of_inferred_expr ael)
+  | AObjAccess(ae, _, _)  ->
+      string_of_inferred_expr ae
+  | AListAccess(ae1, ae2, _) -> 
+      string_of_inferred_expr ae1 ^
+      string_of_inferred_expr ae2
+  | AListCreate(ael, _) ->
+      String.concat "" (List.map string_of_inferred_expr ael)
+  | ASublist(ae, aeleft, aeright, _) ->
+      string_of_inferred_expr ae ^
+      string_of_opt string_of_inferred_expr aeleft ^
+      string_of_opt string_of_inferred_expr aeright
+  | AObjCreate(props, _) ->
+      String.concat "" (List.map (fun (_, ae) -> string_of_inferred_expr ae) props)
+  | ABinop(ae1, _, ae2, _) ->
+      string_of_inferred_expr ae1 ^
+      string_of_inferred_expr ae2
+  | ANot(ae, _) ->
+      string_of_inferred_expr ae
+
+and string_of_inferred_stmt = function
+    AReturn(ae, _) -> string_of_inferred_expr ae
+  | AIf(conds, elsebody) -> 
+      String.concat "" (List.map (fun (ae, asl) -> string_of_inferred_expr ae ^ string_of_inferred_stmts asl) conds) ^
+      string_of_opt string_of_inferred_stmts elsebody
+  | AFor(a1, ae, a2, asl) ->
+      string_of_opt string_of_inferred_assign a1 ^
+      string_of_opt string_of_inferred_expr ae ^
+      string_of_opt string_of_inferred_assign a2 ^
+      string_of_inferred_stmts asl
+  | AWhile(ae, asl) -> 
+      string_of_inferred_expr ae ^
+      string_of_inferred_stmts asl
+  | AAssign(a) ->
+      string_of_inferred_assign a
+  | AFuncCallStmt(ae, ael) ->
+      string_of_inferred_expr ae ^
+      String.concat "" (List.map string_of_inferred_expr ael)
+
+and string_of_inferred_stmts stmts = 
+  String.concat "" (List.map string_of_inferred_stmt stmts)
+
+and string_of_inferred_assign (e1, e2) = 
+  string_of_inferred_expr e1 ^ string_of_inferred_expr e2
+
+let string_of_inferred_prog prog = 
+  string_of_inferred_stmts prog ^ "\n"
 
