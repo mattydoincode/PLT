@@ -2,6 +2,8 @@
 
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 public class PCObject implements Serializable {
 
@@ -20,6 +22,9 @@ public class PCObject implements Serializable {
 
     public PCObject(char c) {
         set(_base, c);
+    }
+    public boolean contains(String key) {
+        return _props.containsKey(key);
     }
 
     public PCObject set(String key, Object value) {
@@ -41,8 +46,45 @@ public class PCObject implements Serializable {
         return get(_base);
     }
 
-    public bool equals(PCObject other) {
-        
+    //we know from type inference these must be of the same type
+    //so we only ever have to check one
+    public boolean equals(PCObject other) {
+        //first let's check if these are primitives
+        if(_props.containsKey(_base)){
+            if(_props.get(_base) instanceof Double){
+                return this.<Double>getBase() == other.<Double>getBase();
+            }
+            else if (_props.get(_base) instanceof Boolean){
+                return this.<Boolean>getBase() == other.<Boolean>getBase();
+            }
+            else if (_props.get(_base) instanceof Character){
+                return this.<Character>getBase() == other.<Character>getBase();
+            }
+            else return false; //hopefully never see this guy
+        }
+        else{
+            //else let's check each guy
+            Iterator it = _props.entrySet().iterator(); 
+            while (it.hasNext())
+            {
+                Map.Entry entry = (Map.Entry) it.next();
+                String key = (String)entry.getKey(); 
+                PCObject val = (PCObject)entry.getValue(); 
+                if(!other.contains(key)){
+                    return false;
+                }
+                else{
+                    PCObject mine =val;
+                    PCObject his = other.<PCObject>get(key);
+                    if(!mine.equals(his)){
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+
+
     }
 
 }

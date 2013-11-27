@@ -23,6 +23,15 @@ public class PCList extends PCObject implements Iterable {
         }
     }
 
+    public PCList(PCList a, PCList b){
+        for(Iterator<PCObject> it = a.iterator();it.hasNext();){
+            _list.add(it.next());
+        }
+        for(Iterator<PCObject> it = b.iterator();it.hasNext();){
+            _list.add(it.next());
+        }
+    }
+
     public int size() {
         return _list.size();
     }
