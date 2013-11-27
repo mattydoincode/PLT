@@ -279,9 +279,9 @@ and writeBinop expr1 op expr2 =
       | Geq -> sprintf "new PCObject(%s.<Double>getBase() >= %s.<Double>getBase())" e1 e2
       | And -> sprintf "new PCObject(%s.<Boolean>getBase() && %s.<Boolean>getBase())" e1 e2    
       | Or -> sprintf "new PCObject(%s.<Boolean>getBase() ||h %s.<Boolean>getBase())" e1 e2 
-      | Equal -> "new PCObject(%s == %s)" (*PATTERN MATCH ON TYPE*)
-      | Neq -> "new PCObject(%s != %s)" 
-      | Concat -> "new PCList(\"TODO GET THIS WORKING\")"
+      | Equal -> "new PCObject(%s.equals(%s))" (*PATTERN MATCH ON TYPE*)
+      | Neq -> "new PCObject(!(%s.equals(%s)))" 
+      | Concat -> "new PCList(%s,%s)"
     in writeBinopHelper e1 op e2
 
 
