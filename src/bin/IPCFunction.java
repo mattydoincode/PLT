@@ -1,5 +1,4 @@
-//package pubCrawl.core;
-
-public interface IPCFunction {
-    PCObject call(PCObject... args);
+public abstract class IPCFunction extends PCObject
+{
+    abstract PCObject call(PCObject... args);
 }

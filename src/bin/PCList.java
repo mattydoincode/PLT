@@ -2,8 +2,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Iterator;
 
-public class PCList extends PCObject implements Iterable<PCObject> {
-
+public class PCList extends PCObject implements Iterable<PCObject> 
+{
     private final ArrayList<PCObject> _list = new ArrayList<PCObject>();
 
     public PCList() {
@@ -23,12 +23,13 @@ public class PCList extends PCObject implements Iterable<PCObject> {
         }
     }
 
-    public PCList(PCList a, PCList b){
-        for(Iterator<PCObject> it = a.iterator();it.hasNext();){
-            _list.add(it.next());
+    public PCList(PCList a, PCList b)
+    {
+        for (PCObject o : a) {
+            _list.add(o);
         }
-        for(Iterator<PCObject> it = b.iterator();it.hasNext();){
-            _list.add(it.next());
+        for (PCObject o : b) {
+            _list.add(o);
         }
     }
 
@@ -62,8 +63,7 @@ public class PCList extends PCObject implements Iterable<PCObject> {
         return new PCList(_list.subList(start, end));
     }
 
-    public Iterator<PCObject> iterator(){
+    public Iterator<PCObject> iterator() {
         return _list.iterator();
     }
-
 }

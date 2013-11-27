@@ -1,12 +1,10 @@
-//package pubCrawl.core;
-
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-public class PCObject implements Serializable {
-
+public class PCObject implements Serializable 
+{
     private final HashMap<String, Object> _props = new HashMap<String, Object>();
     private final static String _base = "050FCAC0-610C-4CF6-9CC2-5EA5A40C3155";
 
