@@ -10,12 +10,8 @@ public class Writer
         return mylist;
     }
 
-
-
     public static PCList printFile(PCObject toPrint, PCList listOfChars)
     {
-    	throw new Exception("Kevin!!!!!!");
+        return null;
     }
-
-
 }

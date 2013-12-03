@@ -13,6 +13,9 @@ Sireesh
 		- Scanner does not allow escaped char literals: \\, \', \n, \r, \t
 		- Scanner does not allow \" inside a string
 		- Parser does not handle string escape sequences. When we do "explode", need to check for escaped chars: \", \n, \r, \t
+	- Distribute java code needs to return list of results, which should be empty if anything failed
+	- Distribute java needs to be multi threaded
+	- Move java code for distribute to bin
 
 Kevin
 	- PrintFile/ReadFile Java code
@@ -53,11 +56,6 @@ LRM EDITS
 - add "rec" keyword for recursion, and we don't support mutual recursion because you can't access variables outside scope
 - scratch idea of extension methods
 - update LRM to note that our "std lib" functions are wrapped behind "List"
-
-
-
-
-Distribute - needs to return object with 3 properties: results [list], success [bool]
 
 
 

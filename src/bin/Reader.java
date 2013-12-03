@@ -24,9 +24,8 @@ public class Reader
         return toReturn;
     }
 
-
     public static PCList read(PCList listOfChars)
     {
-        throw new Exception("Kevin!!!!!!");
+        return null;
     }
 }
