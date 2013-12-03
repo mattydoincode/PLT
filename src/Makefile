@@ -48,7 +48,7 @@ test : pc testall.sh
 .PHONY : clean
 clean :
 	rm -f pc parser.ml parser.mli parser.output scanner.ml testall.log \
-	*.cmo *.cmi *.out *.diff *.java
+	*.cmo *.cmi *.out *.diff *.java bin/function_* bin/output.java 
 
 .PHONY : all
 all: clean pc
