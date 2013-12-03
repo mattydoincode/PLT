@@ -80,7 +80,7 @@ let new_env() : environment =
   let find_type = next_type_var() in
   let split_type = next_type_var() in
   (* TODO add List.length, move others to List. *)
-  let utilities = [
+  let core = [
     ("print", TFunc([TList(TChar)], 
                     TList(TChar)));
     ("read", TFunc([],
@@ -92,7 +92,9 @@ let new_env() : environment =
     ("download", TFunc([TList(TChar)],
                        TList(TChar)));
     ("distribute", TFunc([TList(dist_type); TFunc([dist_type],dist_return_type)], 
-                         TList(dist_return_type)));
+                         TList(dist_return_type)))
+  ] in
+  let list_util = TObj([
     ("where", TFunc([TList(where_type); TFunc([where_type], TBool)],
                     TList(where_type)));
     ("map", TFunc([TList(mapping_type); TFunc([mapping_type], mapped_type)],
@@ -103,8 +105,8 @@ let new_env() : environment =
                     TList(TList(split_type))));
     ("range", TFunc([TNum; TNum], 
                     TList(TNum)))
-  ] in
-  let s = { variables = utilities; parent = None } in
+  ]) in
+  let s = { variables = ("List", list_util) :: core; parent = None } in
   { scope = s; func_return_type = None; }
 
 let is_keyword (name : string) : bool = 

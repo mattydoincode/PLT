@@ -22,6 +22,7 @@ Kevin
 	- Download Java code (see java/src/io/Download.java, but this uses a lib which we might need to ditch)
 		- We're removing ability to download bytes, only download string
 		- Will downloading bytes work if we treat everything as a string?
+	- Help Sireesh with distribute
 
 FINAL REPORT TODO
 
