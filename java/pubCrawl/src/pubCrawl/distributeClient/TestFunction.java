@@ -13,7 +13,7 @@ import java.io.Serializable;
  * Time: 9:59 PM
  * To change this template use File | Settings | File Templates.
  */
-public class TestFunction extends PCObject implements IPCFunction, Serializable {
+public class TestFunction extends IPCFunction implements Serializable {
 
     public TestFunction(){
 

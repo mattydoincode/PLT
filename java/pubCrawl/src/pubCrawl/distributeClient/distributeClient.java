@@ -18,10 +18,10 @@ public class distributeClient {
     public distributeClient(){
         slaves = new ArrayList<Compute>();
         //System.setProperty("java.security.policy", "file:/Library/Java/Home/lib/security/client.policy");
-        System.setProperty("java.security.policy", "file:../../../client.policy");
-        if (System.getSecurityManager() == null) {
+        //System.setProperty("java.security.policy", "file:../../../client.policy");
+        /**if (System.getSecurityManager() == null) {
             System.setSecurityManager(new SecurityManager());
-        }
+        }**/
     }
 
     public  void getRegistries(String... hosts){

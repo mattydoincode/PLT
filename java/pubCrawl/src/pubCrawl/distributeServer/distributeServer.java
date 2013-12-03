@@ -23,7 +23,7 @@ public class distributeServer implements Compute {
 
 
         //System.setProperty("java.security.policy", "file:/Library/Java/Home/lib/security/server.policy");
-       // System.setProperty("java.security.policy", "file:///Users/kevinmangan/School/PLT/java/pubCrawl/server.policy");
+       //System.setProperty("java.security.policy", "file:///Users/kevinmangan/School/PLT/java/pubCrawl/src/server.policy");
 
         //if (System.getSecurityManager() == null) {
         //    System.setSecurityManager(new SecurityManager());
