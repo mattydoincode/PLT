@@ -1,4 +1,6 @@
-import pubCrawl.core.PCObject;
+package pubCrawl.core;
+
+
 
 import java.util.ArrayList;
 import java.util.List;
