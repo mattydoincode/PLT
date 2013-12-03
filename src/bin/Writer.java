@@ -7,6 +7,7 @@ public class Writer
         {
             System.out.printf("%c", obj.<Character>getBase());
         }
+        Systm.out.println();
         return mylist;
     }
 }
