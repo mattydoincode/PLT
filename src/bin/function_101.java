@@ -3,9 +3,10 @@ import java.io.Serializable;
   public function_101(){}
 
   public PCObject call(PCObject... args){
-  PCObject x = args[0];
+  PCObject a = args[0];
+PCObject b = args[1];
 
-  return x;
+  return new PCObject(a.equals(b));
 
 }
   }

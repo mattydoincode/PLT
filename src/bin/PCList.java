@@ -37,12 +37,14 @@ public class PCList extends PCObject implements Iterable<PCObject>
         return _list.size();
     }
 
-    public PCObject get(int idx) {
-        return _list.get(idx);
+    @SuppressWarnings("unchecked")
+    public <T> T get(int idx) {
+        return (T) _list.get(idx);
     }
 
-    public PCObject get(PCObject idx){
-        return _list.get((int)idx.<Double>getBase().doubleValue());
+    @SuppressWarnings("unchecked")
+    public <T> T get(PCObject idx) {
+        return get((int)idx.<Double>getBase().doubleValue());
     }
 
     public void set(int idx, PCObject val) {
