@@ -22,11 +22,12 @@ public class distributeServer implements Compute {
     public static void main(String[] args){
 
 
-        System.setProperty("java.security.policy", "file:///home/sireesh/jsp.policy");
+        //System.setProperty("java.security.policy", "file:/Library/Java/Home/lib/security/server.policy");
+       // System.setProperty("java.security.policy", "file:///Users/kevinmangan/School/PLT/java/pubCrawl/server.policy");
 
-        if (System.getSecurityManager() == null) {
-            System.setSecurityManager(new SecurityManager());
-        }
+        //if (System.getSecurityManager() == null) {
+        //    System.setSecurityManager(new SecurityManager());
+        //}
 
 
 
