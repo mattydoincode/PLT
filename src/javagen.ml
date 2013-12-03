@@ -26,6 +26,17 @@ let type_of (ae : Sast.aExpr) : Sast.t =
   | ANot(_, t) -> t
 
 
+
+let java_from_type (ty: Sast.t) : string = 
+    match ty with
+      | TFunc(a,b) -> "IPCFunction" 
+      | TList(a) -> "PCList"
+      | _ ->  "PCObject"
+
+
+
+
+
 (*******************************************************************************
   Expression and statement evaluation
 ********************************************************************************)
@@ -71,8 +82,8 @@ and gen_expr = function
   | AId(name, typed, typ) -> writeID  name typed 
   | AFuncCreate(params, body, _) -> writeFunc params body
   | AFuncCallExpr(exp, params, _) -> writeFuncCall  exp params
-  | AObjAccess(objName, fieldName, _)-> writeObjectAccess objName fieldName
-  | AListAccess(listName, idx, _) -> writeListAccess listName idx
+  | AObjAccess(objName, fieldName, ty)-> writeObjectAccess objName fieldName ty
+  | AListAccess(listName, idx, ty) -> writeListAccess listName idx ty
   | AListCreate(contentList,_) -> writeListCreate contentList
   | ASublist(listName, leftIdx, rightIdx, _) -> 
       writeSubList listName leftIdx rightIdx
@@ -137,11 +148,7 @@ and writeWhileLoop cond stmtList =
 
 (*ASSIGNING IS SPECIAL SO WE HANDWROTE THESE WITH LOVE*)
 and writeAssign expr1 expr2 =
-    let lhs_type = match type_of expr2 with
-      | TFunc(a,b) -> "IPCFunction" 
-      | TList(a) -> "PCList"
-      | _ ->  "PCObject"
-    in
+    let lhs_type = java_from_type (type_of expr2) in
     let e2string = gen_expr expr2 in
       match expr1 with
         | AId(name, typed, typ) -> 
@@ -222,13 +229,15 @@ in List.fold_left (fun a b -> a^b) "" pNameList
 ********************************************************************************)
 
 
-and writeObjectAccess objNameExpr fieldName =
+and writeObjectAccess objNameExpr fieldName ty=
   let objName = gen_expr objNameExpr in 
-    sprintf "%s.get(\"%s\")" objName fieldName
+  let access_type_string = java_from_type ty in
+  sprintf "%s.<%s>get(\"%s\")" objName access_type_string fieldName
 
-and writeListAccess listNameExpr idxExpr =
+and writeListAccess listNameExpr idxExpr ty=
   let listName = gen_expr listNameExpr and idx = gen_expr idxExpr in
-  sprintf "%s.get(%s)" listName idx
+  let access_type_string = java_from_type ty in
+  sprintf "%s.<%s>get(%s)" listName access_type_string idx
 
 
 and writeListCreate exprList =

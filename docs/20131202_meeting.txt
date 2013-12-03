@@ -1,0 +1,61 @@
+FINISHING PROJECT
+
+Alden
+	- List Utils - "List" object in ocaml analyzer
+
+Matt
+	- List Utils - "List" object in ocaml javagen
+
+Sireesh
+	- Javagen needs to check for function named "rec" and translate to "this"
+	- List Utils - "List" object in Java
+	- Scanner/Parser fixes
+		- Scanner does not allow escaped char literals: \\, \', \n, \r, \t
+		- Scanner does not allow \" inside a string
+		- Parser does not handle string escape sequences. When we do "explode", need to check for escaped chars: \", \n, \r, \t
+	- Distribute java code needs to return list of results, which should be empty if anything failed
+	- Distribute java needs to be multi threaded
+	- Move java code for distribute to bin
+
+Kevin
+	- PrintFile/ReadFile Java code
+	- Download Java code (see java/src/io/Download.java, but this uses a lib which we might need to ditch)
+		- We're removing ability to download bytes, only download string
+		- Will downloading bytes work if we treat everything as a string?
+
+FINAL REPORT TODO
+
+Alden
+	- Arch Design HM
+	- Half of LRM edits
+	- Lessons Learned
+Matt
+	- Project Plan
+	- Half of LRM edits
+	- Lessons Learned
+Sireesh
+	- Arch Design
+	- Lessons Learned
+Kevin
+	- Test Plan
+	- Language Tutorial
+	- Lessons Learned
+
+LRM EDITS
+
+- We do not support negative numbers (can do 0-3 though to get -3)
+- For built in utility functions, define input/output types explicitly
+- Remove obj['prop'] syntax, only obj.prop is allowed
+- Second assignment of a for loop cannot create a new variable
+- Add character literals (note some chars need escaping: \\, \', \n, \t, \r)
+- Break print into "print" and "printFile", we can't do overloading
+- Break read into "read" and "readFile"
+- Add a detailed description of type inference. Start with high level process. Then walk through all cases of "collect" and describe the constraints added. Then explain unification, especially objects and functions.
+- Don't use language like "can be" for things like string literals, use "consist of" instead
+- Don't define syntax with only an example
+- add "rec" keyword for recursion, and we don't support mutual recursion because you can't access variables outside scope
+- scratch idea of extension methods
+- update LRM to note that our "std lib" functions are wrapped behind "List"
+
+
+

@@ -7,6 +7,12 @@ public class Writer
         {
             System.out.printf("%c", obj.<Character>getBase());
         }
+        Systm.out.println();
         return mylist;
+    }
+
+    public static PCList printFile(PCObject toPrint, PCList listOfChars)
+    {
+        return null;
     }
 }
