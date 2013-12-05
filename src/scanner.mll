@@ -1,4 +1,12 @@
-{ open Parser }
+{ open Parser 
+let escapeChar = function
+    '\\' -> '\\'
+  | 'n' -> '\n'
+  | 'r' -> '\r'
+  | 't' -> '\t'
+  | '\'' -> '\''
+  | c -> raise (Failure("illegal escape character " ^ Char.escaped c))
+}
 
 rule token = parse
   [' ' '\t' '\r' '\n'] { token lexbuf }   (* Whitespace *)
@@ -41,14 +49,15 @@ rule token = parse
 | "false"              { BOOLEAN_LIT(false) }
 | ('\'' ([' '-'&' '('-'[' ']'-'~'] as c) '\'')
   (* from www.asciitable.com, all chars except ' and \
-     NEED TO HANDLE 5 THINGS: \', \\, \t, \n, \r *)
-					   { CHAR_LIT(c) }
+   NEED TO HANDLE 5 THINGS: \', \\, \t, \n, \r *)
+             { CHAR_LIT(c) }
+| ('\'' ('\\'(['\\' '\'' 'n' 'r' 't' ]as c)) '\'') {CHAR_LIT(escapeChar c)} 
 | ('0' | ['1'-'9']+['0'-'9']*)(['.']['0'-'9']+)? as lxm 
-					   { NUM_LIT(float_of_string lxm) }
-| '"' ([^'"']* as s) '"' 
-					   { STRING_LIT(s) }
+             { NUM_LIT(float_of_string lxm) }
+| '"' (([' '-'&' '('-'[' ']'-'~'] | '\\'['\\' '\'' 'n' 'r' 't' ] )* as s) '"' 
+             { STRING_LIT(s) }
 | ['a'-'z' 'A'-'Z']['a'-'z' 'A'-'Z' '0'-'9' '_']* as lxm 
-					   { ID(lxm) }
+             { ID(lxm) }
 | eof                  { EOF }
 | _ as char            { raise (Failure("illegal character " ^ Char.escaped char)) }
 
@@ -59,4 +68,4 @@ and comment = parse
 and singlelinecom = parse
   "\n" { token lexbuf }
 | eof  { EOF }
-| _	   { singlelinecom lexbuf}
+| _    { singlelinecom lexbuf}
