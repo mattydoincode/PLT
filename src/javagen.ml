@@ -310,8 +310,9 @@ and writeBoolLit boolLit =
   sprintf "new PCObject(%b)" boolLit
 
 
-and writeCharLit charLit = 
-  sprintf "new PCObject('%c')" charLit
+and writeCharLit charLit =
+  let fChar = Char.escaped charLit in 
+  sprintf "new PCObject('%s')" fChar
 
 
 (*******************************************************************************  
