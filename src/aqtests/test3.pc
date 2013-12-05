@@ -1,8 +1,6 @@
-newChar = '\n';
+myobj = {
+	a: "hey",
+	b: 5
+};
 
-n1 = '\\';
-
-n2 = '\'';
-
-string = "new\n";
-
+print(myobj.a);

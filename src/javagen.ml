@@ -25,15 +25,11 @@ let type_of (ae : Sast.aExpr) : Sast.t =
   | ABinop(_, _, _, t) -> t
   | ANot(_, t) -> t
 
-
-
 let java_from_type (ty: Sast.t) : string = 
     match ty with
       | TFunc(a,b) -> "IPCFunction" 
       | TList(a) -> "PCList"
       | _ ->  "PCObject"
-
-
 
 
 
@@ -48,20 +44,21 @@ let rec writeToFile fileName progString =
 and gen_program fileName prog = (*have a writetofile*)
   let stmtString = writeStmtList prog in
   let out = sprintf "
+  public class %s
+  {
+      public static void main(String[] args)
+      {
 
-  public class %s{
-      public static void main(String[] args){
-      %s
+%s
       } 
-  } " fileName stmtString in
+  }
+  " fileName stmtString in
   writeToFile fileName out;
   out
 
-
 and writeStmtList stmtList = 
-  let outStr = List.fold_left (fun a b-> a^(gen_stmt b)) "" stmtList in
+  let outStr = List.fold_left (fun a b -> a ^ (gen_stmt b)) "" stmtList in
   sprintf "%s" outStr
-
 
 and gen_stmt = function
     AReturn(exp, _) -> writeReturnStmt exp
@@ -72,8 +69,6 @@ and gen_stmt = function
   | AAssign((expr1 , expr2)) -> writeAssign expr1 expr2
   | AFuncCallStmt(funcNameExpr, paramsListExpr) -> 
       writeFuncCallStmt funcNameExpr paramsListExpr
-
-
 
 and gen_expr = function
     ANumLit(flt, _)   -> writeNumLit flt
@@ -92,21 +87,23 @@ and gen_expr = function
   | ANot(exp, _) -> writeUnaryNot exp
 
 
-
 (*******************************************************************************
   Specific Statement evaluation
 ********************************************************************************)
 
 and writeReturnStmt exp = 
   let expStr = (gen_expr exp) in
-    sprintf "return %s;\n" expStr
+    sprintf "return %s;" expStr
 
 and writeIfStmt condTupleList elseStmtList = 
   let string_of_tuple (condExpr, stmtList) =
     let body = writeStmtList stmtList
     and cond = gen_expr condExpr in
-    sprintf "if(%s){
-    %s\n}" cond  body
+    sprintf "
+    if (%s)
+    {
+        %s
+    }" cond body
   in let ifString =
     let rec string_of_tupleList = function
         [] -> ""
@@ -138,13 +135,12 @@ and writeForLoop asnTuple cond incrTuple stmtList =
       | None -> ""
     in matchTuple incrTuple
   in
-  sprintf "for(%s;%s;%s){\n%s\n}\n" asn cond incrString stmtString
+  sprintf "for (%s;%s;%s)\n{\n%s\n}\n" asn cond incrString stmtString
 
 and writeWhileLoop cond stmtList =
   let condString = gen_expr cond 
   and stmtString = writeStmtList stmtList in 
-    sprintf "while(%s)\n{\n    %s\n}" condString stmtString
-
+    sprintf "while (%s)\n{\n%s\n}\n" condString stmtString
 
 (*ASSIGNING IS SPECIAL SO WE HANDWROTE THESE WITH LOVE*)
 and writeAssign expr1 expr2 =
@@ -154,16 +150,14 @@ and writeAssign expr1 expr2 =
         | AId(name, typed, typ) -> 
           let typeString = if typed then lhs_type else "" in
           let e1string = typeString ^ " " ^ name in
-          sprintf "%s = %s;\n" e1string e2string
+          sprintf "%s = (%s)(%s);\n" e1string typeString e2string
         | AListAccess(listName, idx, _) -> 
           let listNamestring = gen_expr listName and idxstring = gen_expr idx in
-          sprintf "%s.set(%s,%s);\n" listNamestring idxstring e2string
+          sprintf "%s.set(%s, %s);\n" listNamestring idxstring e2string
         | AObjAccess(objName, fieldName, _)->
           let objNamestring = gen_expr objName in 
           sprintf "%s.set(\"%s\", %s)" objNamestring fieldName e2string
-
         | _ -> failwith "How'd we get all the way to java with this!!!! Not a valid LHS"
-    
 
 and writeFuncCallStmt fNameExpr paramsListExpr = 
   (writeFuncCall fNameExpr paramsListExpr) ^ ";\n"
@@ -177,8 +171,8 @@ and writeFuncCallStmt fNameExpr paramsListExpr =
 and writeFunc params stmtList = 
   let fName = function_name_gen() in
   let fileName = "bin/" ^ fName ^ ".java" in 
-   let file = open_out fileName in
-    let paramSetting = snd (List.fold_left (
+  let file = open_out fileName in
+  let paramSetting = snd (List.fold_left (
                             fun a p -> 
                               let count = fst a in
                               let sofar = snd a in 
@@ -187,27 +181,28 @@ and writeFunc params stmtList =
                               in
                               (count +1, sofar ^ newString)
                           ) (0, "") params)
+  and body = writeStmtList stmtList in
+  fprintf file "
+  import java.io.Serializable; 
+  public class %s extends IPCFunction implements Serializable
+  {
+      public %s() {}
 
-    and body = writeStmtList stmtList in
-      fprintf file "import java.io.Serializable; 
-      public class %s extends IPCFunction implements Serializable{
-  public %s(){}
-
-  public PCObject call(PCObject... args){
-  %s
-  %s\n}
-  }" fName fName paramSetting body;
+      public PCObject call(PCObject... args)
+      {
+          %s
+          %s
+      }
+  }
+  " fName fName paramSetting body;
   sprintf "new %s()" fName
 
-
-  
 and writeFuncCall toCallExp paramsExp =
   let toCall = (gen_expr toCallExp) and params = (params_to_string paramsExp) in 
   match toCall with 
     | "print" -> sprintf "Writer.print(%s)" params
     | "read" -> sprintf "Reader.read(%s)" params
     | _ -> sprintf "%s.call(%s)" toCall params
-
 
 and params_to_string paramsList= 
   let paramsStringList = List.map gen_expr paramsList in
@@ -239,7 +234,6 @@ and writeListAccess listNameExpr idxExpr ty=
   let access_type_string = java_from_type ty in
   sprintf "%s.<%s>get(%s)" listName access_type_string idx
 
-
 and writeListCreate exprList =
   let concatAdds = (fun a b -> a^(sprintf(".add(%s)") b)) 
   and list_of_strings = List.map gen_expr exprList in 
@@ -262,7 +256,7 @@ and writeSubList listNameExpr startIdxExpr endIdxExpr =
 and writeObjCreate kvt_list = 
   let string_of_tuple (k , vExpr)  = 
     let v = gen_expr vExpr in
-    sprintf "\n.set(\"%s\",%s)" k v
+    sprintf ".set(\"%s\", %s)" k v
   in let stringList = List.map string_of_tuple kvt_list; in 
     List.fold_left (fun a b -> a^b) "new PCObject()" stringList
 
@@ -289,7 +283,7 @@ and writeBinop expr1 op expr2 =
       | Greater -> sprintf "new PCObject(%s.<Double>getBase() > %s.<Double>getBase())" e1 e2 
       | Geq -> sprintf "new PCObject(%s.<Double>getBase() >= %s.<Double>getBase())" e1 e2
       | And -> sprintf "new PCObject(%s.<Boolean>getBase() && %s.<Boolean>getBase())" e1 e2    
-      | Or -> sprintf "new PCObject(%s.<Boolean>getBase() ||h %s.<Boolean>getBase())" e1 e2 
+      | Or -> sprintf "new PCObject(%s.<Boolean>getBase() || h %s.<Boolean>getBase())" e1 e2 
       | Equal -> sprintf "new PCObject(%s.equals(%s))" e1 e2
       | Neq -> sprintf "new PCObject(!(%s.equals(%s)))" e1 e2
       | Concat -> sprintf "new PCList(%s,%s)" e1 e2
@@ -308,6 +302,7 @@ and writeID idName = function
 (*******************************************************************************  
     Literal expression handling - helper functions
 ********************************************************************************)
+
 and writeNumLit numLit = 
   sprintf "new PCObject(%f)" numLit
 
@@ -322,7 +317,7 @@ and writeCharLit charLit =
 (*******************************************************************************  
     Function Name Generation - helper functions
 ********************************************************************************)
-(*function name generator*)
+
 and function_name_gen () = 
   incr x;
   sprintf "function_%d" !x
