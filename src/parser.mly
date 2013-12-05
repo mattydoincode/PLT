@@ -5,7 +5,7 @@
     | 'n' -> '\n'
     | 'r' -> '\r'
     | 't' -> '\t'
-    | '\'' -> '\''
+    | '"' -> '"'
     | c ->  c
 
   (* convert string into char list *)
@@ -14,7 +14,7 @@
       if i < 0 then l else exp (i - 1) (s.[i] :: l)
     in 
     let rawList = exp (String.length s - 1) [] in 
-    let escList = ['\\';'\'';'n';'r';'t'] in 
+    let escList = ['\\';'"';'n';'r';'t'] in 
     let rec escChr = function 
       | a::(b::tl) -> if a = '\\' && List.mem b escList 
         then (escapeChar b)::escChr tl
