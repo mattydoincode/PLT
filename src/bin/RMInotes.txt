@@ -5,3 +5,8 @@ To use the codebase property, must use the option:
 As far as I've been able to tell, this path must be absolute. It makes sense 
 to then use the shell script to call these properties, rather than using java's
 built in property setting mechanisms. 
+
+Also note that there is a small problem with the RMI server. When it has been 
+started and loads a IPCFunction class, this definition of the class persists 
+until the server is stopped and restarted. At the moment, this will require 
+that the server is restarted before it is used again.
