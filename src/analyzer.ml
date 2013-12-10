@@ -74,6 +74,8 @@ let nest_scope (env : environment) : environment =
 let new_env() : environment = 
   let dist_type = next_type_var() in
   let dist_return_type = next_type_var() in
+  let add_type = next_type_var() in
+  let remove_type = next_type_var() in
   let where_type = next_type_var() in
   let mapping_type = next_type_var() in
   let mapped_type = next_type_var() in
@@ -95,11 +97,15 @@ let new_env() : environment =
                          TList(dist_return_type)))
   ] in
   let list_util = TObj([
+    ("add", TFunc([TList(add_type); add_type],
+                    TList(add_type)));
+    ("remove", TFunc([TList(remove_type); TNum],
+                    TList(remove_type)));
     ("where", TFunc([TList(where_type); TFunc([where_type], TBool)],
                     TList(where_type)));
     ("map", TFunc([TList(mapping_type); TFunc([mapping_type], mapped_type)],
                   TList(mapped_type)));
-    ("find", TFunc([TList(find_type); find_type], 
+    ("find", TFunc([TList(find_type); TList(find_type)], 
                    TNum));
     ("split", TFunc([TList(split_type); split_type],
                     TList(TList(split_type))));
