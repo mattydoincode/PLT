@@ -6,24 +6,24 @@ public class DistributeTest {
     public static void main(String[] args){
 
         PCList testList = new PCList();
-        testList.add(new PCObject(4));
-        testList.add(new PCObject(32));
-        testList.add(new PCObject(345345));
+        for(int i = 0; i<12;i++){
+            testList.add(new PCObject(i));
+        }
 
         TestFunction tf = new TestFunction();
 
 
-        distributeClient client = new distributeClient();
+        DistributeClient client = new DistributeClient();
 
-        client.getRegistries(args[0]);
+        client.getRegistries(args);
 
         PCList newList = client.distributeFunction(tf , testList);
 
 
 
-        for(Iterator<PCObject> it = newList.iterator();it.hasNext();){
+        for(PCObject o : newList){
             // SIREESH THIS IS BREAKING FOR ME (ALDEN) SO IM COMMENTING OUT
-            // System.out.println(it.next().getBase());
+            System.out.println(o.getBase());
         }
 
 
