@@ -81,7 +81,6 @@ let new_env() : environment =
   let mapped_type = next_type_var() in
   let find_type = next_type_var() in
   let split_type = next_type_var() in
-  (* TODO add List.length, move others to List. *)
   let core = [
     ("print", TFunc([TList(TChar)], 
                     TList(TChar)));
@@ -110,7 +109,9 @@ let new_env() : environment =
     ("split", TFunc([TList(split_type); split_type],
                     TList(TList(split_type))));
     ("range", TFunc([TNum; TNum], 
-                    TList(TNum)))
+                    TList(TNum)));
+    ("length", TFunc([TList(next_type_var())],
+                     TNum))
   ]) in
   let s = { variables = ("List", list_util) :: core; parent = None } in
   { scope = s; func_return_type = None; }
