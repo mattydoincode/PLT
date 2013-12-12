@@ -19,7 +19,7 @@ public class Writer
 
         for(Iterator<PCObject> iter = listOfChars.iterator(); iter.hasNext(); ) {
             PCObject element = iter.next();
-            fileName += element.<char>getBase();
+            fileName += element.<Character>getBase();
         }
         File f = new File(fileName);
         if (!f.exists()) {
