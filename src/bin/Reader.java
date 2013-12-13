@@ -1,10 +1,10 @@
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
+import java.util.Iterator;
+
 
 public class Reader
 {
+
     public static PCList read()
     {
         PCList toReturn = new PCList();
@@ -24,8 +24,29 @@ public class Reader
         return toReturn;
     }
 
-    public static PCList read(PCList listOfChars)
-    {
-        return null;
+    public static PCList readFile(PCList listOfChars) throws IOException {
+        PCList toReturn = new PCList();
+        String fileName = new String();
+
+        for (Iterator<PCObject> iter = listOfChars.iterator(); iter.hasNext(); ) {
+            PCObject element = iter.next();
+            fileName += element.<Character>getBase();
+        }
+
+        FileReader in = new FileReader(fileName);
+
+        BufferedReader br = new BufferedReader(in);
+        try {
+            String line = br.readLine();
+            while (line != null) {
+                toReturn.add(new PCList(line));
+                line = br.readLine();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        } finally {
+            br.close();
+        }
+        return toReturn;
     }
 }
