@@ -1,6 +1,5 @@
 open Sast
 open Printf
-
 (*import PCObject;
   import PCList;  killed these guys for now...*)
 
@@ -79,7 +78,7 @@ and gen_expr = function
   | AFuncCallExpr(exp, params, _) -> writeFuncCall  exp params
   | AObjAccess(objName, fieldName, ty)-> writeObjectAccess objName fieldName ty
   | AListAccess(listName, idx, ty) -> writeListAccess listName idx ty
-  | AListCreate(contentList,_) -> writeListCreate contentList
+  | AListCreate(contentList,ty) -> writeListCreate contentList ty
   | ASublist(listName, leftIdx, rightIdx, _) -> 
       writeSubList listName leftIdx rightIdx
   | AObjCreate(nVTplList, _) ->  writeObjCreate nVTplList
@@ -236,10 +235,25 @@ and writeListAccess listNameExpr idxExpr ty=
   let access_type_string = java_from_type ty in
   sprintf "%s.<%s>get(%s)" listName access_type_string idx
 
-and writeListCreate exprList =
-  let concatAdds = (fun a b -> a^(sprintf(".add(%s)") b)) 
-  and list_of_strings = List.map gen_expr exprList in 
-  List.fold_left concatAdds "new PCList()" list_of_strings
+and writeListCreate exprList ty =
+  match ty with 
+    | TList(t) -> 
+      (match t with
+        | TChar -> let my_string_func = 
+            fun a -> (match a with
+              | ACharLit(c, _) -> Char.escaped c
+              | _ -> "")
+            in
+          let word =  String.concat "" (List.map my_string_func exprList) in
+          sprintf("new PCList(%s)") word
+        | _ -> let concatAdds = (fun a b -> a^(sprintf(".add(%s)") b)) 
+          and list_of_strings = List.map gen_expr exprList in 
+          List.fold_left concatAdds "new PCList()" list_of_strings
+      )
+    | _ -> failwith "trying to generate a list from a non list type!"
+    
+
+  
 
 and writeSubList listNameExpr startIdxExpr endIdxExpr = 
   let listName = gen_expr listNameExpr in  
