@@ -23,7 +23,6 @@ public class List
 		});
 
 
-//PROBLEMSPROBLEMSPROBLEMSPROBLEMSPROBLEMSPROBLEMSPROBLEMS
 		_obj.set("remove", new IPCFunction(){
 			@Override
 			public PCObject call(PCObject... args){
@@ -33,7 +32,6 @@ public class List
 				return list;
 			}
 		});
-
 
 		_obj.set("map", new IPCFunction() {
 			@Override
