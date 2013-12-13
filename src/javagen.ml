@@ -245,7 +245,7 @@ and writeListCreate exprList ty =
               | _ -> "")
             in
           let word =  String.concat "" (List.map my_string_func exprList) in
-          sprintf("new PCList(%s)") word
+          sprintf("new PCList(\"%s\")") word
         | _ -> let concatAdds = (fun a b -> a^(sprintf(".add(%s)") b)) 
           and list_of_strings = List.map gen_expr exprList in 
           List.fold_left concatAdds "new PCList()" list_of_strings
@@ -267,7 +267,7 @@ and writeSubList listNameExpr startIdxExpr endIdxExpr =
         Some(x) -> gen_expr x
       | None -> sprintf "%s.size()" listName 
     in det endIdxExpr 
-  in sprintf "%s.sublist(%s,%s)" listName startIdx endIdx
+  in sprintf "%s.subList(%s,%s)" listName startIdx endIdx
 
 and writeObjCreate kvt_list = 
   let string_of_tuple (k , vExpr)  = 

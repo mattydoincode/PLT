@@ -1,0 +1,253 @@
+4e0fdb4 Merge branch 'master' of ht pushttps://github.com/mattydoincode/PLT
+0c861da fix keywords, list now std lib
+fd9f47a Merge branch 'master' of https://github.com/mattydoincode/PLT
+4210a43 list utils implemented
+6d48a84 fixed a stupid
+620332b script now runs the program.
+0244465 strings no longer allowed to have non-escaped " chars
+6a02fca commented out test for now
+a42295a not really sure how to unit test these in intellij...
+2112efe add comment for sireesh
+5e3fb47 Merge branch 'mastert push' of https://github.com/mattydoincode/PLT
+43982d5 add List.length
+0e13986 distribute keyword
+d5d20eb Distribute now multithreaded
+3d664ee add final tex in case writelatex goes down
+54d87e8 fix List. functions in analyzer
+26fac9e more notes
+2fdde6e added policy files and notes on running
+172ef39 RMI working from the bin directory, but with constraints
+8d4b017 fixed " handling
+034f0f5 fixed so java now accepts escape chars
+584eb20 fixed a broken test
+5706bcd scanner accepts escapes, strings allow escapes
+b96d6d7 get listmap working
+9861b7c list in analyzer
+d0af11c Merge branch 'master' of https://github.com/mattydoincode/PLT
+6ce5bbd added test3
+0bbbf5a write system.out fix
+500e243 Msdferge branch 'master' of https://github.com/mattydoincode/PLT
+f14034c again
+edc940c Merge branch 'mt pusaster' of https://github.com/mattydoincode/PLT
+dbdfc31 bug fix
+66dd5c2 Merge branch 'master' of https://github.com/mattydoincode/PLT
+6273914 merge
+66ccf4e changes from meeting
+d977af1 Merge branch 'master' of https://github.com/mattydoincode/PLT
+2ac671a PCL
+9652f50 Merge branch 'master' of https://github.com/mattydoincode/PLT
+533a95e javagen changes to cast for obj and list access
+cd079cc Merge branch 'master' of https://github.com/mattydoincode/PLT
+b77ec84 publicized call method
+def80eb Merge branch 'master' of https://github.com/mattydoincode/PLT
+bcb6a2f stashing
+3d5bfc1 Merge branch 'master' of https://github.com/mattydoincode/PLT
+8efac3d copied stuff back to java for RMI
+e80b755 modified make to clean some bin stuff
+288f935 stopped the compiler from printing the java to stdout
+1262b21 with pc program as arg, compiles to java exec
+87ea90b writeFunc inherits IPCFunction, test2.pc now SFW
+02de57f add util java
+204d319 implement iterable correctly
+9c02254 Merge branch 'master' of https://github.com/mattydoincode/PLT
+82720d6 new iterator
+f2c97eb remove make shit
+2c921d3 Merge branch 'master' of https://github.com/mattydoincode/PLT
+cf762c2 character cast
+0ea4d8e clean up unused files
+16c7fdd READ AND WRITE WORKS
+1c66ea8 Merge branch 'master' of https://github.com/mattydoincode/PLT
+069d496 read and write to stdin
+35b9aa5 equals, not equals, and concat
+6c29373 Merge branch 'master' of https://github.com/mattydoincode/PLT
+c205658 mergin with sireesh
+13de46f Merge branch 'master' of https://github.com/mattydoincode/PLT
+6ca4e53 chaining in add method
+a139e58 WORKS BITCH... GO JAVA!
+8291f83 handle invalid keyword usage
+aa04ede implement recursion inference with keyword "rec"
+40e10d1 clean up unify one into less cases
+531139f better error logging
+108cc54 better demo
+c099cbc fix object access type inference bug, better unify errors
+5f9e29f print inferences
+f51f015 woah, weird firey magic may have made things work
+b925424 get function as function param inference working
+3d9514b omg crazy inference case, now im worried there are more unhandled cases...
+3665275 committing the changes from meeting today
+a6fd7d2 Merge branch 'master' of https://github.com/mattydoincode/PLT
+a17c48f Merge branch 'master' of https://github.com/mattydoincode/PLT
+3c4526a Merge branch 'master' of https://github.com/mattydoincode/PLT
+c487548 add java to pc
+0f215cb Merge branch 'master' of https://github.com/mattydoincode/PLT
+f884cb8 pc object has char
+0c492d3 minor changes
+3322b07 Merge brat pushnch 'master' of https://github.com/mattydoincode/PLT
+61e5e49 add some utility funcs
+2013ff4 utiliy change
+fd89c4a move global funcs to each env
+ac8e5a2 fix more collect expressions;
+8e784e5 fix some collect bugs
+4b5e945 inference works
+6eb5a77 get unification working with functions
+3d8dfbc ugh, this is such a mind****
+7b15c09 temp commit, about to change strategies
+3a23e1a not sure what this is
+49438b5 trying to figure out functions
+ab92249 Merge branch 'master' of https://github.com/mattydoincode/PLT
+04844ee javagen compiles
+c386685 type inference works!
+f420f7e merge with dean
+5596431 finish object create unify
+5c0194d thiink i'm done with unify omg what
+01b13bf half way through unify Conflicts: 	src/analyzer.ml
+b7a66c9 oh snap we bout to merge
+7dd04c2 some unify_one stuff
+92e7f9a Merge branch 'master' of https://github.com/mattydoincode/PLT
+b083906 sketch out unify_one
+5b646b7 merge resolution
+bac5fa5 type inference messing with this
+3f02a92 working on localhost
+6d44ad5 merge
+0ab4eec start unify
+3b4f9dc Merge branch 'master' of https://github.com/mattydoincode/PLT
+c08583a woooooot
+40ce730 Merge branch 'master' of https://github.com/mattydoincode/PLT
+6276863 removed distribute
+d88ada4 Merge branch 'master' of https://github.com/mattydoincode/PLT
+f33aff6 compiles yay
+f5bf150 Further progress on java generation. Minor correction to Makefile
+0d2b150 Merge branch 'master' of https://github.com/mattydoincode/PLT
+665c78e think i finished constraints...
+fecd68f asdfasdf
+033b224 testing
+560e57d Met purge branch 'master' of https://github.com/mattydoincode/PLT
+0322000 add meeting notes
+006e8e1 scope stuff
+3721538 added more tests
+c24ad26 Merge branch 'master' of https://github.com/mattydoincode/PLT
+28b98c9 incomplete java generator. Most functions tested and working.
+124661d fix recursion, a little ugly but oh well
+5499ee0 add note
+18cd277 get a simple program running
+db4cf64 omg it compiles
+ca87916 get scanner parser building again
+0ec0782 merged
+b4e3358 Merge branch 'master' of https://github.com/mattydoincode/PLT
+3daec58 annotate!
+3225f0e all my stuff for constraints part 1
+6325b61 pushing for dean
+7bdd992 merge with dean
+cae74c9 temp commit
+341cbbe workin in uris
+6a864f2 start sketching out sast
+b7dad32 move things around
+08a909d Merge branch 'master' of https://github.com/mattydoincode/PLT
+c277495 accidentally pushed old slave.java
+faff365 Merge branch 'master' of https://github.com/mattydoincode/PLT
+f07b53d just pushing the middle version so i can make it dynamic
+5545103 t Merge branch 'master' of https://github.com/mattydoincode/PLT
+0563637 add meeting notes
+331dad5 oops pushed the mo files
+2f8a7c3 note on lamdba expressions
+df30c58 Java conversion list
+7ad6334 wrap my head around type inference
+6eec42b m.a.a.d tests
+2d71302 Merge branch 'master' of https://github.com/mattydoincode/PLT
+ea704f0 updated haveDone
+f84b545 Update README.md
+591fa37 it compiles!!!
+9cbcb17 fixed dumb stmtlist option stuff, still not working
+ab9c25b working on st tree walking
+ba0673c add rule notes
+35958ad deans changes from meeting
+41a7092 minor syntax fix
+02b2150 Merge branch 'master' of https://github.com/mattydoincode/PLT
+5955e32 neq
+95a616c Incomplete JT
+79217ad First try on semantic tree
+fe90dc0 need ml file to print syntax tree
+c2c5f92 parser now produces AST, fix a few parser bugs, gix AST
+f9f6b9e temp commit to get sireeshs changes
+9b07a28 adding properly
+af066f9 Merge branch 'master' of https://github.com/mattydoincode/PLT
+026f4f6 Finished AST
+46d624a add boolean test
+619543d Merge branch 'master' of https://github.com/mattydoincode/PLT
+03bbd64 Distribute working in this directory.
+c2ab18e fix makefile
+4103d1e convert microc tests as starting point for tests, add file skeleton
+e007bcf forgot to make clean
+a53d856 fix access. sublist creation is not lvalue
+fd69983 add boolean and/or/not
+5e551c5 clean up docs a little
+7756c70 changes made during meeting for LRM
+54ca27f scanner works for nums now
+ce08389 Modified PCList to be iterable.
+bba7c04 Code for RMI, not working because of security.
+ad66173 random stuff?
+ea1fc51 remove old parser
+9afe84a Merge branch 'master' of https://github.com/mattydoincode/PLT
+0ea4d12 formatting changes
+4b8169d Merge branch 'master' of https://github.com/mattydoincode/PLT
+acdc7ab The initial, crude draft of the Distribute server.
+0018616 forgot to save file, (facepalm)
+16fdfa1 omg parser works wtf
+7645446 add object access, clean functions and for loops
+b6421d9 get small test case working
+217467f everything but obj creation working
+b7b0c93 everything but obj/list creation working
+954c3b2 add for, while and if/elif/else
+b63fe3b take a step back, get small parser working
+2f0567d work in the lounge afterPLT
+92a517b got some CFG going for our language yo
+8244477 got cmicro working with strings
+b6d712d fix interpreter spacing
+71fe52a add microc compiler
+b318c69 ignore misc.xml
+1f76254 Merge branch 'master' of https://github.com/mattydoincode/PLT
+76a859b minor doc fixes
+953b94f fix gitignore;
+185ddd9 trying to figure out why workspace isnt ignored
+f50185d git ignore include .idea
+d334a20 git ignore shit
+c352cd1 added list examples
+98aeef1 add possible syntax ambiguity
+93e9510 methods start lowercase in java :(. also add IPCFunction
+a716e15 restructure folders
+d8a017c funcs!!
+d448c7b bubble sort! works in java!
+a43eda9 pc object/list progress
+1b83350 Merge branch 'master' of https://github.com/mattydoincode/PLT
+06cbccf java changes!!
+3d5b7e6 Merge branch 'master' of https://github.com/mattydoincode/PLT
+082bc49 add meeting notes
+1b1904e Remove var
+b2e75d9 add utilities
+da5c216 fix gitignore
+29e4aa3 Merge branch 'master' of https://github.com/mattydoincode/PLT
+c08d7f1 add java IO
+80d12bf Add line breaks to description
+124d11a Update proposal latex with version we submitted
+865ccfc Remove syntax ideas now that its captured in proposal syntax
+03a9944 add meeeting notes
+c62d076 fixed a typo, changed margins
+db98a3b add proposal latex
+21490c7 Merge branch 'master' of https://github.com/mattydoincode/PLT
+0a96587 Task list files
+281bfe1 syntax/examples with team meeting
+b735742 Merge branch 'master' of https://github.com/mattydoincode/PLT
+97c9a99 shared info`
+3ab32dd Changed second paragraph
+394dd5d Update description.txt
+beff3cc word wrap
+3b1b43b Kevin's part
+dbc7b45 changes in meeting
+a8a1adc BOOM, added examples
+6f87cc0 A basic description of the language.
+b07197e wrap up syntax for proposal
+deb7a71 Update syntax ideas from meeting
+95a43cc initial syntax ideas
+8da4580 initial syntax thoughts, similar to coffee script
+31367a1 possible suggestion
+0015a88 Initial commit
