@@ -74,7 +74,7 @@ public class List
 		        for (int i = 0; i <= N - M; i++) {
 		            int j;
 		            for (j = 0; j < M; j++) {
-		                if (txt.get(i+j).equals(pat.get(j)))
+		                if (txt.<PCObject>get(i+j).equals(pat.<PCObject>get(j)))
 		                    break;
 		            }
 		            if (j == M) return new PCObject(i);            // found at offset i
