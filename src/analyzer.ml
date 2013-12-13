@@ -122,8 +122,7 @@ let is_keyword (name : string) : bool =
     | [] -> false
     | h::t -> name = h || helper name t
   in
-  helper name ["rec"; "print"; "read"; "printFile"; "readFile"; "download";
-               "distribute"; "where"; "map"; "find"; "split"; "range"]
+  helper name ["rec";"print";"read";"printFile";"readFile";"download";"distribute"]
 
 
 
