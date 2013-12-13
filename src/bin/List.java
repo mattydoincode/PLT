@@ -27,7 +27,10 @@ public class List
 		_obj.set("remove", new IPCFunction(){
 			@Override
 			public PCObject call(PCObject... args){
-				return null;
+				PCList list = (PCList)args[0];
+				int idx = args[1].<Integer>getBase();
+				list.removeAt(idx);
+				return list;
 			}
 		});
 
@@ -95,7 +98,7 @@ public class List
 				for(PCObject element : list){
 					if(element.equals(wedge)){
 						output.add(list.subList(lBound,uBound));
-						lBound = uBound;
+						lBound = uBound+1;
 					}
 					uBound++;
 				}
