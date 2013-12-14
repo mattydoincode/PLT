@@ -1,4 +1,4 @@
-/* import java.io.*;
+import java.io.*;
 import java.util.Iterator;
 import java.net.*;
 
@@ -6,7 +6,7 @@ import java.net.*;
 public class Downloader
 {
 
-    public static PCList download(PCList listOfChars) throws IOException {
+    public static PCList download(PCList listOfChars){
         PCList toReturn = new PCList();
         String fileName = new String();
 
@@ -14,8 +14,9 @@ public class Downloader
             PCObject element = iter.next();
             fileName += element.<Character>getBase();
         }
-
+        try{
         URL myURL = new URL(fileName);
+        System.out.println("filename");
 
         BufferedReader in = new BufferedReader(
                         new InputStreamReader(
@@ -31,8 +32,9 @@ public class Downloader
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         } finally {
             in.close();
-        }
+        }    }
+        catch(IOException e){}
         return toReturn;
     }
 }
-    */
+    
