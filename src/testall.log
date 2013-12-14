@@ -1,5 +1,0 @@
-
-###### Testing test-mutual-rec
-./compileScript.sh tests/test-mutual-rec.pc > test-mutual-rec.i.out
-diff -b test-mutual-rec.i.out tests/test-mutual-rec.out > test-mutual-rec.i.diff
-###### SUCCESS
