@@ -5,12 +5,24 @@ public class Writer
 {
     public static void print(PCObject toPrint)
     {
-    	PCList mylist = (PCList) toPrint;
-        for(PCObject obj : mylist) {
-            System.out.printf("%c", obj.<Character>getBase());
+
+
+
+        if(toPrint instanceof PCList) {
+        	PCList mylist = (PCList) toPrint;
+            for(PCObject obj : mylist) {
+                System.out.printf("%o", obj.<Object>getBase());
+            }
+
         }
+        else{
+            System.out.printf("%o", toPrint.<Object>getBase());
+        }
+
         System.out.println();
-       
+
+
+
     }
 
     public static void printFile(PCObject toPrint, PCList listOfChars) throws IOException {
