@@ -41,4 +41,7 @@ let _ =
       ignore(jp); print_string "done";
       print_string "\n"
   | Compile -> 
-      print_string "not yet!"
+      let ap = Analyzer.infer_prog program in
+      let jp = Javagen.gen_program "output" ap in
+      ignore(jp); Sys.command "javac bin/*.java";
+      print_string "\n"

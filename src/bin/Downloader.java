@@ -1,5 +1,6 @@
-/*import java.io.*;
+/* import java.io.*;
 import java.util.Iterator;
+import java.net.*;
 
 
 public class Downloader
@@ -11,27 +12,27 @@ public class Downloader
 
         for (Iterator<PCObject> iter = listOfChars.iterator(); iter.hasNext(); ) {
             PCObject element = iter.next();
-            fileNAme += element.<Character>getBase();
+            fileName += element.<Character>getBase();
         }
 
         URL myURL = new URL(fileName);
 
         BufferedReader in = new BufferedReader(
                         new InputStreamReader(
-                        myUrl.openStream()));
+                        myURL.openStream()));
 
         try {
-            String line = br.readLine();
+            String line = in.readLine();
             while (line != null) {
                 toReturn.add(new PCList(line));
-                line = br.readLine();
+                line = in.readLine();
             }
         } catch (IOException e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         } finally {
-            br.close();
+            in.close();
         }
         return toReturn;
     }
 }
-*/
+    */
