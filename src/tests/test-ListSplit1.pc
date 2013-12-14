@@ -1,6 +1,6 @@
-sentence = 'this is a sentence that has words';
+sentence = "this is a sentence that has words";
 
-result = sentence.split(' ');
+result = List.split(sentence, ' ');
 
 print(result[0]);
 print(result[1]);

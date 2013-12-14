@@ -8,7 +8,7 @@ public class Writer
         if(toPrint instanceof PCList) {
         	PCList mylist = (PCList) toPrint;
             for(PCObject obj : mylist) {
-                System.out.print(getStringOfObj(toPrint));
+                System.out.print(getStringOfObj(obj));
             }
         }
         else{
@@ -30,7 +30,7 @@ public class Writer
             }
         }
         else {
-            return obj.toString();
+            return myobject.toString();
         }
 
     }
