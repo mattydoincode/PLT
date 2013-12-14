@@ -1,7 +1,0 @@
-myObj = {
-	value1: 'hey',
-	value2: 9
-};
-
-print(myObj['value1']);
-print(myObj['value2']);

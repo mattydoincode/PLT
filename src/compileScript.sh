@@ -1,5 +1,6 @@
 #!/bin/sh
 
+make cleanJava > /dev/null
 make > /dev/null
 ./pc -j < $1 >/dev/null
 cd bin >/dev/null
