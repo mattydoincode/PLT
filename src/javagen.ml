@@ -139,7 +139,7 @@ and writeForLoop asnTuple cond incrTuple stmtList =
 and writeWhileLoop cond stmtList =
   let condString = gen_expr cond 
   and stmtString = writeStmtList stmtList in 
-    sprintf "while (%s.<Boolean>.getBase())\n{\n%s\n}\n" condString stmtString
+    sprintf "while (%s.<Boolean>getBase())\n{\n%s\n}\n" condString stmtString
 
 (*ASSIGNING IS SPECIAL SO WE HANDWROTE THESE WITH LOVE*)
 and writeAssign expr1 expr2 =
