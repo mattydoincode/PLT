@@ -1,8 +1,7 @@
 #!/bin/sh
 
-make all
-./pc -j < $1
-cd bin
-javac *.java
-echo "\n\nprogram output:"
+make all >/dev/null
+./pc -j < $1 >/dev/null
+cd bin >/dev/null
+javac *.java >/dev/null
 java output

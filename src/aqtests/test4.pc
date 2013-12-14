@@ -7,3 +7,8 @@ n2 = '\'';
 string = "new\n";
 
 print(string);
+
+
+mynum = 5.5;
+
+myothernum = 5;
