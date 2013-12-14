@@ -303,7 +303,7 @@ and writeBinop expr1 op expr2 =
       | Greater -> sprintf "new PCObject(%s.<Double>getBase() > %s.<Double>getBase())" e1 e2 
       | Geq -> sprintf "new PCObject(%s.<Double>getBase() >= %s.<Double>getBase())" e1 e2
       | And -> sprintf "new PCObject(%s.<Boolean>getBase() && %s.<Boolean>getBase())" e1 e2    
-      | Or -> sprintf "new PCObject(%s.<Boolean>getBase() || h %s.<Boolean>getBase())" e1 e2 
+      | Or -> sprintf "new PCObject(%s.<Boolean>getBase() || %s.<Boolean>getBase())" e1 e2 
       | Equal -> sprintf "new PCObject(%s.equals(%s))" e1 e2
       | Neq -> sprintf "new PCObject(!(%s.equals(%s)))" e1 e2
       | Concat -> sprintf "new PCList(%s,%s)" e1 e2
