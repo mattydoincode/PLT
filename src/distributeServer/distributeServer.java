@@ -10,13 +10,13 @@ public class distributeServer implements Compute {
     }
 
     public PCObject callFunction(IPCFunction function, PCObject param){
+        System.out.println("Now serving result for:" + function.getClass().getName());
         return function.call(param);
     }
 
     public static void main(String[] args){
 
 
-       System.setProperty("java.security.policy", "file:///home/sireesh/jsp.policy");
        System.setProperty("java.rmi.server.useCodebaseOnly","false");
         if (System.getSecurityManager() == null) {
             System.setSecurityManager(new SecurityManager());

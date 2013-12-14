@@ -20,7 +20,7 @@ myObj = {
 
 
 
-results = distribute(myObj['listOflists'], myObj.gcd);
+results = distribute(myObj.listOflists, myObj.gcd);
 
 print(results[0]);
 print(results[1]);

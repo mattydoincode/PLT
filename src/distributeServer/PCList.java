@@ -61,8 +61,8 @@ public class PCList extends PCObject implements Iterable<PCObject>
         _list.remove(idx);
     }
 
-    public PCList subList(int start, int end) {
-        return new PCList(_list.subList(start, end));
+    public PCList subList(PCObject start, PCObject end) {
+        return new PCList(_list.subList(start.<Double>getBase().intValue(), end.<Double>getBase().intValue() + 1));
     }
 
     public Iterator<PCObject> iterator() {

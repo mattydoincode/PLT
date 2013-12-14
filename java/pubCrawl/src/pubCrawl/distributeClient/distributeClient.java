@@ -1,6 +1,10 @@
 package pubCrawl.distributeClient;
 
-import java.lang.Exception;import java.lang.SecurityManager;import java.lang.String;import java.lang.System;import java.rmi.RemoteException;
+import java.lang.Exception;
+import java.lang.SecurityManager;
+import java.lang.String;
+import java.lang.System;
+import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.util.ArrayList;

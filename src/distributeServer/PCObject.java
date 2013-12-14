@@ -50,7 +50,8 @@ public class PCObject implements Serializable
         //first let's check if these are primitives
         if(_props.containsKey(_base)){
             if(_props.get(_base) instanceof Double){
-                return this.<Double>getBase() == other.<Double>getBase();
+                double EPSILON = 0.0000001;
+                return Math.abs(this.<Double>getBase() - other.<Double>getBase()) <= EPSILON;
             }
             else if (_props.get(_base) instanceof Boolean){
                 return this.<Boolean>getBase() == other.<Boolean>getBase();

@@ -1,7 +1,10 @@
 open Sast
 open Printf
-(*import PCObject;
-  import PCList;  killed these guys for now...*)
+open Random
+
+
+
+
 
 
 (************
@@ -345,9 +348,7 @@ and writeCharLit charLit =
 ********************************************************************************)
 
 and function_name_gen () = 
-  incr x;
-  sprintf "function_%d" !x
+  Random.self_init ();
+  let x = (Random.int 100000) in 
+  sprintf "function_%d" x
 
-(*"static" variables for function naming*)
-and init = 100
-and x = ref init

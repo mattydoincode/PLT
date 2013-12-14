@@ -21,6 +21,7 @@ public class DistributeClient {
     public static   void getRegistries(String... hosts){
 
         slaves = new ArrayList<Compute>();
+        System.setProperty("java.security.policy", "client.policy");
         if (System.getSecurityManager() == null) {
             System.setSecurityManager(new SecurityManager());
         }
@@ -36,6 +37,7 @@ public class DistributeClient {
         }catch(Exception e){
             System.out.println("Failed to connect\n\n");
             e.printStackTrace();
+            System.exit(1);
         }
       }
 
@@ -64,18 +66,19 @@ public class DistributeClient {
 
         }catch(InterruptedException e){
             e.printStackTrace();
-            return new PCList();
+            System.exit(1);
 
         }catch(ExecutionException e){
             e.printStackTrace();
-            return new PCList();
+            System.exit(1);
 
         }/**catch(RemoteException e){
             e.printStackTrace();
             return new PCList();
         }**/
 
-        return new PCList(output);        
+        return new PCList(output); 
+
 
     }
 }
