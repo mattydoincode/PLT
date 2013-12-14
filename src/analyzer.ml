@@ -72,6 +72,8 @@ let nest_scope (env : environment) : environment =
 
 (* inside a function, nest entire env *)
 let new_env() : environment = 
+  let print_type = next_type_var() in
+  let print_file_type = next_type_var() in
   let dist_type = next_type_var() in
   let dist_return_type = next_type_var() in
   let add_type = next_type_var() in
@@ -82,12 +84,12 @@ let new_env() : environment =
   let find_type = next_type_var() in
   let split_type = next_type_var() in
   let core = [
-    ("print", TFunc([TList(TChar)], 
-                    TList(TChar)));
+    ("print", TFunc([print_type], 
+                    print_type));
     ("read", TFunc([],
                    TList(TList(TChar))));
-    ("printFile", TFunc([TList(TChar); TList(TChar)],
-                        TList(TChar)));
+    ("printFile", TFunc([print_file_type; TList(TChar)],
+                        print_file_type));
     ("readFile", TFunc([TList(TChar)],
                        TList(TList(TChar))));
     ("download", TFunc([TList(TChar)],

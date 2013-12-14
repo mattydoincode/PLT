@@ -1,4 +1,4 @@
-myString = 'hello';
+myList = [ 1, 2, 3, 4 ];
 
 print(myString.find('dog'));
 print(myString.find('el'));
