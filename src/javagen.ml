@@ -134,12 +134,12 @@ and writeForLoop asnTuple cond incrTuple stmtList =
       | None -> ""
     in matchTuple incrTuple
   in
-  sprintf "for (%s;%s;%s)\n{\n%s\n}\n" asn cond incrString stmtString
+  sprintf "for (%s;%s.<Boolean>getBase();%s)\n{\n%s\n}\n" asn cond incrString stmtString
 
 and writeWhileLoop cond stmtList =
   let condString = gen_expr cond 
   and stmtString = writeStmtList stmtList in 
-    sprintf "while (%s)\n{\n%s\n}\n" condString stmtString
+    sprintf "while (%s.<Boolean>.getBase())\n{\n%s\n}\n" condString stmtString
 
 (*ASSIGNING IS SPECIAL SO WE HANDWROTE THESE WITH LOVE*)
 and writeAssign expr1 expr2 =
@@ -303,7 +303,7 @@ and writeBinop expr1 op expr2 =
       | Greater -> sprintf "new PCObject(%s.<Double>getBase() > %s.<Double>getBase())" e1 e2 
       | Geq -> sprintf "new PCObject(%s.<Double>getBase() >= %s.<Double>getBase())" e1 e2
       | And -> sprintf "new PCObject(%s.<Boolean>getBase() && %s.<Boolean>getBase())" e1 e2    
-      | Or -> sprintf "new PCObject(%s.<Boolean>getBase() || h %s.<Boolean>getBase())" e1 e2 
+      | Or -> sprintf "new PCObject(%s.<Boolean>getBase() || %s.<Boolean>getBase())" e1 e2 
       | Equal -> sprintf "new PCObject(%s.equals(%s))" e1 e2
       | Neq -> sprintf "new PCObject(!(%s.equals(%s)))" e1 e2
       | Concat -> sprintf "new PCList(%s,%s)" e1 e2
