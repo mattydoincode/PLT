@@ -7,16 +7,15 @@ public class Writer
     {
 
 
-
         if(toPrint instanceof PCList) {
         	PCList mylist = (PCList) toPrint;
             for(PCObject obj : mylist) {
-                System.out.printf("%o", obj.<Object>getBase());
+                System.out.print(obj.<Object>getBase());
             }
-
         }
         else{
-            System.out.printf("%o", toPrint.<Object>getBase());
+            
+            System.out.print(toPrint.<Object>getBase());
         }
 
         System.out.println();

@@ -1,16 +1,7 @@
-list1 = [1, 2, 3];
+list1 = ["hey","i","talk"];
 
-fun = (x) -> {
-  return x+1;
-};
+result1 = List.map(list1, (x) -> {
+	return x[0];
+});
 
-results1 = map(list1, fun);
-results2 = results1.map(fun)
-
-
-print(results1[0]);
-print(results1[1]);
-print(results1[2]);
-print(results2[0]);
-print(results2[1]);
-print(results2[2]);
+print(results1);
