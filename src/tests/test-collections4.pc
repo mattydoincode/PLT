@@ -1,5 +1,0 @@
-list1 = ['list', 'of', 'string'];
-list1.add('literals');
-
-print(list1[2]);
-print(list[3]);

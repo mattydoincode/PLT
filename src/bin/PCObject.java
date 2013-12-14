@@ -11,6 +11,9 @@ public class PCObject implements Serializable
     public PCObject() {
         set(_base, this);
     }
+    public PCObject(int num) {
+        set(_base, num);
+    }
     public PCObject(double num) {
         set(_base, num);
     }

@@ -95,7 +95,7 @@ public class List
 
 				for(PCObject element : list){
 					if(element.equals(wedge)){
-						output.add(list.subList(lBound,uBound));
+						output.add(list.subList(new PCObject(lBound),new PCObject(uBound)));
 						lBound = uBound+1;
 					}
 					uBound++;

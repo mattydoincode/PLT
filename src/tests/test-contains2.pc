@@ -1,4 +1,0 @@
-myString = 'hello';
-
-print(contains(myString, 'dog'));
-print(contains(myString, 'lo'));

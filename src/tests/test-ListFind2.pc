@@ -1,0 +1,4 @@
+myList = [ 1, 2, 3, 4 ];
+
+print(List.find(myList, [1, 2]));
+pritn(List.find(myList, [3, 4]));
