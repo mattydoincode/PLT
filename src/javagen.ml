@@ -320,7 +320,9 @@ and writeID idName = function
 ********************************************************************************)
 
 and writeNumLit numLit = 
-  sprintf "new PCObject(%f)" numLit
+  if floor(numLit) = numLit
+  then sprintf "new PCObject (%d)" (int_of_float numLit)
+  else sprintf "new PCObject(%f)" numLit
 
 and writeBoolLit boolLit = 
   sprintf "new PCObject(%b)" boolLit
