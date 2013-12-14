@@ -17,7 +17,7 @@ public class DistributeTest {
 
         client.getRegistries(args);
 
-        PCList newList = client.distributeFunction(tf , testList);
+        PCList newList = client.distributeFunction(testList , tf);
 
 
 
