@@ -147,9 +147,9 @@ and writeAssign expr1 expr2 =
     let e2string = gen_expr expr2 in
       match expr1 with
         | AId(name, typed, typ) -> 
-          let typeString = if typed then lhs_type else "" in
+          let typeString = if typed then ("(" ^ lhs_type ^ ")") else "" in
           let e1string = typeString ^ " " ^ name in
-          sprintf "%s = (%s)(%s);\n" e1string typeString e2string
+          sprintf "%s = %s(%s);\n" e1string typeString e2string
         | AListAccess(listName, idx, _) -> 
           let listNamestring = gen_expr listName and idxstring = gen_expr idx in
           sprintf "%s.set(%s, %s);\n" listNamestring idxstring e2string
