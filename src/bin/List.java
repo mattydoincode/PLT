@@ -65,22 +65,26 @@ public class List
 			@Override
 			//adapted from algs4.cs.princeton.edu/53substrings
 			public PCObject call(PCObject... args){
-				PCList pat = (PCList)args[1];
 				PCList txt = (PCList)args[0];
+				PCList pat = (PCList)args[1];
 
-				int M = pat.size();
         		int N = txt.size();
+				int M = pat.size();
 
-		        for (int i = 0; i <= N - M; i++) {
-		            int j;
+		        for (int i = 0; i < N; i++) {
+		        	int srcIdx = i;
+		        	int j;
 		            for (j = 0; j < M; j++) {
-		                if (txt.<PCObject>get(i+j).equals(pat.<PCObject>get(j)))
+		                if (!txt.<PCObject>get(srcIdx).equals(pat.<PCObject>get(j))) {
 		                    break;
+		                }
+		                if (j == M - 1) {
+		                	return new PCObject(i);
+		                }
+		            	srcIdx++;
 		            }
-		            if (j == M) return new PCObject(i);            // found at offset i
 		        }
-		        return new PCObject(-1)	;                            // not found
-
+		        return new PCObject(-1); // not found
 			}
 		});
 

@@ -5,7 +5,6 @@ public class Writer
 {
     public static void print(PCObject toPrint)
     {
-
         if(toPrint instanceof PCList) {
         	PCList mylist = (PCList) toPrint;
             for(PCObject obj : mylist) {
