@@ -1,6 +1,6 @@
 list1 = ["hey", "dude", "hi"];
 
-result = List.map(list1, (x) -> { return x[0] == 'h'; });
+result = List.where(list1, (x) -> { return x[0] == 'h'; });
 
 print(result[0]);
 print(result[1]);

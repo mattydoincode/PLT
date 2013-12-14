@@ -1,6 +1,6 @@
 list1 = [1, 2, 3, 4, 5, 6];
 
-fun = (x) -> { return x%%2 == 0; }
+fun = (x) -> { return x%2 == 0; };
 
 result1 = List.where(list1, fun);
 
