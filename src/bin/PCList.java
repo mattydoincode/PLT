@@ -62,7 +62,7 @@ public class PCList extends PCObject implements Iterable<PCObject>
     }
 
     public PCList subList(PCObject start, PCObject end) {
-        return new PCList(_list.subList(start.<Double>getBase().intValue(), end.<Double>getBase().intValue()));
+        return new PCList(_list.subList(start.<Double>getBase().intValue(), end.<Double>getBase().intValue() + 1));
     }
 
     public Iterator<PCObject> iterator() {
