@@ -176,9 +176,10 @@ and writeFunc params stmtList =
   let paramSetting = snd (List.fold_left (
                             fun a p -> 
                               let count = fst a in
-                              let sofar = snd a in 
-                              let newString = "PCObject " ^ (fst p) ^
-                              " = args[" ^ string_of_int count ^ "];\n"
+                              let sofar = snd a in
+                              let typeName = java_from_type (snd p) in 
+                              let newString = typeName ^" " ^ (fst p) ^
+                              " = (" ^ typeName ^ ")args[" ^ string_of_int count ^ "];\n"
                               in
                               (count +1, sofar ^ newString)
                           ) (0, "") params)
