@@ -139,7 +139,7 @@ and writeForLoop asnTuple cond incrTuple stmtList =
 and writeWhileLoop cond stmtList =
   let condString = gen_expr cond 
   and stmtString = writeStmtList stmtList in 
-    sprintf "while (%s.<Boolean>.getBase())\n{\n%s\n}\n" condString stmtString
+    sprintf "while (%s.<Boolean>getBase())\n{\n%s\n}\n" condString stmtString
 
 (*ASSIGNING IS SPECIAL SO WE HANDWROTE THESE WITH LOVE*)
 and writeAssign expr1 expr2 =
@@ -269,7 +269,7 @@ and writeSubList listNameExpr startIdxExpr endIdxExpr =
   and endIdx = 
     let det = function
         Some(x) -> gen_expr x
-      | None -> sprintf "new PCObject(%s.size())" listName 
+      | None -> sprintf "new PCObject(%s.size()-1)" listName 
     in det endIdxExpr 
   in sprintf "%s.subList(%s,%s)" listName startIdx endIdx
 
