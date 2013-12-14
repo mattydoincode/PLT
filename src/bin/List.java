@@ -99,14 +99,14 @@ public class List
 
 				for(PCObject element : list){
 					if(element.equals(wedge)){
-						output.add(list.subList(new PCObject(lBound),new PCObject(uBound)));
+						output.add(list.subList(new PCObject(lBound),new PCObject(uBound-1)));
 						lBound = uBound+1;
 					}
 					uBound++;
 				}
 
 				if (uBound > lBound) {
-					output.add(list.subList(new PCObject(lBound),new PCObject(uBound)));
+					output.add(list.subList(new PCObject(lBound),new PCObject(uBound-1)));
 				}
 
 				return output;
