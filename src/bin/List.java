@@ -105,6 +105,10 @@ public class List
 					uBound++;
 				}
 
+				if (uBound > lBound) {
+					output.add(list.subList(new PCObject(lBound),new PCObject(uBound)));
+				}
+
 				return output;
 			}
 		});
