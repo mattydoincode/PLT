@@ -269,7 +269,7 @@ and writeSubList listNameExpr startIdxExpr endIdxExpr =
   and endIdx = 
     let det = function
         Some(x) -> gen_expr x
-      | None -> sprintf "new PCObject(%s.size())" listName 
+      | None -> sprintf "new PCObject(%s.size()-1)" listName 
     in det endIdxExpr 
   in sprintf "%s.subList(%s,%s)" listName startIdx endIdx
 
