@@ -4,13 +4,8 @@ fun = (x) -> {
   return x+1;
 };
 
-results1 = map(list1, fun);
-results2 = results1.map(fun)
-
+results1 = List.map(list1, fun);
 
 print(results1[0]);
 print(results1[1]);
 print(results1[2]);
-print(results2[0]);
-print(results2[1]);
-print(results2[2]);
