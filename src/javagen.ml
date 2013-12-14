@@ -204,7 +204,6 @@ and writeFuncCall toCallExp paramsExp =
   match toCall with 
     | "print" -> sprintf "Writer.print(%s)" params
     | "read" -> sprintf "Reader.read(%s)" params
-    | "rec" -> sprintf "this.call(%s)" params
     | "distribute" -> sprintf "DistributeClient.distributeFunction(%s)" params
     | _ -> sprintf "%s.call(%s)" toCall params
 
@@ -314,9 +313,11 @@ and writeBinop expr1 op expr2 =
     Id handling - helper function
 ********************************************************************************)
 
-and writeID idName = function
-    true -> sprintf "PCObject %s" idName
-  | false -> sprintf "%s" idName
+and writeID idName ty =
+  let newName = (if idName= "rec" then "this" else idName) in
+  match ty with 
+    true -> sprintf "PCObject %s" newName
+  | false -> sprintf "%s" newName
 
 
 (*******************************************************************************  
