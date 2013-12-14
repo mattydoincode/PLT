@@ -1,7 +1,13 @@
 myObj = {
 	value1: 7,
-	value2: 9
+	value2: {
+		value3: {
+			value4: {
+				value5: "hey!"
+			}
+		}
+	}
 };
 
-print(myObj['value1']);
-print(myObj['value2']);
+print(myObj.value1);
+print(myObj.value2.value3.value4.value5);
