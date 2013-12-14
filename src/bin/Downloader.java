@@ -2,7 +2,7 @@ import java.io.*;
 import java.util.Iterator;
 
 
-public class Download
+public class Downloader
 {
 
     public static PCList download(PCList listOfChars) throws IOException {
