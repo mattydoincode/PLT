@@ -1,0 +1,4 @@
+myString = "hello";
+
+print(List.find(myString, "dog"));
+print(List.find(myString, "el"));

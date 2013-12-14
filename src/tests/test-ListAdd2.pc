@@ -1,0 +1,9 @@
+list1 = [];
+
+list1 = List.add(list1, 1);
+list1 = List.add(list1, 2);
+list1 = List.add(list1, 3);
+list1 = List.add(list1, 4);
+list1 = List.add(list1, 5);
+
+print(list1[4]);
