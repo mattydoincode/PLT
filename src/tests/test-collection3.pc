@@ -1,0 +1,4 @@
+list1 = ["list", "of", "strings"];
+
+print(list1[0]);
+print(list[2]);
