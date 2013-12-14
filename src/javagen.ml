@@ -99,7 +99,7 @@ and writeIfStmt condTupleList elseStmtList =
     let body = writeStmtList stmtList
     and cond = gen_expr condExpr in
     sprintf "
-    if (%s)
+    if (%s.<Boolean>getBase())
     {
         %s
     }" cond body
