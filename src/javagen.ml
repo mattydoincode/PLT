@@ -134,7 +134,7 @@ and writeForLoop asnTuple cond incrTuple stmtList =
       | None -> ""
     in matchTuple incrTuple
   in
-  sprintf "for (%s;%s;%s)\n{\n%s\n}\n" asn cond incrString stmtString
+  sprintf "for (%s;%s.<Boolean>getBase();%s)\n{\n%s\n}\n" asn cond incrString stmtString
 
 and writeWhileLoop cond stmtList =
   let condString = gen_expr cond 
