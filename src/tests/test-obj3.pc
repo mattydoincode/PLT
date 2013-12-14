@@ -1,5 +1,5 @@
 myObj = {
-	value1: 'hey',
+	value1: "hey",
 	value2: 9
 };
 

@@ -1,0 +1,18 @@
+outer = (x) -> {
+  if (x < 2) {
+  	return 1;
+  }
+
+  y = rec(x - 1);
+
+  inner = (x) -> {
+  	if (x < 1) {
+  		return 0;
+  	}
+  	return rec(x - 1) + rec(x - 2);
+  };
+
+  return inner(y);
+};
+
+print(outer(9));
