@@ -27,7 +27,7 @@ public class List
 			@Override
 			public PCObject call(PCObject... args){
 				PCList list = (PCList)args[0];
-				int idx = args[1].<Integer>getBase();
+				int idx = args[1].<Double>getBase().intValue();
 				list.removeAt(idx);
 				return list;
 			}
@@ -113,8 +113,8 @@ public class List
 			@Override
 			public PCObject call(PCObject... args){
 				PCList output = new PCList();
-				int lLimit = args[0].<Integer>getBase();
-				int uLimit = args[1].<Integer>getBase();
+				int lLimit = args[0].<Double>getBase().intValue();
+				int uLimit = args[1].<Double>getBase().intValue();
 				for(;lLimit<=uLimit;lLimit ++){
 					output.add(new PCObject(lLimit));
 				}
