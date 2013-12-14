@@ -39,7 +39,7 @@ public class DistributeClient {
         }
       }
 
-    public static PCList distributeFunction(IPCFunction function, PCList toProcess){
+    public static PCList distributeFunction(PCList toProcess, IPCFunction function){
         Compute slave;
         ArrayList<PCObject> output = new ArrayList<PCObject>();
         Iterator<Compute> slave_it = slaves.iterator();
