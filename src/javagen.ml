@@ -157,7 +157,7 @@ and writeAssign expr1 expr2 =
           sprintf "%s.set(%s, %s);\n" listNamestring idxstring e2string
         | AObjAccess(objName, fieldName, _)->
           let objNamestring = gen_expr objName in 
-          sprintf "%s.set(\"%s\", %s);" objNamestring fieldName e2string
+          sprintf "%s.set(\"%s\", %s);\n" objNamestring fieldName e2string
         | _ -> failwith "How'd we get all the way to java with this!!!! Not a valid LHS"
 
 and writeFuncCallStmt fNameExpr paramsListExpr = 
