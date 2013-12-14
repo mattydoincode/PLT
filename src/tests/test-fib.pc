@@ -2,7 +2,7 @@ fib = (x) -> {
   if (x < 2) {
   	return 1;
   }
-  return fib(x-1) + fib(x-2);
+  return rec(x-1) + rec(x-2);
 };
 
 print(fib(0));
