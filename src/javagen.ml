@@ -246,7 +246,8 @@ and writeListCreate exprList ty =
             in
           let word =  String.concat "" (List.map my_string_func exprList) in
           sprintf("new PCList(\"%s\")") word
-        | _ -> let concatAdds = (fun a b -> a^(sprintf(".add(%s)") b)) 
+        | _ -> 
+          let concatAdds = (fun a b -> a^(sprintf(".add(%s)") b)) 
           and list_of_strings = List.map gen_expr exprList in 
           List.fold_left concatAdds "new PCList()" list_of_strings
       )
