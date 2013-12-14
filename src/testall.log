@@ -1,0 +1,5 @@
+
+###### Testing test-ops1
+./compileScript.sh tests/test-ops1.pc > test-ops1.i.out
+diff -b test-ops1.i.out tests/test-ops1.out > test-ops1.i.diff
+###### SUCCESS
