@@ -157,7 +157,7 @@ and writeAssign expr1 expr2 =
           sprintf "%s.set(%s, %s);\n" listNamestring idxstring e2string
         | AObjAccess(objName, fieldName, _)->
           let objNamestring = gen_expr objName in 
-          sprintf "%s.set(\"%s\", %s)" objNamestring fieldName e2string
+          sprintf "%s.set(\"%s\", %s);" objNamestring fieldName e2string
         | _ -> failwith "How'd we get all the way to java with this!!!! Not a valid LHS"
 
 and writeFuncCallStmt fNameExpr paramsListExpr = 
@@ -204,7 +204,6 @@ and writeFuncCall toCallExp paramsExp =
   match toCall with 
     | "print" -> sprintf "Writer.print(%s)" params
     | "read" -> sprintf "Reader.read(%s)" params
-    | "rec" -> sprintf "this.call(%s)" params
     | "distribute" -> sprintf "DistributeClient.distributeFunction(%s)" params
     | _ -> sprintf "%s.call(%s)" toCall params
 
@@ -314,9 +313,11 @@ and writeBinop expr1 op expr2 =
     Id handling - helper function
 ********************************************************************************)
 
-and writeID idName = function
-    true -> sprintf "PCObject %s" idName
-  | false -> sprintf "%s" idName
+and writeID idName ty =
+  let newName = (if idName= "rec" then "this" else idName) in
+  match ty with 
+    true -> sprintf "PCObject %s" newName
+  | false -> sprintf "%s" newName
 
 
 (*******************************************************************************  
