@@ -1,6 +1,0 @@
-myobj = {
-	a: "hey",
-	b: 5
-};
-
-print(myobj.a);
