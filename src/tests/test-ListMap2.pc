@@ -1,6 +1,6 @@
 list1 = ["hey","i","talk"];
 
-result1 = List.map(list1, (x) -> {
+results1 = List.map(list1, (x) -> {
 	return x[0];
 });
 
