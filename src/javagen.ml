@@ -50,6 +50,7 @@ and gen_program fileName prog = (*have a writetofile*)
   {
       public static void main(String[] args)
       {
+      DistributeClient.setSlaves(args);
 
 %s
       } 
@@ -207,8 +208,7 @@ and writeFuncCall toCallExp paramsExp =
   match toCall with 
     | "print" -> sprintf "Writer.print(%s)" params
     | "read" -> sprintf "Reader.read(%s)" params
-    | "distribute" -> sprintf "DistributeClient.getRegistries(args);
-                               DistributeClient.distributeFunction(%s)" params
+    | "distribute" -> sprintf "DistributeClient.distributeFunction(%s)" params
     | "download" -> sprintf "Downloader.download(%s)" params
     | _ -> sprintf "%s.call(%s)" toCall params
 

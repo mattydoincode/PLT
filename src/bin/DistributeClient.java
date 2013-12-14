@@ -17,8 +17,14 @@ import java.util.concurrent.Future;
 public class DistributeClient {
 
     private static ArrayList<Compute> slaves;
+    private static String[] slaveList;
+    private static boolean initialized = false;
 
-    public static   void getRegistries(String... hosts){
+    public static void setSlaves(String[] args){
+        slaveList = args;
+    }
+
+    private static   void getRegistries(String... hosts){
 
         slaves = new ArrayList<Compute>();
         System.setProperty("java.security.policy", "client.policy");
@@ -42,6 +48,11 @@ public class DistributeClient {
       }
 
     public static PCList distributeFunction(PCList toProcess, IPCFunction function){
+        if(!initialized){
+            getRegistries(slaveList);
+            initialized = true;
+        }
+
         Compute slave;
         ArrayList<PCObject> output = new ArrayList<PCObject>();
         Iterator<Compute> slave_it = slaves.iterator();

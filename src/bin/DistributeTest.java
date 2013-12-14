@@ -15,7 +15,7 @@ public class DistributeTest {
 
         DistributeClient client = new DistributeClient();
 
-        client.getRegistries(args);
+        client.setSlaves(args);
 
         PCList newList = client.distributeFunction(testList , tf);
 
