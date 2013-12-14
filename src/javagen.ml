@@ -264,12 +264,12 @@ and writeSubList listNameExpr startIdxExpr endIdxExpr =
   let startIdx = 
     let det = function
         Some(x) -> gen_expr x
-      | None -> "0"
+      | None -> "new PCObject(0)"
     in det startIdxExpr 
   and endIdx = 
     let det = function
         Some(x) -> gen_expr x
-      | None -> sprintf "%s.size()" listName 
+      | None -> sprintf "new PCObject(%s.size())" listName 
     in det endIdxExpr 
   in sprintf "%s.subList(%s,%s)" listName startIdx endIdx
 
@@ -325,7 +325,7 @@ and writeID idName = function
 
 and writeNumLit numLit = 
   if floor(numLit) = numLit
-  then sprintf "new PCObject (%d)" (int_of_float numLit)
+  then sprintf "new PCObject(%d)" (int_of_float numLit)
   else sprintf "new PCObject(%f)" numLit
 
 and writeBoolLit boolLit = 
