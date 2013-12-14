@@ -15,11 +15,6 @@ func2 = (y,f1) -> {
 	smaller = y/2;
 	return y + f1(smaller, rec);
 };
-
-func3 = (y,f1) -> {
-		
-};
-
 result = func1(100,func2);
 
 print(result);
