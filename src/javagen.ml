@@ -47,6 +47,7 @@ and gen_program fileName prog = (*have a writetofile*)
   {
       public static void main(String[] args)
       {
+      DistributeClient.getRegistries(args);
 
 %s
       } 
