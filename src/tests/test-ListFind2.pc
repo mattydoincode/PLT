@@ -1,7 +1,4 @@
 myList = [ 1, 2, 3, 4 ];
 
-print(myString.find('dog'));
-print(myString.find('el'));
-
-print(find(myString, 'dog'));
-print(find(myString, 'lo'));
+print(List.find(myList, [1, 2]));
+pritn(List.find(myList, [3, 4]));
