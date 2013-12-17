@@ -23,7 +23,7 @@ public class DistributeTest {
 
         for(PCObject o : newList){
             // SIREESH THIS IS BREAKING FOR ME (ALDEN) SO IM COMMENTING OUT
-            System.out.println(o.getBase());
+            // System.out.println(o.getBase());
         }
 
 
