@@ -1,6 +1,9 @@
 
 import java.io.*;
 import java.net.InetSocketAddress;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
@@ -19,13 +22,20 @@ public class FileServer {
         public void handle(HttpExchange t) throws IOException {
             String response = t.getRequestURI().toString();
             String filePath = response.substring(1,response.length());
-            String fileInfo = readFileAsString(filePath);
-            t.sendResponseHeaders(200, fileInfo.length());
+            byte[] fileInfo = readSmallBinaryFile(filePath);
+            t.sendResponseHeaders(200, fileInfo.length);
             OutputStream os = t.getResponseBody();
-            os.write(fileInfo.getBytes());
+            os.write(fileInfo);
             os.close();
         }
     }
+
+    private static byte[] readSmallBinaryFile(String aFileName) throws IOException {
+    Path path = Paths.get(aFileName);
+    return Files.readAllBytes(path);
+    }
+
+
     private static String readFileAsString(String filePath) throws IOException {
         StringBuffer fileData = new StringBuffer();
         BufferedReader reader = new BufferedReader(
