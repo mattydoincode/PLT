@@ -200,13 +200,7 @@ and writeFunc params stmtList =
 and writeFuncCall toCallExp paramsExp =
   let toCall = (gen_expr toCallExp) and params = (params_to_string paramsExp) in 
   match toCall with 
-    | "print" -> sprintf "Writer.print(%s)" params
-    | "printFile" -> sprintf "Writer.printFile(%s)" params
-    | "read" -> sprintf "Reader.read(%s)" params
-    | "readFile" -> sprintf "Reader.readFile(%s)" params
     | "distribute" -> sprintf "DistributeClient.distributeFunction(%s)" params
-    | "download" -> sprintf "Downloader.download(%s)" params
-    | "toString" -> sprintf "MakeString.makeString(%s)" params
     | _ -> sprintf "%s.call(%s)" toCall params
 
 and params_to_string paramsList= 
@@ -322,14 +316,9 @@ and writeBinop expr1 op expr2 =
 and writeID idName ty =
   let newName = (match idName with
   | "rec" -> "this"
-  (*
-  | "print" -> "IO.get(\"print\")"
-  | "printFile" -> "Writer.printFile"
-  | "read" -> "Reader.read"
-  | "readFile" -> "Reader.readFile"
-  | "distribute" -> "DistributeClient.distributeFunction"
-  | "download" -> "Downloader.download"
-  *)
+  | "print" | "printFile" | "read" | "readFile" | "download" | "toString" ->
+      sprintf "((IPCFunction)IO.get(\"%s\"))" idName
+  (*| "distribute" -> "DistributeClient.distributeFunction" *)
   | _ -> idName) in
   match ty with 
     true -> sprintf "PCObject %s" newName

@@ -1,11 +1,24 @@
+import java.io.*;
+import java.util.Iterator;
+import java.net.URL;
+
 public class IO
 {
-    public static PCList readFile(PCList listOfChars)  {
-
+    private static String getStringOfObj(PCObject obj){
+        Object myobject = obj.<Object>getBase();
+        if(myobject instanceof Double){
+            Double mynum = obj.<Double>getBase();
+            if(Math.floor(mynum) == mynum){
+                return (new Integer(mynum.intValue())).toString();
+            }
+            else {
+                return mynum.toString();
+            }
+        }
+        else {
+            return myobject.toString();
+        }
     }
-
-
-
 
 	private static PCObject _obj = new PCObject();
 
@@ -87,156 +100,70 @@ public class IO
 			}
 		});
 
-		_obj.set("download", new IPCFunction() {
+		_obj.set("print", new IPCFunction(){
 			@Override
 			public PCObject call(PCObject... args){
-		        String fileName = new String();
-	        	PCList listOfChars = (PCList)args[0];
-		        for (PCObject element : listOfChars) {
-		            fileName += element.<Character>getBase();
+				PCObject toPrint = (PCObject)args[0];
+				if(toPrint instanceof PCList) {
+        			PCList mylist = (PCList) toPrint;
+            		for(PCObject obj : mylist) {
+                		System.out.print(getStringOfObj(obj));
+            		}
+        		}
+		        else{
+		            System.out.print(getStringOfObj(toPrint));
 		        }
+		        System.out.println();
+		        return toPrint;
 
-		        String result = "";
-		        BufferedReader in = null;
-		        try {
-		            URL myURL = new URL(fileName);
-
-		            in = new BufferedReader(new InputStreamReader(myURL.openStream()));
-		            String line = in.readLine();
-		            while (line != null) {
-		                result += line + "\n";
-		                line = in.readLine();
-		            }
-		        }
-		        catch (IOException e) {} 
-		        finally {
-		            if (in != null) {
-		                try {
-		                    in.close();                    
-		                }
-		                catch(IOException ex) {}
-		            }
-		        }
-
-		        return new PCList(result);
-			}
-		});
-
-		_obj.set("add", new IPCFunction(){
-			@Override
-			public PCObject call(PCObject... args){
-				PCList list = (PCList)args[0];
-				list.add(args[1]);
-				return list;
-			}
-		});
-
-
-		_obj.set("remove", new IPCFunction(){
-			@Override
-			public PCObject call(PCObject... args){
-				PCList list = (PCList)args[0];
-				int idx = args[1].<Double>getBase().intValue();
-				list.removeAt(idx);
-				return list;
-			}
-		});
-
-		_obj.set("map", new IPCFunction() {
-			@Override
-			public PCObject call(PCObject... args) {
-				PCList list = (PCList)args[0];
-				IPCFunction mapper = (IPCFunction)args[1];
-				PCList newList = new PCList();
-				for (PCObject o : list) {
-					newList.add(mapper.call(o));
-				}
-				return newList;
-			}
-		});
-
-		_obj.set("where", new IPCFunction() {
-			@Override
-			public PCObject call(PCObject... args) {
-				PCList list = (PCList)args[0];
-				IPCFunction filter = (IPCFunction)args[1];
-				PCList newList = new PCList();
-				for (PCObject o : list) {
-					if (filter.call(o).<Boolean>getBase()) {
-						newList.add(o);
 					}
+		});
+
+		_obj.set("printFile", new IPCFunction(){
+			@Override
+			public PCObject call(PCObject... args){
+				PCObject toPrint  = (PCObject)args[0];
+				PCList listOfChars = (PCList)args[1];
+				String fileName = new String();
+
+				for(PCObject element : listOfChars) {
+				    fileName += element.<Character>getBase();
 				}
-				return newList;
+
+				try {
+				    File f = new File(fileName);
+				    if (!f.exists()) {
+				        f.createNewFile();
+				    }
+				    PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(fileName)));
+
+				    if(toPrint instanceof PCList) {
+				        PCList mylist = (PCList) toPrint;
+				        for(PCObject obj : mylist) {
+				            out.print(getStringOfObj(obj));
+				        }
+				    }
+				    else{
+				        out.print(getStringOfObj(toPrint));
+				    }
+				    out.close();
+				}
+				catch(IOException e) {
+				    e.printStackTrace();
+				}
+				return toPrint;
+
+
 			}
 		});
 
-		_obj.set("find", new IPCFunction(){
-			@Override
-			//adapted from algs4.cs.princeton.edu/53substrings
-			public PCObject call(PCObject... args){
-				PCList txt = (PCList)args[0];
-				PCList pat = (PCList)args[1];
-
-        		int N = txt.size();
-				int M = pat.size();
-
-		        for (int i = 0; i < N; i++) {
-		        	int srcIdx = i;
-		        	int j;
-		            for (j = 0; j < M; j++) {
-		                if (!txt.<PCObject>get(srcIdx).equals(pat.<PCObject>get(j))) {
-		                    break;
-		                }
-		                if (j == M - 1) {
-		                	return new PCObject(i);
-		                }
-		                if (++srcIdx == N) {
-		                	break;
-		                }
-		            }
-		        }
-
-		        return new PCObject(-1); // not found
-			}
-		});
-
-		_obj.set("split", new IPCFunction(){
+		_obj.set("toString", new IPCFunction() {
 			@Override
 			public PCObject call(PCObject... args){
-				PCList list = (PCList)args[0];
-				PCObject wedge = args[1];
-				PCList output = new PCList();
-				int lBound = 0;
-				int uBound = 0;
-
-				for(PCObject element : list){
-					if(element.equals(wedge)){
-						output.add(list.subList(new PCObject(lBound),new PCObject(uBound-1)));
-						lBound = uBound+1;
-					}
-					uBound++;
-				}
-
-				if (uBound > lBound) {
-					output.add(list.subList(new PCObject(lBound),new PCObject(uBound-1)));
-				}
-
-				return output;
+				PCObject origNum = args[0];
+        		String result = getStringOfObj(origNum);
+        		return new PCList(result);
 			}
-		});
-
-		_obj.set("range", new IPCFunction(){
-			@Override
-			public PCObject call(PCObject... args){
-				PCList output = new PCList();
-				int lLimit = args[0].<Double>getBase().intValue();
-				int uLimit = args[1].<Double>getBase().intValue();
-				for(;lLimit<=uLimit;lLimit ++){
-					output.add(new PCObject(lLimit));
-				}
-				return output;
-			}
-
 		});
 
 	}
