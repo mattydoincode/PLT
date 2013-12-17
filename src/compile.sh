@@ -1,7 +1,7 @@
 #!/bin/sh
 
-make cleanJava
-make
+make cleanJava >/dev/null
+make >/dev/null
 ./pc < $1 >/dev/null
 shift
 cd java

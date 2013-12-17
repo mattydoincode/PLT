@@ -93,16 +93,13 @@ done
 
 shift `expr $OPTIND - 1`
 
-files="tests/fail-*.pc tests/test-*.pc"
+files="tests/test-*.pc"
 
 for file in $files
 do
     case $file in
 	*test-*)
 	    Check $file $@ 2>> $globallog
-	    ;;
-	*fail-*)
-	    CheckFail $file $@ 2>> $globallog
 	    ;;
 	*)
 	    echo "unknown file type $file"
