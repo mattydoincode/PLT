@@ -1,27 +1,10 @@
 %{ open Ast
 
-  let escapeChar = function
-      '\\' -> '\\'
-    | 'n' -> '\n'
-    | 'r' -> '\r'
-    | 't' -> '\t'
-    | '"' -> '"'
-    | c ->  c
-
   (* convert string into char list *)
   let explode s =
-    let rec exp i l = 
-      if i < 0 then l else exp (i - 1) (s.[i] :: l)
-    in 
-    let rawList = exp (String.length s - 1) [] in 
-    let escList = ['\\';'"';'n';'r';'t'] in 
-    let rec escChr = function 
-      | a::(b::tl) -> if a = '\\' && List.mem b escList 
-        then (escapeChar b)::escChr tl
-        else a :: escChr (b::tl)
-      | x -> x
-    in escChr rawList  
-
+    let rec exp i l =
+      if i < 0 then l else exp (i - 1) (s.[i] :: l) in
+    exp (String.length s - 1) []
 
 %}
 
