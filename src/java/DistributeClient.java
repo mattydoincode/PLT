@@ -44,7 +44,7 @@ public class DistributeClient {
             e.printStackTrace();
             System.exit(1);
         }
-      }
+    }
 
     public static PCList distributeFunction(PCList toProcess, final IPCFunction function){
         if(!initialized){

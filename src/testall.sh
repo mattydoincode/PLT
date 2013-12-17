@@ -1,6 +1,6 @@
 #!/bin/sh
 
-PUBCRAWL="./compileScript.sh "
+PUBCRAWL="./compile.sh "
 
 # Set time limit for all operations
 ulimit -t 30
@@ -63,7 +63,7 @@ Check() {
     generatedfiles=""
 
     generatedfiles="$generatedfiles ${basename}.i.out" &&
-    Run "$PUBCRAWL" $1 ">" ${basename}.i.out &&
+    Run "$PUBCRAWL" $@ ">" ${basename}.i.out &&
     Compare ${basename}.i.out ${reffile}.out ${basename}.i.diff
 
     # Report the status and clean up the generated files
@@ -93,21 +93,13 @@ done
 
 shift `expr $OPTIND - 1`
 
-if [ $# -ge 1 ]
-then
-    files=$@
-else
-    files="tests/fail-*.pc tests/test-*.pc"
-fi
+files="tests/test-*.pc"
 
 for file in $files
 do
     case $file in
 	*test-*)
-	    Check $file 2>> $globallog
-	    ;;
-	*fail-*)
-	    CheckFail $file 2>> $globallog
+	    Check $file $@ 2>> $globallog
 	    ;;
 	*)
 	    echo "unknown file type $file"
