@@ -32,7 +32,7 @@ public class distributeServer implements Compute {
             Compute stub =
                     (Compute) UnicastRemoteObject.exportObject(engine, 0);
 
-            Registry registry = LocateRegistry.createRegistry(Integer.parseInt(args[0]));
+            Registry registry = LocateRegistry.createRegistry(1099);
 
             registry.rebind(name, stub);
 
