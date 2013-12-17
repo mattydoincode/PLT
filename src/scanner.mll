@@ -1,6 +1,9 @@
 { 
   open Parser
-  open Scanf 
+  open Scanf
+
+  let unescaped s =
+    Scanf.sscanf ("\"" ^ s ^ "\"") "%S%!" (fun x -> x)
 }
 
 rule token = parse
@@ -45,7 +48,7 @@ rule token = parse
 | ('\'' ([' '-'&' '('-'[' ']'-'~'] as c) '\'')
                        { CHAR_LIT(c) }
 | ("'\\\\'" | "'\\''" | "'\\n'" | "'\\r'" | "'\\t'") as s
-                       { CHAR_LIT((Scanf.unescaped s).[0]) } 
+                       { CHAR_LIT((unescaped s).[0]) } 
 | ('0' | ['1'-'9']+['0'-'9']*)(['.']['0'-'9']+)? as lxm 
                        { NUM_LIT(float_of_string lxm) }
 | '"' (([' '-'!' '#'-'[' ']'-'~'] | '\\' ['\\' '"' 'n' 'r' 't'])* as s) '"' 
