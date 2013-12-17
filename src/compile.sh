@@ -1,5 +1,7 @@
 #!/bin/sh
 
+make cleanJava
+make
 ./pc < $1 >/dev/null
 shift
 cd java
