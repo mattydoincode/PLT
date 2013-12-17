@@ -6,6 +6,8 @@ import java.net.*;
 public class Downloader
 {
 
+    
+
     public static PCList download(PCList listOfChars){
         PCList toReturn = new PCList();
         String fileName = new String();
@@ -16,7 +18,6 @@ public class Downloader
         }
         try{
         URL myURL = new URL(fileName);
-        System.out.println("filename");
 
         BufferedReader in = new BufferedReader(
                         new InputStreamReader(
@@ -24,7 +25,8 @@ public class Downloader
 
         try {
             String line = in.readLine();
-            while (line != null) {
+            while (line != null) 
+            {
                 toReturn.add(new PCList(line));
                 line = in.readLine();
             }
