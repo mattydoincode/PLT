@@ -1,2 +1,4 @@
 
-print(download("http://www.google.com")[0]);
+google = download("http://www.google.com");
+lines = List.split(google, '\n');
+print(lines[0]);

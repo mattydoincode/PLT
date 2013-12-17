@@ -1,15 +1,7 @@
 
-TODO FOR LANGUAGE
-- tests to add
-	- read(), readFile(), printFile()
-	- scanner special characters => \', "'", etc.
-	- distribute()
-
 TDOO FOR FINAL REPORT
-
-- Sireesh write Lessons Learned
 - Alden finish type inference description
-- Everyone read it over
+- Dean read it over
 
 TODO FOR SLIDES
   1) an overview of the language and its motivation,
@@ -25,10 +17,36 @@ TODO FOR PRESENTATION
 
 
 DONE THINGS
+- readFile() return list of lines, but read() return one line
 - Kevin download(), readFile(), read(), printFile() test
 - Kevin write Lessons Learned
-- readFile() should return list of lines, but read() should return one line
+- Sireesh write Lessons Learned
+- Sireesh distribute() tests
+- Alden scanner special characters => \', "'", etc.
 
 
-TODO LANGUAGE CHANGES
-- download() when list is list of functions!
+TODO DISTRIBUTE
+- if i have 12 slaves and i distribute a function to teach of them, will it work?
+- if i have 12 slaves and distribute 4 items, then distribute 7 items, what happens? start from slave 1 again?
+- if i have 12 slaves and distribute 30 items, what happens?
+
+this correctly gets through the scanner, but breaks in java:
+print("\"");
+
+generated java: Writer.print(new PCList("""));
+
+this does not get past our scanner, but it should:
+print("'");
+
+DO WE WANT TO ADD THE x -> { x + 1 } syntax?
+IT WOULD BE SUGAR FOR x -> { return x + 1; }
+
+INTRO TO LANGUAGE SECTION SHOULD SHOULD FIB, shows recursion and basic language
+
+can't pass our std library functions around because they are not PCFunctions, they are static...
+this breaks in javagen and in java code :(
+
+JAVAGEN BREAKS OUR PARSER.
+This should work, but it fails:
+firstLine = List.split(webPageString, '\n')[0];
+

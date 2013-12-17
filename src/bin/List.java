@@ -81,9 +81,12 @@ public class List
 		                if (j == M - 1) {
 		                	return new PCObject(i);
 		                }
-		            	srcIdx++;
+		                if (++srcIdx == N) {
+		                	break;
+		                }
 		            }
 		        }
+
 		        return new PCObject(-1); // not found
 			}
 		});

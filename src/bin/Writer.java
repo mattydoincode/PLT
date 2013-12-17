@@ -3,7 +3,7 @@ import java.util.Iterator;
 
 public class Writer
 {
-    public static void print(PCObject toPrint)
+    public static PCObject print(PCObject toPrint)
     {
         if(toPrint instanceof PCList) {
         	PCList mylist = (PCList) toPrint;
@@ -14,8 +14,8 @@ public class Writer
         else{
             System.out.print(getStringOfObj(toPrint));
         }
-
         System.out.println();
+        return toPrint;
     }
 
     private static String getStringOfObj(PCObject obj){
@@ -34,8 +34,7 @@ public class Writer
         }
     }
 
-    public static void printFile(PCObject toPrint, PCList listOfChars) {
-        PCList mylist = (PCList) toPrint;
+    public static PCObject printFile(PCObject toPrint, PCList listOfChars) {
         String fileName = new String();
 
         for(PCObject element : listOfChars) {
@@ -49,15 +48,20 @@ public class Writer
             }
             PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(fileName)));
 
-            for (PCObject obj : mylist)
-            {
-                out.print(getStringOfObj(obj));
+            if(toPrint instanceof PCList) {
+                PCList mylist = (PCList) toPrint;
+                for(PCObject obj : mylist) {
+                    out.print(getStringOfObj(obj));
+                }
+            }
+            else{
+                out.print(getStringOfObj(toPrint));
             }
             out.close();
         }
         catch(IOException e) {
             e.printStackTrace();
         }
-       
+        return toPrint;
     }
 }

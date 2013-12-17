@@ -11,27 +11,29 @@ public class Downloader
         for (PCObject element : listOfChars) {
             fileName += element.<Character>getBase();
         }
-        try{
-        URL myURL = new URL(fileName);
 
-        BufferedReader in = new BufferedReader(
-                        new InputStreamReader(
-                        myURL.openStream()));
-        String result = " ";
+        String result = "";
+        BufferedReader in = null;
         try {
+            URL myURL = new URL(fileName);
+
+            in = new BufferedReader(new InputStreamReader(myURL.openStream()));
             String line = in.readLine();
-            while (line != null) 
-            {
-                result += line;
+            while (line != null) {
+                result += line + "\n";
                 line = in.readLine();
             }
-            
-        } catch (IOException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        } finally {
-            in.close();
-        }    }
-        catch(IOException e){}
+        }
+        catch (IOException e) {} 
+        finally {
+            if (in != null) {
+                try {
+                    in.close();                    
+                }
+                catch(IOException ex) {}
+            }
+        }
+
         return new PCList(result);
     }
 }

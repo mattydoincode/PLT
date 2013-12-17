@@ -1,2 +1,0 @@
-s = read();
-print(s);

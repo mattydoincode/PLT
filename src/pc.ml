@@ -21,11 +21,8 @@ let _ =
   | Ast -> 
       print_string (Ast.string_of_prog program)
   | Sast ->
-      let ap = Analyzer.annotate_prog program in
-      let constraints = Analyzer.collect_prog ap in
-      let subs = Analyzer.unify (List.rev constraints) in
-      let aProgram = Analyzer.apply_stmts ap subs in
-      print_string ("\n" ^ Sast.string_of_inferred_prog aProgram)
+      let ap = Analyzer.infer_prog program in
+      print_string ("\n" ^ Sast.string_of_inferred_prog ap)
   | Java ->
       let ap = Analyzer.infer_prog program in
       let jp = Javagen.gen_program "output" ap in

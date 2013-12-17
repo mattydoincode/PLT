@@ -2,11 +2,6 @@ open Sast
 open Printf
 open Random
 
-
-
-
-
-
 (************
 HELPERS
 ************)
@@ -262,9 +257,6 @@ and writeListCreate exprList ty =
       )
     | _ -> failwith "trying to generate a list from a non list type!"
     
-
-  
-
 and writeSubList listNameExpr startIdxExpr endIdxExpr = 
   let listName = gen_expr listNameExpr in  
   let startIdx = 
@@ -321,7 +313,17 @@ and writeBinop expr1 op expr2 =
 ********************************************************************************)
 
 and writeID idName ty =
-  let newName = (if idName= "rec" then "this" else idName) in
+  let newName = (match idName with
+  | "rec" -> "this"
+  (*
+  | "print" -> "Writer.print"
+  | "printFile" -> "Writer.printFile"
+  | "read" -> "Reader.read"
+  | "readFile" -> "Reader.readFile"
+  | "distribute" -> "DistributeClient.distributeFunction"
+  | "download" -> "Downloader.download"
+  *)
+  | _ -> idName) in
   match ty with 
     true -> sprintf "PCObject %s" newName
   | false -> sprintf "%s" newName

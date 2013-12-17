@@ -1,3 +1,4 @@
+
 chatFn = msg -> {
     print(msg ^ "\n\n");
     return read();
@@ -6,5 +7,5 @@ chatFn = msg -> {
 while(true) {
     msg = read();
     resp = distribute([msg], chatFn);
-    print(resp[0]);
+    print(resp);
 }
