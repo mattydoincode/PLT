@@ -35,7 +35,7 @@ let java_from_type (ty: Sast.t) : string =
 ********************************************************************************)
 
 let rec writeToFile fileName progString = 
-  let file = open_out ("bin/" ^ fileName ^ ".java") in
+  let file = open_out ("java/" ^ fileName ^ ".java") in
     fprintf file "%s"  progString
 
 and gen_program fileName prog = (*have a writetofile*)
@@ -169,7 +169,7 @@ and writeFuncCallStmt fNameExpr paramsListExpr =
 
 and writeFunc params stmtList = 
   let fName = function_name_gen() in
-  let fileName = "bin/" ^ fName ^ ".java" in 
+  let fileName = "java/" ^ fName ^ ".java" in 
   let file = open_out fileName in
   let paramSetting = snd (List.fold_left (
                             fun a p -> 

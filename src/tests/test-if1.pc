@@ -1,4 +1,4 @@
-if ((() -> { return false; })() || false) {
+if ((() -> { return false; })() || true) {
   print(42);	
 }
 

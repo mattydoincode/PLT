@@ -1,9 +1,16 @@
 import java.util.Iterator;
-
+import java.io.Serializable;
 
 public class DistributeTest {
 
-    public static void main(String[] args){
+    private class TestFunction extends IPCFunction implements Serializable {
+        public PCObject call(PCObject... args) {
+           System.out.print("whee!");
+           return new PCObject(2);
+        }
+    }
+
+    public void run(String[] args) {
 
         PCList testList = new PCList();
         for(int i = 0; i<12;i++){
@@ -11,7 +18,6 @@ public class DistributeTest {
         }
 
         TestFunction tf = new TestFunction();
-
 
         DistributeClient client = new DistributeClient();
 
@@ -25,9 +31,9 @@ public class DistributeTest {
             // SIREESH THIS IS BREAKING FOR ME (ALDEN) SO IM COMMENTING OUT
             // System.out.println(o.getBase());
         }
+    }
 
-
-
-
+    public static void main(String[] args){
+        new DistributeTest().run(args);
     }
 }

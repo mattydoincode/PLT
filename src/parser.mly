@@ -40,6 +40,10 @@
 program:
   stmt_list { List.rev $1 }
 
+/***************
+    STATEMENTS 
+***************/
+
 stmt_list:
    /* nothing */  { [] }
  | stmt_list stmt { $2 :: $1 }
@@ -65,6 +69,10 @@ assign_opt:
 assignment:
     ID ASSIGN expr     { Assign(Id($1), $3) }
   | access ASSIGN expr { Assign($1, $3) }
+
+/***************
+    EXPRESSIONS 
+***************/
 
 expr_opt:
     /* nothing */ { None }
@@ -112,23 +120,18 @@ else_opt:
 
 /* 
   1. () -> body
-  2. x -> body
-  3. (x) -> body 
-  4. (x,y,z) -> body 
-
-func_body:
-  body               { $1 }
-  LBRACE expr RBRACE { [Return($2)] }
-
+  2. (x) -> body 
+  3. (x,y,z) -> body 
+  4. x -> body
 */
 func_create:
     LPAREN RPAREN ARROW body              { FuncCreate([], $4) }
-  | ID ARROW body                         { FuncCreate([$1], $3) }
   | LPAREN expr RPAREN ARROW body         { match $2 with
                                               Id(x) -> FuncCreate([x], $5) 
                                             | _ -> failwith "Invalid function creation."
                                           }
   | LPAREN mult_formals RPAREN ARROW body { FuncCreate($2, $5) }
+  | ID ARROW body                         { FuncCreate([$1], $3) }
 
 mult_formals:
   formal_list COMMA ID { List.rev ($3 :: $1) }
@@ -149,7 +152,7 @@ actuals_list:
   | actuals_list COMMA expr { $3 :: $1 }
 
 /***************
-    OBJECTS 
+  OBJECTS AND LISTS
 ***************/
 
 obj_create: 

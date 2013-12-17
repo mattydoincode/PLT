@@ -24,7 +24,7 @@ public class DistributeClient {
         slaveList = args;
     }
 
-    private static   void getRegistries(String... hosts){
+    private static void getRegistries(String... hosts){
 
         slaves = new ArrayList<Compute>();
         System.setProperty("java.security.policy", "client.policy");
@@ -89,7 +89,5 @@ public class DistributeClient {
         }**/
 
         return new PCList(output); 
-
-
     }
 }
