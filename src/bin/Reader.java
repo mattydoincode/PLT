@@ -24,7 +24,7 @@ public class Reader
         return toReturn;
     }
 
-    public static PCList readFile(PCList listOfChars) throws IOException {
+    public static PCList readFile(PCList listOfChars)  {
         PCList toReturn = new PCList();
         String fileName = new String();
 
@@ -33,10 +33,7 @@ public class Reader
             fileName += element.<Character>getBase();
         }
 
-        FileReader in = new FileReader(fileName);
-
-        BufferedReader br = new BufferedReader(in);
-        try {
+        try (BufferedReader br = new BufferedReader(new FileReader(fileName))) {
             String line = br.readLine();
             while (line != null) {
                 toReturn.add(new PCList(line));
@@ -44,8 +41,6 @@ public class Reader
             }
         } catch (IOException e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        } finally {
-            br.close();
         }
         return toReturn;
     }
