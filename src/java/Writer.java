@@ -18,7 +18,7 @@ public class Writer
         return toPrint;
     }
 
-    private static String getStringOfObj(PCObject obj){
+    public static String getStringOfObj(PCObject obj){
         Object myobject = obj.<Object>getBase();
         if(myobject instanceof Double){
             Double mynum = obj.<Double>getBase();

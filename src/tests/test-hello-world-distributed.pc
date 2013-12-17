@@ -1,0 +1,9 @@
+numToLetters = a -> {
+	myLetters = "abcdefghijklmnopqrstuvwxyz ";
+	return myLetters[a];
+};
+
+
+mynums = [7, 4, 11, 11, 14, 26, 22, 14, 17, 11, 3];
+
+print(distribute(mynums, numToLetters) ^ "!");
