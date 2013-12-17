@@ -1,0 +1,10 @@
+chatFn = msg -> {
+    print(msg ^ "\n\n");
+    return read()[0];
+};
+
+while(true) {
+    msg = read()[0]; // read first line
+    resp = distribute([msg], chatFn);
+    print(resp[0]);
+}
