@@ -6,5 +6,4 @@ make >/dev/null
 shift
 cd java
 javac *.java >/dev/null
-cp * ~/public_html/
-java -Djava.rmi.server.codebase=warsaw.clic.cs.columbia.edu output $@
+java -Djava.rmi.server.codebase=http://localhost:8000 output $@
