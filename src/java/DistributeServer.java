@@ -2,9 +2,9 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 
-public class distributeServer implements Compute {
+public class DistributeServer implements Compute {
 
-    public distributeServer(){
+    public DistributeServer(){
         super();
     }
 
@@ -23,7 +23,7 @@ public class distributeServer implements Compute {
         try {
             String name = "Compute";
 
-            Compute engine = new distributeServer();
+            Compute engine = new DistributeServer();
             Compute stub =
                     (Compute) UnicastRemoteObject.exportObject(engine, 0);
 

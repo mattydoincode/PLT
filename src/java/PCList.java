@@ -23,8 +23,11 @@ public class PCList extends PCObject implements Iterable<PCObject>
         }
     }
 
-    public PCList(PCList a, PCList b)
+    public PCList(PCObject obj1, PCObject obj2)
     {
+        PCList a = (PCList) obj1;
+        PCList b = (PCList) obj2;
+
         for (PCObject o : a) {
             _list.add(o);
         }
