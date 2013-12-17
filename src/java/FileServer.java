@@ -11,11 +11,26 @@ import com.sun.net.httpserver.HttpServer;
 
 public class FileServer {
 
+    private HttpServer server;
+
+    public void start() {
+        try {
+            server = HttpServer.create(new InetSocketAddress(8782), 0);
+            server.createContext("/", new MyHandler());
+            server.setExecutor(null); // creates a default executor
+            server.start();
+        }
+        catch(IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void stop() {
+        server.stop(0);
+    }
+
     public static void main(String[] args) throws Exception {
-        HttpServer server = HttpServer.create(new InetSocketAddress(8000), 0);
-        server.createContext("/", new MyHandler());
-        server.setExecutor(null); // creates a default executor
-        server.start();
+        new FileServer().start();
     }
 
     static class MyHandler implements HttpHandler {
@@ -31,10 +46,9 @@ public class FileServer {
     }
 
     private static byte[] readSmallBinaryFile(String aFileName) throws IOException {
-    Path path = Paths.get(aFileName);
-    return Files.readAllBytes(path);
+        Path path = Paths.get(aFileName);
+        return Files.readAllBytes(path);
     }
-
 
     private static String readFileAsString(String filePath) throws IOException {
         StringBuffer fileData = new StringBuffer();
@@ -49,5 +63,4 @@ public class FileServer {
         reader.close();
         return fileData.toString();
     }
-
 }
