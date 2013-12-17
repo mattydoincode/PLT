@@ -1,5 +1,6 @@
 { 
-  open Parser 
+  open Parser
+  open Scanf 
 }
 
 rule token = parse

@@ -33,8 +33,8 @@ public class DistributeClient {
         Registry registry;
         Compute comp;
         try{
-            for(int i=0; i< hosts.length; i++){
-               registry = LocateRegistry.getRegistry(hosts[i]);
+            for(int i=0; i< hosts.length-1; i = i+2){
+               registry = LocateRegistry.getRegistry(hosts[i],hosts[i+1]);
                comp = (Compute) registry.lookup("Compute");
                slaves.add(comp);
             }
