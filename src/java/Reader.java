@@ -27,8 +27,9 @@ public class Reader
             PCObject element = iter.next();
             fileName += element.<Character>getBase();
         }
-
-        try (BufferedReader br = new BufferedReader(new FileReader(fileName))) {
+        BufferedReader br;
+        try {
+            br = new BufferedReader(new FileReader(fileName));
             String line = br.readLine();
             while (line != null) {
                 toReturn.add(new PCList(line));
