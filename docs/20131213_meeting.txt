@@ -1,12 +1,12 @@
 
 TODO FOR LANGUAGE
 - tests to add
-	- read(), readFile(), printFile(), download()
+	- read(), readFile(), printFile()
 	- scanner special characters => \', "'", etc.
 	- distribute()
 
 TDOO FOR FINAL REPORT
-- Kevin write Lessons Learned
+
 - Sireesh write Lessons Learned
 - Alden finish type inference description
 - Everyone read it over
@@ -20,3 +20,7 @@ TODO FOR SLIDES
 TODO FOR PRESENTATION
 - Alden create two use cases
 - Kevin create two use cases USING DISTRIBUTE
+
+DONE THINGS
+- Kevin download() test
+- Kevin write Lessons Learned
