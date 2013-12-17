@@ -25,8 +25,10 @@ TODO FOR PRESENTATION
 
 
 DONE THINGS
-- Kevin download() test
+- Kevin download(), readFile(), read(), printFile() test
 - Kevin write Lessons Learned
+- readFile() should return list of lines, but read() should return one line
+
 
 TODO LANGUAGE CHANGES
-- readFile() should return list of lines, but read() should return one line
+- download() when list is list of functions!

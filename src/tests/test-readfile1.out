@@ -1,1 +1,1 @@
-print(readFile("/../tests/test-readfile1.pc")[0]);
+print(readFile("../tests/test-readfile1.pc")[0]);

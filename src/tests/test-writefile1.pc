@@ -1,2 +1,2 @@
-printFile("cool!", "tmp.txt");
-print(readFile("tmp.txt")[0]);
+printFile("cool!", "tmp.class"); // name it .class so make clean picks it up :)
+print(readFile("tmp.class")[0]);

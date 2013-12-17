@@ -5,6 +5,8 @@ spam = url -> {
 	}
 };
 
-url = read()[0];
+url = read();
+
+
 
 distribute()

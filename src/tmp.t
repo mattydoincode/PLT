@@ -1,0 +1,2 @@
+s = read();
+print(s);

@@ -87,7 +87,7 @@ let new_env() : environment =
     ("print", TFunc([print_type], 
                     print_type));
     ("read", TFunc([],
-                   TList(TList(TChar))));
+                   TList(TChar)));
     ("printFile", TFunc([print_file_type; TList(TChar)],
                         print_file_type));
     ("readFile", TFunc([TList(TChar)],
