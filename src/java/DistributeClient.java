@@ -15,6 +15,7 @@ import java.util.concurrent.Future;
 
 public class DistributeClient {
 
+    private static FileServer server = new FileServer();
     private static ArrayList<Compute> slaves;
     private static String[] slaveList;
     private static boolean initialized = false;
@@ -33,13 +34,13 @@ public class DistributeClient {
         Registry registry;
         Compute comp;
         try{
-            for(int i=0; i< hosts.length-1; i = i+2){
+            for(int i=0; i< hosts.length-1; i = i+2) {
                registry = LocateRegistry.getRegistry(hosts[i], Integer.parseInt(hosts[i+1]));
                comp = (Compute) registry.lookup("Compute");
                slaves.add(comp);
             }
         }
-        catch(Exception e){
+        catch(Exception e) {
             System.out.println("Failed to connect\n\n");
             e.printStackTrace();
             System.exit(1);
@@ -49,6 +50,7 @@ public class DistributeClient {
     public static PCList distributeFunction(PCList toProcess, final IPCFunction function){
         if(!initialized){
             getRegistries(slaveList);
+            server.start();
             initialized = true;
         }
 
@@ -81,9 +83,13 @@ public class DistributeClient {
             
             exec.shutdown();
 
-        }catch(Exception e){
+        }
+        catch(Exception e){
             e.printStackTrace();
             System.exit(1);
+        }
+        finally {
+            server.stop();
         }
 
         return new PCList(output); 
