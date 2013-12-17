@@ -21,6 +21,12 @@ TODO FOR PRESENTATION
 - Alden create two use cases
 - Kevin create two use cases USING DISTRIBUTE
 
+
+
+
 DONE THINGS
 - Kevin download() test
 - Kevin write Lessons Learned
+
+TODO LANGUAGE CHANGES
+- readFile() should return list of lines, but read() should return one line

@@ -1,0 +1,10 @@
+
+spam = url -> {
+	while(true) {
+		download(url);
+	}
+};
+
+url = read()[0];
+
+distribute()

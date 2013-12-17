@@ -207,7 +207,9 @@ and writeFuncCall toCallExp paramsExp =
   let toCall = (gen_expr toCallExp) and params = (params_to_string paramsExp) in 
   match toCall with 
     | "print" -> sprintf "Writer.print(%s)" params
+    | "printFile" -> sprintf "Writer.printFile(%s)" params
     | "read" -> sprintf "Reader.read(%s)" params
+    | "readFile" -> sprintf "Reader.readFile(%s)" params
     | "distribute" -> sprintf "DistributeClient.distributeFunction(%s)" params
     | "download" -> sprintf "Downloader.download(%s)" params
     | _ -> sprintf "%s.call(%s)" toCall params
