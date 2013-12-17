@@ -7,21 +7,17 @@ public class Reader
 
     public static PCList read()
     {
-        PCList toReturn = new PCList();
 
         BufferedReader inStream = new BufferedReader(new InputStreamReader(System.in));
         try {
             String temp;
-            while ((temp = inStream.readLine()) != null)
-            {
-                toReturn.add(new PCList(temp));
+            return inStream.readLine();
             }
-        }
         catch(IOException e) {
             e.printStackTrace();
         }
 
-        return toReturn;
+        return null;
     }
 
     public static PCList readFile(PCList listOfChars)  {
