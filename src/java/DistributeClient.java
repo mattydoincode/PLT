@@ -34,7 +34,7 @@ public class DistributeClient {
         Compute comp;
         try{
             for(int i=0; i< hosts.length-1; i = i+2){
-               registry = LocateRegistry.getRegistry(hosts[i],hosts[i+1]);
+               registry = LocateRegistry.getRegistry(hosts[i],Integer.parseInt(hosts[i+1]));
                comp = (Compute) registry.lookup("Compute");
                slaves.add(comp);
             }
@@ -44,7 +44,7 @@ public class DistributeClient {
             e.printStackTrace();
             System.exit(1);
         }
-      }
+    }
 
     public static PCList distributeFunction(PCList toProcess, final IPCFunction function){
         if(!initialized){
