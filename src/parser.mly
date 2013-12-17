@@ -12,7 +12,7 @@
 %token SEMI COMMA ASSIGN COLON ARROW CONCAT ACCESS
 %token PLUS MINUS TIMES DIVIDE MOD
 %token EQ NEQ LT LEQ GT GEQ AND OR NOT
-%token RETURN IF ELIF ELSE FOR WHILE
+%token RETURN IF ELIF ELSE FOR WHILE DISTRIBUTE
 %token <string> ID
 %token <float> NUM_LIT
 %token <bool> BOOLEAN_LIT
@@ -142,6 +142,7 @@ formal_list:
 
 func_call:
   expr LPAREN actuals_opt RPAREN { ($1, $3) }
+  | DISTRIBUTE LPAREN actuals_opt RPAREN { (Id("distribute"), $3)}
 
 actuals_opt:
     /* nothing */ { [] }

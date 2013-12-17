@@ -130,7 +130,6 @@ public class List
 
 		});
 
-
 	}
 
     public static <T> T get(String key) {

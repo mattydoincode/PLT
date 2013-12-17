@@ -323,7 +323,7 @@ and writeID idName ty =
   let newName = (match idName with
   | "rec" -> "this"
   (*
-  | "print" -> "Writer.print"
+  | "print" -> "IO.get(\"print\")"
   | "printFile" -> "Writer.printFile"
   | "read" -> "Reader.read"
   | "readFile" -> "Reader.readFile"
