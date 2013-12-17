@@ -1,0 +1,1 @@
+print(readFile("/../tests/test-readfile1.pc")[0]);
