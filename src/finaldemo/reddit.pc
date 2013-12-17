@@ -15,8 +15,8 @@ getRedditTitles = (redditUrl) -> {
 counts = List.map(List.range(0, 9), x -> { return x*25; });
 
 urls = List.map(counts, x -> { 
-	printFile(x, "t.tmp"); 
-	return "http://reddit.com?count=" ^ readFile("t.tmp")[0]; 
+	y = toString(x);
+	return "http://reddit.com?count=" ^ y; 
 });
 
 allTitles = List.map(urls, getRedditTitles);

@@ -206,6 +206,7 @@ and writeFuncCall toCallExp paramsExp =
     | "readFile" -> sprintf "Reader.readFile(%s)" params
     | "distribute" -> sprintf "DistributeClient.distributeFunction(%s)" params
     | "download" -> sprintf "Downloader.download(%s)" params
+    | "toString" -> sprintf "MakeString.makeString(%s)" params
     | _ -> sprintf "%s.call(%s)" toCall params
 
 and params_to_string paramsList= 

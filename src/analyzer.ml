@@ -95,7 +95,9 @@ let new_env() : environment =
     ("download", TFunc([TList(TChar)],
                        TList(TChar)));
     ("distribute", TFunc([TList(dist_type); TFunc([dist_type],dist_return_type)], 
-                         TList(dist_return_type)))
+                         TList(dist_return_type)));
+    ("toString", TFunc([TNum], 
+                    TList(TChar)))
   ] in
   let list_util = TObj([
     ("add", TFunc([TList(add_type); add_type],
