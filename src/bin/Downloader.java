@@ -5,15 +5,11 @@ import java.net.*;
 
 public class Downloader
 {
-
-    
-
     public static PCList download(PCList listOfChars){
         PCList toReturn = new PCList();
         String fileName = new String();
 
-        for (Iterator<PCObject> iter = listOfChars.iterator(); iter.hasNext(); ) {
-            PCObject element = iter.next();
+        for (PCObject element : listOfChars) {
             fileName += element.<Character>getBase();
         }
         try{
