@@ -1,16 +1,10 @@
-{ open Parser 
-let escapeChar = function
-    '\\' -> '\\'
-  | 'n' -> '\n'
-  | 'r' -> '\r'
-  | 't' -> '\t'
-  | '\'' -> '\''
-  | c -> raise (Failure("illegal escape character " ^ Char.escaped c))
+{ 
+  open Parser 
 }
 
 rule token = parse
-  [' ' '\t' '\r' '\n'] { token lexbuf }   (* Whitespace *)
-| "/*"                 { comment lexbuf } (* Comments *)
+  [' ' '\t' '\r' '\n'] { token lexbuf }
+| "/*"                 { comment lexbuf }
 | "//"                 { singlelinecom lexbuf}
 | '('                  { LPAREN }
 | ')'                  { RPAREN }
@@ -48,18 +42,17 @@ rule token = parse
 | "true"               { BOOLEAN_LIT(true) }
 | "false"              { BOOLEAN_LIT(false) }
 | ('\'' ([' '-'&' '('-'[' ']'-'~'] as c) '\'')
-  (* from www.asciitable.com, all chars except ' and \
-   NEED TO HANDLE 5 THINGS: \', \\, \t, \n, \r *)
-             { CHAR_LIT(c) }
-| ('\'' ('\\'(['\\' '\'' 'n' 'r' 't' ]as c)) '\'') {CHAR_LIT(escapeChar c)} 
+                       { CHAR_LIT(c) }
+| ("'\\\\'" | "'\\''" | "'\\n'" | "'\\r'" | "'\\t'") as s
+                       { CHAR_LIT((Scanf.unescaped s).[0]) } 
 | ('0' | ['1'-'9']+['0'-'9']*)(['.']['0'-'9']+)? as lxm 
-             { NUM_LIT(float_of_string lxm) }
-| '"' (([' '-'!' '#'-'&' '('-'[' ']'-'~'] | '\\'['\\' '"' 'n' 'r' 't' ] )* as s) '"' 
-             { STRING_LIT(s) }
+                       { NUM_LIT(float_of_string lxm) }
+| '"' (([' '-'!' '#'-'[' ']'-'~'] | '\\' ['\\' '"' 'n' 'r' 't'])* as s) '"' 
+                       { STRING_LIT(s) }
 | ['a'-'z' 'A'-'Z']['a'-'z' 'A'-'Z' '0'-'9' '_']* as lxm 
-             { ID(lxm) }
+                       { ID(lxm) }
 | eof                  { EOF }
-| _ as char            { raise (Failure("illegal character " ^ Char.escaped char)) }
+| _ as c               { raise (Failure("illegal character " ^ Char.escaped c)) }
 
 and comment = parse
   "*/" { token lexbuf }

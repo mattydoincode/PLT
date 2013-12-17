@@ -3,7 +3,7 @@ open Printf
 open Random
 
 (************
-HELPERS
+  HELPERS
 ************)
 
 let type_of (ae : Sast.aExpr) : Sast.t =
@@ -45,8 +45,7 @@ and gen_program fileName prog = (*have a writetofile*)
   {
       public static void main(String[] args)
       {
-      DistributeClient.setSlaves(args);
-
+          DistributeClient.setSlaves(args);
 %s
       } 
   }
@@ -85,6 +84,7 @@ and gen_expr = function
   | ANot(exp, _) -> writeUnaryNot exp
 
 
+
 (*******************************************************************************
   Specific Statement evaluation
 ********************************************************************************)
@@ -100,12 +100,11 @@ and writeIfStmt condTupleList elseStmtList =
     sprintf "
     if (%s.<Boolean>getBase())
     {
-        %s
-    }" cond body
+        %s\t}" cond body
   in let ifString =
     let rec string_of_tupleList = function
         [] -> ""
-      | a::[] -> string_of_tuple a ^"\n"
+      | a::[] -> string_of_tuple a ^ "\n"
       | a::tl -> (string_of_tuple a) ^ " else " ^ string_of_tupleList tl
     in string_of_tupleList condTupleList 
   and elseString = 
@@ -113,7 +112,7 @@ and writeIfStmt condTupleList elseStmtList =
         Some(str) -> "else{\n" ^ writeStmtList str ^ "\n}"
       | None -> ""
     in checkForNone elseStmtList 
-in sprintf "%s\n%s\n" ifString elseString
+in sprintf "%s\n%s" ifString elseString
 
 and writeForLoop asnTuple cond incrTuple stmtList =
   let asn = 
@@ -218,8 +217,8 @@ and params_to_string paramsList=
     in paramsListtoString paramsStringList 
 
 and pNames_to_string paramTupleList = 
-  let pNameList = List.map (fun (a,b) -> a) paramTupleList 
-in List.fold_left (fun a b -> a^b) "" pNameList
+  let pNameList = List.map (fun (a,b) -> a) paramTupleList in
+  List.fold_left (fun a b -> a^b) "" pNameList
 
 
   
@@ -227,7 +226,6 @@ in List.fold_left (fun a b -> a^b) "" pNameList
 (*******************************************************************************  
     List and Object handling - helper functions
 ********************************************************************************)
-
 
 and writeObjectAccess objNameExpr fieldName ty=
   let objName = gen_expr objNameExpr in 
@@ -243,19 +241,27 @@ and writeListCreate exprList ty =
   match ty with 
     | TList(t) -> 
       (match t with
-        | TChar -> let my_string_func = 
-            fun a -> (match a with
-              | ACharLit(c, _) -> Char.escaped c
-              | _ -> "")
+        | TChar -> 
+            let implode l =
+              let res = String.create (List.length l) in
+              let rec imp i = function
+                | [] -> res
+                | c :: l -> res.[i] <- c; imp (i + 1) l
+              in
+              imp 0 l
             in
-          let word =  String.concat "" (List.map my_string_func exprList) in
-          sprintf("new PCList(\"%s\")") word
+            let char_from_expr = function
+              | ACharLit(c, _) -> c
+              | _ -> failwith "NEVER: list of characters has non-character"
+            in
+            let word = implode (List.map char_from_expr exprList) in
+            sprintf "new PCList(\"%s\")" word
         | _ -> 
-          let concatAdds = (fun a b -> a^(sprintf(".add(%s)") b)) 
-          and list_of_strings = List.map gen_expr exprList in 
-          List.fold_left concatAdds "new PCList()" list_of_strings
+            let concatAdds = (fun a b -> a^(sprintf(".add(%s)") b)) 
+            and list_of_strings = List.map gen_expr exprList in 
+            List.fold_left concatAdds "new PCList()" list_of_strings
       )
-    | _ -> failwith "trying to generate a list from a non list type!"
+    | _ -> failwith "NEVER: trying to generate a list from a non list type"
     
 and writeSubList listNameExpr startIdxExpr endIdxExpr = 
   let listName = gen_expr listNameExpr in  
@@ -341,7 +347,6 @@ and writeNumLit numLit =
 and writeBoolLit boolLit = 
   sprintf "new PCObject(%b)" boolLit
 
-
 and writeCharLit charLit =
   let fChar = Char.escaped charLit in 
   sprintf "new PCObject('%s')" fChar
@@ -351,8 +356,8 @@ and writeCharLit charLit =
     Function Name Generation - helper functions
 ********************************************************************************)
 
-and function_name_gen () = 
-  Random.self_init ();
+and function_name_gen() = 
+  Random.self_init();
   let x = (Random.int 100000) in 
   sprintf "function_%d" x
 
