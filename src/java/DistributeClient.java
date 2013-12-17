@@ -1,4 +1,3 @@
-
 import java.lang.Exception;
 import java.lang.SecurityManager;
 import java.lang.String;
@@ -25,7 +24,6 @@ public class DistributeClient {
     }
 
     private static void getRegistries(String... hosts){
-
         slaves = new ArrayList<Compute>();
         System.setProperty("java.security.policy", "client.policy");
         if (System.getSecurityManager() == null) {
@@ -40,53 +38,53 @@ public class DistributeClient {
                comp = (Compute) registry.lookup("Compute");
                slaves.add(comp);
             }
-        }catch(Exception e){
+        }
+        catch(Exception e){
             System.out.println("Failed to connect\n\n");
             e.printStackTrace();
             System.exit(1);
         }
       }
 
-    public static PCList distributeFunction(PCList toProcess, IPCFunction function){
+    public static PCList distributeFunction(PCList toProcess, final IPCFunction function){
         if(!initialized){
             getRegistries(slaveList);
             initialized = true;
         }
 
-        Compute slave;
         ArrayList<PCObject> output = new ArrayList<PCObject>();
         Iterator<Compute> slave_it = slaves.iterator();
 
-        try{
-
+        try {
             ExecutorService exec = Executors.newFixedThreadPool(toProcess.size());
-            for(PCObject param: toProcess){
+            
+            ArrayList<Future<PCObject>> futures = new ArrayList<>();
+            for(final PCObject param: toProcess){
                 
                 if(!slave_it.hasNext()){
                     slave_it = slaves.iterator();
                 }
 
-                slave = slave_it.next();
+                final Compute slave = slave_it.next();
+                Future<PCObject> future = exec.submit(new Callable<PCObject>() {
+                    @Override
+                    public PCObject call() throws RemoteException {
+                        return slave.callFunction(function, param);
+                    }
+                });
+                futures.add(future);
+            }
 
-                Callable<PCObject> distCall = new DistributeCall(slave, function, param);
-                Future<PCObject> result = exec.submit(distCall);
-                output.add(result.get());
+            for (Future<PCObject> future : futures) {
+                output.add(future.get());
             }
             
             exec.shutdown();
 
-        }catch(InterruptedException e){
+        }catch(Exception e){
             e.printStackTrace();
             System.exit(1);
-
-        }catch(ExecutionException e){
-            e.printStackTrace();
-            System.exit(1);
-
-        }/**catch(RemoteException e){
-            e.printStackTrace();
-            return new PCList();
-        }**/
+        }
 
         return new PCList(output); 
     }

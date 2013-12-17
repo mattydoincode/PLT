@@ -2,7 +2,6 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 
-
 public class distributeServer implements Compute {
 
     public distributeServer(){
@@ -15,15 +14,11 @@ public class distributeServer implements Compute {
     }
 
     public static void main(String[] args){
-
-
-       System.setProperty("java.rmi.server.useCodebaseOnly","false");
+        System.setProperty("java.security.policy", "server.policy");
+        System.setProperty("java.rmi.server.useCodebaseOnly","false");
         if (System.getSecurityManager() == null) {
             System.setSecurityManager(new SecurityManager());
         }
-
-
-
 
         try {
             String name = "Compute";

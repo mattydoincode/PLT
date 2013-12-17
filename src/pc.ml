@@ -14,7 +14,7 @@ type action = Ast | Sast | Java
 let _ =
   let action = if Array.length Sys.argv > 1 then
     List.assoc Sys.argv.(1) [ ("-a", Ast); ("-s", Sast); ("-j", Java);]
-  else Sast in
+  else Java in
   let lexbuf = Lexing.from_channel stdin in
   let program = Parser.program Scanner.token lexbuf in
   match action with
@@ -25,7 +25,5 @@ let _ =
       print_string ("\n" ^ Sast.string_of_inferred_prog ap)
   | Java ->
       let ap = Analyzer.infer_prog program in
-      let jp = Javagen.gen_program "output" ap in
-      ignore(jp); print_string "done";
-      print_string "\n"
-
+      let _ = Javagen.gen_program "output" ap in
+      print_string "Success! Compiled to java/output.java\n"
