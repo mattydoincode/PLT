@@ -32,29 +32,32 @@ public class Writer
         else {
             return myobject.toString();
         }
-
     }
 
-    public static void printFile(PCObject toPrint, PCList listOfChars) throws IOException {
+    public static void printFile(PCObject toPrint, PCList listOfChars) {
         PCList mylist = (PCList) toPrint;
         String fileName = new String();
 
-        for(Iterator<PCObject> iter = listOfChars.iterator(); iter.hasNext(); ) {
-            PCObject element = iter.next();
+        for(PCObject element : listOfChars) {
             fileName += element.<Character>getBase();
         }
-        File f = new File(fileName);
-        if (!f.exists()) {
-            f.createNewFile();
-        }
-        PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(fileName)));
 
-        for(PCObject obj : mylist)
-        {
-            out.println(obj.<String>getBase());
-        }
-        out.close();
+        try {
+            File f = new File(fileName);
+            if (!f.exists()) {
+                f.createNewFile();
+            }
+            PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(fileName)));
 
+            for (PCObject obj : mylist)
+            {
+                out.print(getStringOfObj(obj));
+            }
+            out.close();
+        }
+        catch(IOException e) {
+            e.printStackTrace();
+        }
        
     }
 }
