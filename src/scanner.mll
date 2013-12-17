@@ -43,6 +43,7 @@ rule token = parse
 | "for"                { FOR }
 | "while"              { WHILE }
 | "return"             { RETURN }
+| "distribute"         { DISTRIBUTE }
 | "true"               { BOOLEAN_LIT(true) }
 | "false"              { BOOLEAN_LIT(false) }
 | ('\'' ([' '-'&' '('-'[' ']'-'~'] as c) '\'')
