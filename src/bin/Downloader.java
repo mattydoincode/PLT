@@ -17,7 +17,7 @@ public class Downloader
         BufferedReader in = new BufferedReader(
                         new InputStreamReader(
                         myURL.openStream()));
-        String result = " ";
+        String result = "";
         try {
             String line = in.readLine();
             while (line != null) 
