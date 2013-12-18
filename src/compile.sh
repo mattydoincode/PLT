@@ -7,7 +7,7 @@ shift
 cd java
 javac *.java >/dev/null
 
-if [[ "$(ifconfig en0)" == *error* ]]; then
+if [[ "$(ifconfig en0 2>/dev/null)" == *error* ]]; then
 	MY_IP=$(ifconfig en0 | grep inet | grep -v inet6 | awk '{print $2}')
 else
 	MY_IP=$(ifconfig en0 | grep inet | grep -v inet6 | awk '{print $2}')
