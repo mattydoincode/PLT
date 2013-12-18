@@ -1,13 +1,9 @@
 
-urlToDDOS = read();
-
-urlList = [];
-for (i = 0; i < 100; i = i+1) {
-	urlList = List.add(urList, urlToDDOS);
-}
+urlList = List.map(List.range(0,100), x -> {return "http://192.168.1.100:3000"; });
 
 distribute(urlList, url -> {
-	while(true) {
+	for(i = 0; i < 1000; i = 1 + 1) {
 		download(url);
 	}
+	return true;
 });
