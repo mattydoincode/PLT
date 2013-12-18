@@ -19,7 +19,7 @@ urls = List.map(counts, x -> {
 	return "http://www.reddit.com/?count=" ^ y; 
 });
 
-allTitles = List.map(urls, getRedditTitles);
+allTitles = distribute(urls, getRedditTitles);
 
 List.map(allTitles, titles -> {
 	return List.map(titles, title -> {
