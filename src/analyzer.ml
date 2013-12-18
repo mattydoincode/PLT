@@ -131,7 +131,7 @@ let is_keyword (name : string) : bool =
     | [] -> false
     | h::t -> name = h || helper name t
   in
-  helper name ["rec";"print";"read";"printFile";"readFile";"download";"distribute"]
+  helper name ["rec";"print";"read";"printFile";"readFile";"download";"distribute";"numToString";"numFromString"]
 
 
 

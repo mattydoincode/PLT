@@ -1,15 +1,22 @@
 
-x1 = x -> { return x; };
+identity = x -> { return x; };
 
-x2 = List.map([1,2,3], x1);
+myNums = List.map([1,2,3], identity);
 
-x3 = (o) -> { return List.map("hey", o.a.b[0]); };
+unwrap = (o) -> { return List.map("hey", o.a.b[0]); };
 
 obj = {
-    i: x1,
+    i: identity,
     wrap: (x) -> { return { a: { b: [x] } }; }
 };
 
-x4 = x3(obj.wrap(obj.i));
+myString = unwrap(obj.wrap(obj.i));
+
+myFunc = (f,a) -> { return f(a); };
+
+aNumber = myFunc(a -> { return a+1; }, 5);
+aString = myFunc(a -> { return a^"hey"; }, "what's up");
 
 print(x4);
+print(aNumber);
+print(aString);

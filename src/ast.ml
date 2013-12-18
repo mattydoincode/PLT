@@ -39,6 +39,9 @@ and conditional = {
 type program = stmt list
 
 
+(*************************
+**** PRINT AST **********
+*************************)
 
 let string_of_opt string_of = function 
     Some(x) -> string_of x 

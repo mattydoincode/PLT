@@ -1,3 +1,4 @@
+a = (() -> { return [{a:1},{a:2},{a:3}]; }())[1].a;
 x1 = x -> { return x; };
 x2 = List.map([1,2,3], x1);
 x3 = (o) -> { return List.map("hey", o.a.b[0]); };

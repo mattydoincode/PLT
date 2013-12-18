@@ -21,7 +21,5 @@ urls = List.map(counts, x -> {
 allTitles = distribute(urls, getRedditTitles);
 
 List.map(allTitles, titles -> {
-	return List.map(titles, title -> {
-		return print(title);
-	});
+	return List.map(titles, print);
 });

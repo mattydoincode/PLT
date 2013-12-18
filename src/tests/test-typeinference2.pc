@@ -6,4 +6,3 @@ result2 = x(a->{return a^"hey";}, "what's up");
 
 print(result1);
 print(result2);
-

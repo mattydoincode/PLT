@@ -215,4 +215,3 @@ and string_of_inferred_assign (e1, e2) =
 
 let string_of_inferred_prog prog = 
   string_of_inferred_stmts prog ^ "\n"
-
