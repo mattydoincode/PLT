@@ -10,6 +10,7 @@ public class PCList extends PCObject implements Iterable<PCObject>
 
     }
 
+    // Constructors
     public PCList(List<PCObject> items) {
         for (PCObject item : items) {
             _list.add(item);
@@ -36,6 +37,7 @@ public class PCList extends PCObject implements Iterable<PCObject>
         }
     }
 
+    // Return size of list
     public int size() {
         return _list.size();
     }
@@ -54,20 +56,22 @@ public class PCList extends PCObject implements Iterable<PCObject>
         _list.set(idx, val);
     }
 
+    // Add to the list
     public PCList add(PCObject val) {
         _list.add(val);
         return this;
     }
 
-    //  TODO update docs for removeAt
     public void removeAt(int idx) {
         _list.remove(idx);
     }
 
+    // Sublist with specified starting and ending index
     public PCList subList(PCObject start, PCObject end) {
         return new PCList(_list.subList(start.<Double>getBase().intValue(), end.<Double>getBase().intValue() + 1));
     }
 
+    // Iterate the list
     public Iterator<PCObject> iterator() {
         return _list.iterator();
     }

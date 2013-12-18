@@ -8,6 +8,8 @@ public class PCObject implements Serializable
     private final HashMap<String, Object> _props = new HashMap<String, Object>();
     private final static String _base = "050FCAC0-610C-4CF6-9CC2-5EA5A40C3155";
 
+
+    // Constructors
     public PCObject() {
         set(_base, this);
     }
@@ -21,10 +23,13 @@ public class PCObject implements Serializable
     public PCObject(char c) {
         set(_base, c);
     }
+
+    // Check if contains key
     public boolean contains(String key) {
         return _props.containsKey(key);
     }
 
+    // Set value and key
     public PCObject set(String key, Object value) {
         _props.put(key, value);
         return this;
@@ -40,6 +45,7 @@ public class PCObject implements Serializable
         return (T) getObj(key);
     }
 
+    // Get whatever is stored in the PCObject
     public <T> T getBase() {
         return get(_base);
     }

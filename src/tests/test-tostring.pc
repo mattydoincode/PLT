@@ -1,3 +1,3 @@
 x = 5;
-y = toString(x);
+y = numToString(x);
 print(y);

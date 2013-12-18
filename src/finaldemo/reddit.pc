@@ -15,7 +15,7 @@ getRedditTitles = (redditUrl) -> {
 counts = List.map(List.range(0, 9), x -> { return x*25; });
 
 urls = List.map(counts, x -> { 
-	return "http://www.reddit.com/?count=" ^ toString(x); 
+	return "http://www.reddit.com/?count=" ^ numToString(x); 
 });
 
 allTitles = distribute(urls, getRedditTitles);
