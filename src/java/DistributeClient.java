@@ -47,51 +47,57 @@ public class DistributeClient {
         }
     }
 
-    public static PCList distributeFunction(PCList toProcess, final IPCFunction function){
-        if(!initialized){
-            getRegistries(slaveList);
-            server.start();
-            initialized = true;
-        }
+    public static IPCFunction distribute = new IPCFunction() {
+        @Override
+        public PCObject call(PCObject... args) {
+            PCList toProcess = (PCList)args[0]; 
+            final IPCFunction function = (IPCFunction)args[1];
 
-        ArrayList<PCObject> output = new ArrayList<PCObject>();
-        Iterator<Compute> slave_it = slaves.iterator();
+            if(!initialized) {
+                getRegistries(slaveList);
+                server.start();
+                initialized = true;
+            }
 
-        try {
-            ExecutorService exec = Executors.newFixedThreadPool(toProcess.size());
-            
-            ArrayList<Future<PCObject>> futures = new ArrayList<Future<PCObject>>();
-            for(final PCObject param: toProcess){
+            ArrayList<PCObject> output = new ArrayList<PCObject>();
+            Iterator<Compute> slave_it = slaves.iterator();
+
+            try {
+                ExecutorService exec = Executors.newFixedThreadPool(toProcess.size());
                 
-                if(!slave_it.hasNext()){
-                    slave_it = slaves.iterator();
+                ArrayList<Future<PCObject>> futures = new ArrayList<Future<PCObject>>();
+                for(final PCObject param: toProcess){
+                    
+                    if(!slave_it.hasNext()){
+                        slave_it = slaves.iterator();
+                    }
+
+                    final Compute slave = slave_it.next();
+                    Future<PCObject> future = exec.submit(new Callable<PCObject>() {
+                        @Override
+                        public PCObject call() throws RemoteException {
+                            return slave.callFunction(function, param);
+                        }
+                    });
+                    futures.add(future);
                 }
 
-                final Compute slave = slave_it.next();
-                Future<PCObject> future = exec.submit(new Callable<PCObject>() {
-                    @Override
-                    public PCObject call() throws RemoteException {
-                        return slave.callFunction(function, param);
-                    }
-                });
-                futures.add(future);
+                for (Future<PCObject> future : futures) {
+                    output.add(future.get());
+                }
+                
+                exec.shutdown();
+
+            }
+            catch(Exception e){
+                e.printStackTrace();
+                System.exit(1);
+            }
+            finally {
+                server.stop();
             }
 
-            for (Future<PCObject> future : futures) {
-                output.add(future.get());
-            }
-            
-            exec.shutdown();
-
+            return new PCList(output); 
         }
-        catch(Exception e){
-            e.printStackTrace();
-            System.exit(1);
-        }
-        finally {
-            server.stop();
-        }
-
-        return new PCList(output); 
-    }
+    };
 }

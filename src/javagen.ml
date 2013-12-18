@@ -73,7 +73,7 @@ and gen_expr = function
   | ACharLit(charLit, _) -> writeCharLit charLit
   | AId(name, typed, typ) -> writeID  name typed 
   | AFuncCreate(params, body, _) -> writeFunc params body
-  | AFuncCallExpr(exp, params, _) -> writeFuncCall  exp params
+  | AFuncCallExpr(exp, params, ty) -> writeFuncCall exp params (Some(ty))
   | AObjAccess(objName, fieldName, ty)-> writeObjectAccess objName fieldName ty
   | AListAccess(listName, idx, ty) -> writeListAccess listName idx ty
   | AListCreate(contentList,ty) -> writeListCreate contentList ty
@@ -159,7 +159,7 @@ and writeAssign expr1 expr2 =
         | _ -> failwith "How'd we get all the way to java with this!!!! Not a valid LHS"
 
 and writeFuncCallStmt fNameExpr paramsListExpr = 
-  (writeFuncCall fNameExpr paramsListExpr) ^ ";\n"
+  (writeFuncCall fNameExpr paramsListExpr None) ^ ";\n"
 
 
 
@@ -197,17 +197,11 @@ and writeFunc params stmtList =
   " fName fName paramSetting body;
   sprintf "new %s()" fName
 
-and writeFuncCall toCallExp paramsExp =
+and writeFuncCall toCallExp paramsExp optCast =
   let toCall = (gen_expr toCallExp) and params = (params_to_string paramsExp) in 
-  match toCall with 
-    | "print" -> sprintf "Writer.print(%s)" params
-    | "printFile" -> sprintf "Writer.printFile(%s)" params
-    | "read" -> sprintf "Reader.read(%s)" params
-    | "readFile" -> sprintf "Reader.readFile(%s)" params
-    | "distribute" -> sprintf "DistributeClient.distributeFunction(%s)" params
-    | "download" -> sprintf "Downloader.download(%s)" params
-    | "toString" -> sprintf "MakeString.makeString(%s)" params
-    | _ -> sprintf "%s.call(%s)" toCall params
+  match optCast with
+  | Some(ty) -> sprintf "((%s)%s.call(%s))" (java_from_type ty) toCall params
+  | None -> sprintf "%s.call(%s)" toCall params
 
 and params_to_string paramsList= 
   let paramsStringList = List.map gen_expr paramsList in
@@ -322,14 +316,9 @@ and writeBinop expr1 op expr2 =
 and writeID idName ty =
   let newName = (match idName with
   | "rec" -> "this"
-  (*
-  | "print" -> "IO.get(\"print\")"
-  | "printFile" -> "Writer.printFile"
-  | "read" -> "Reader.read"
-  | "readFile" -> "Reader.readFile"
-  | "distribute" -> "DistributeClient.distributeFunction"
-  | "download" -> "Downloader.download"
-  *)
+  | "print" | "printFile" | "read" | "readFile" | "download" | "toString" ->
+      sprintf "IO.get(\"%s\")" idName
+  | "distribute" -> "DistributeClient.distribute"
   | _ -> idName) in
   match ty with 
     true -> sprintf "PCObject %s" newName
