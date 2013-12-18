@@ -1,0 +1,9 @@
+x = (f,a) -> {return f(a);};
+
+result1 = x(a->{return a+1;}, 5);
+
+result2 = x(a->{return a^"hey";}, "what's up");
+
+print(result1);
+print(result2);
+
