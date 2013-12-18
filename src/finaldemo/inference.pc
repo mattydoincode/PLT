@@ -15,8 +15,8 @@ myString = unwrap(obj.wrap(obj.i));
 myFunc = (f,a) -> { return f(a); };
 
 aNumber = myFunc(a -> { return a+1; }, 5);
-aString = myFunc(a -> { return a^"hey"; }, "what's up");
+aString = myFunc(a -> { return a^"\ndude"; }, "what's up");
 
-print(x4);
+print(myString);
 print(aNumber);
 print(aString);
