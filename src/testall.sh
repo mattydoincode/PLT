@@ -1,6 +1,6 @@
-#!/bin/sh
+#!/bin/bash
 
-PUBCRAWL="./compile.sh "
+PUBCRAWL="./run.sh "
 
 # Set time limit for all operations
 ulimit -t 30
