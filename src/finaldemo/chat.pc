@@ -1,6 +1,6 @@
 
 chatFn = msg -> {
-    print(msg ^ "\n\n");
+    print(msg);
     return read();
 };
 

@@ -9,7 +9,6 @@ public class DistributeServer implements Compute {
     }
 
     public PCObject callFunction(IPCFunction function, PCObject param){
-        System.out.println("Now serving result for:" + function.getClass().getName());
         return function.call(param);
     }
 

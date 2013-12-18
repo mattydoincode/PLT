@@ -4,6 +4,7 @@
 shift
 cd java
 
+# get IP address for mac or ubuntu
 if [[ "$(ifconfig en0 2>/dev/null)" == *error* ]]; then
 	MY_IP=$(ifconfig | awk -F':' '/inet addr/&&!/127.0.0.1/{split($2,_," ");print _[1]}')
 else
