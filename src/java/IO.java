@@ -157,12 +157,23 @@ public class IO
 			}
 		});
 
-		_obj.set("toString", new IPCFunction() {
+		_obj.set("numToString", new IPCFunction() {
 			@Override
 			public PCObject call(PCObject... args){
 				PCObject origNum = args[0];
         		String result = getStringOfObj(origNum);
         		return new PCList(result);
+			}
+		});
+
+		_obj.set("numFromString", new IPCFunction() {
+			@Override
+			public PCObject call(PCObject... args){
+				String s = new String();
+				for(PCObject element : (PCList)args[0]) {
+				    s += element.<Character>getBase();
+				}
+				return new PCObject(Double.parseDouble(s));
 			}
 		});
 

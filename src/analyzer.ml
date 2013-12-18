@@ -83,6 +83,7 @@ let new_env() : environment =
   let mapped_type = next_type_var() in
   let find_type = next_type_var() in
   let split_type = next_type_var() in
+  let pop_type = next_type_var() in
   let core = [
     ("print", TFunc([print_type], 
                     print_type));
@@ -96,8 +97,10 @@ let new_env() : environment =
                        TList(TChar)));
     ("distribute", TFunc([TList(dist_type); TFunc([dist_type],dist_return_type)], 
                          TList(dist_return_type)));
-    ("toString", TFunc([TNum], 
-                    TList(TChar)))
+    ("numToString", TFunc([TNum], 
+                          TList(TChar)));
+    ("numFromString", TFunc([TList(TChar)], 
+                            TNum))
   ] in
   let list_util = TObj([
     ("add", TFunc([TList(add_type); add_type],
@@ -114,6 +117,8 @@ let new_env() : environment =
                     TList(TList(split_type))));
     ("range", TFunc([TNum; TNum], 
                     TList(TNum)));
+    ("populate", TFunc([pop_type; TNum],
+                       TList(pop_type)));
     ("length", TFunc([TList(next_type_var())],
                      TNum))
   ]) in

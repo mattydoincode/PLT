@@ -4,8 +4,12 @@ chatFn = msg -> {
     return read();
 };
 
+print("How many people are you chatting with?");
+num = numFromString(read());
+print("Go ahead and start chatting!");
+
 while(true) {
     msg = read();
-    resp = distribute([msg], chatFn);
-    print(resp[0]);
+    resp = distribute(List.populate(msg, num), chatFn);
+    List.map(resp, print);
 }

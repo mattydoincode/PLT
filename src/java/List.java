@@ -127,9 +127,20 @@ public class List
 				}
 				return output;
 			}
-
 		});
-
+		
+		_obj.set("populate", new IPCFunction(){
+			@Override
+			public PCObject call(PCObject... args){
+				PCList output = new PCList();
+				PCObject item = args[0];
+				int num = args[1].<Double>getBase().intValue();
+				for(int i = 0; i < num; i++) {
+					output.add(item);
+				}
+				return output;
+			}
+		});
 	}
 
     public static <T> T get(String key) {

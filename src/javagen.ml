@@ -316,7 +316,7 @@ and writeBinop expr1 op expr2 =
 and writeID idName ty =
   let newName = (match idName with
   | "rec" -> "this"
-  | "print" | "printFile" | "read" | "readFile" | "download" | "toString" ->
+  | "print" | "printFile" | "read" | "readFile" | "download" | "numToString" | "numFromString"  ->
       sprintf "IO.get(\"%s\")" idName
   | "distribute" -> "DistributeClient.distribute"
   | _ -> idName) in
