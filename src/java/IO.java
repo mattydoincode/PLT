@@ -4,6 +4,8 @@ import java.net.URL;
 
 public class IO
 {
+
+	// Converts a number to a string and return that string
     private static String getStringOfObj(PCObject obj){
         Object myobject = obj.<Object>getBase();
         if(myobject instanceof Double){
@@ -24,6 +26,7 @@ public class IO
 
 	static {
 
+		// Read from stdin
 		_obj.set("read", new IPCFunction(){
 			@Override
 			public PCObject call(PCObject... args){
@@ -38,6 +41,7 @@ public class IO
 			}
 		});
 
+		// Read from a file
 		_obj.set("readFile", new IPCFunction(){
 			@Override
 			public PCObject call(PCObject... args){
@@ -65,6 +69,7 @@ public class IO
 			}
 		});
 
+		// Download given url
 		_obj.set("download", new IPCFunction() {
 			@Override
 			public PCObject call(PCObject... args){
@@ -100,6 +105,7 @@ public class IO
 			}
 		});
 
+		// Print to stdout
 		_obj.set("print", new IPCFunction(){
 			@Override
 			public PCObject call(PCObject... args){
@@ -119,6 +125,7 @@ public class IO
 					}
 		});
 
+		// Print to a file
 		_obj.set("printFile", new IPCFunction(){
 			@Override
 			public PCObject call(PCObject... args){
@@ -157,6 +164,7 @@ public class IO
 			}
 		});
 
+		// Convert a number to a string and return a PCObject
 		_obj.set("numToString", new IPCFunction() {
 			@Override
 			public PCObject call(PCObject... args){
@@ -166,6 +174,7 @@ public class IO
 			}
 		});
 
+		// Convert a string to a number and return a PCObject
 		_obj.set("numFromString", new IPCFunction() {
 			@Override
 			public PCObject call(PCObject... args){
