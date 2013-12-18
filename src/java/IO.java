@@ -168,7 +168,7 @@ public class IO
 
 	}
 
-    public static <T> T get(String key) {
-    	return _obj.<T>get(key);
+    public static IPCFunction get(String key) {
+    	return _obj.<IPCFunction>get(key);
     }
 }
