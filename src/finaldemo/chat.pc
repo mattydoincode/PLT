@@ -1,12 +1,12 @@
 
+print("How many people are you chatting with?");
+num = numFromString(read());
+print("Go ahead and start chatting!");
+
 chatFn = msg -> {
     print(msg);
     return read();
 };
-
-print("How many people are you chatting with?");
-num = numFromString(read());
-print("Go ahead and start chatting!");
 
 while(true) {
     msg = read();

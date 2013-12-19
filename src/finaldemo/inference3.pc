@@ -1,0 +1,25 @@
+
+iGen = () -> {
+	return () -> {
+		return x -> { return x; };
+	};
+};
+
+myNums = List.map([1,2,3], iGen()());
+
+obj = {
+    i: iGen,
+    wrap: (f) -> { 
+    	return { a: { b: [f()] } }; 
+	}
+};
+
+unwrap = (o) -> { 
+	return o.a.b[0](); 
+};
+
+mapper = unwrap(obj.wrap(obj.i));
+
+wow = List.map("wow", mapper);
+
+print(wow);

@@ -1,0 +1,9 @@
+
+myFunc = (f, a) -> { return f(a); };
+
+aNumber = myFunc(a -> { return a+1; }, 5);
+
+aString = myFunc(a -> { return a^"snd"; }, "fst ");
+
+print(aNumber);
+print(aString);

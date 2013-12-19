@@ -1,0 +1,18 @@
+
+o1 = {
+	id: 7,
+	name: "dude"
+};
+
+o2 = {
+	id: "my_unique_key",
+	email: "alden@quimby.com"
+};
+
+unwrap = (o) -> { return o.id; };
+
+numId = unwrap(o1);
+strId = unwrap(o2);
+
+print(numId);
+print(strId);

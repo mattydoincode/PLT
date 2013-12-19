@@ -1,0 +1,43 @@
+
+TChar             = 'AN
+'AO               = TObj(id:TNum, name:TList('AN))
+
+TChar             = 'AP
+TChar             = 'AQ
+'AR               = TObj(id:TList('AP), email:TList('AQ))
+
+'Ah               = 'AS
+'Ag               = TObjAccess(id:'Ah)
+'Ai               = TFunc('Ag -> 'AS)
+
+TFunc('AO -> 'Aj) = 'Ai
+'Ak               = 'Aj
+TFunc('AR -> 'Al) = 'Ai
+'Am               = 'Al
+
+TFunc('Ak -> 'An) = TFunc('AA -> 'AA)
+TFunc('Am -> 'Ao) = TFunc('AA -> 'AA)
+
+
+
+
+
+
+
+
+SUBSTITUTIONS
+
+Ao   => TList(TChar)
+An   => TNum
+Am   => TList(TChar)
+Al   => TList(TChar)
+Ak   => TNum
+Aj   => TNum
+Ai   => TFunc(TObjAccess(id:'AS) -> 'AS)
+Ag   => TObjAccess(id:'AS)
+Ah   => 'AS
+AR   => TObj(id:TList(TChar), email:TList(TChar))
+AQ   => TChar
+AP   => TChar
+AO   => TObj(id:TNum, name:TList(TChar))
+AN   => TChar

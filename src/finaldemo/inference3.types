@@ -1,0 +1,23 @@
+
+iGen ==> TFunc( -> TFunc( -> TFunc('Ap -> 'Ap)))
+
+
+
+
+
+myNums ==> TList(TNum)
+
+obj ==> TObj(
+	i: TFunc( -> TFunc( -> TFunc('Ap -> 'Ap))), 
+	wrap: TFunc(
+		TFunc( -> 'Bb) -> TObj(a:TObj(b:TList('Bb)))
+	)
+)
+
+unwrap ==> TFunc(
+	TObjAccess(a:TObjAccess(b:TList(TFunc( -> 'Bd)))) -> 'Bd
+)
+
+mapper ==> TFunc('CP -> 'CP)
+
+wow ==> TList(TChar)

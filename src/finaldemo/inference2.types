@@ -1,0 +1,6 @@
+
+myFunc  ==> TFunc(TFunc('Ac -> 'AN),'Ac -> 'AN)
+
+aNumber ==> TNum
+
+aString ==> TList(TChar)

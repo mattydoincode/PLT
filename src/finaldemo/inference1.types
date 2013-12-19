@@ -1,0 +1,15 @@
+
+o1     ==> TObj(id:TNum, name:TList(TChar))
+
+
+
+
+o2     ==> TObj(id:TList(TChar), email:TList(TChar))
+
+
+
+
+unwrap ==> TFunc(TObjAccess(id:'AS) -> 'AS)
+
+numId  ==> TNum
+strId  ==> TList(TChar)
