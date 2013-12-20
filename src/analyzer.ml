@@ -22,6 +22,8 @@ type environment = {
 	scope : symbol_table;        (* symbol table for vars *)
 }
 
+let str_eq a b = ((Pervasives.compare a b) = 0)
+
 let rec find_variable (scope : symbol_table) (name : string) : Sast.t option =
   try
     let (_, typ) = List.find (fun (s, _) -> s = name) scope.variables in
@@ -510,7 +512,7 @@ let rec unify_one (a : Sast.t) (b : Sast.t) : substitution  =
   | (TObjAccess(props1, key1), TObjAccess(props2, key2)) ->
       print_string "\nOMG OBJ ACCESS!\n";
       print_string (Sast.string_of_type a);
-      print_string (Sast.string_of_type b);
+      print_string ((Sast.string_of_type b) ^ "\n");
 
       (* context = props * constraints *)
       let mapper = fun context prop1 allProps2  -> 
@@ -521,15 +523,15 @@ let rec unify_one (a : Sast.t) (b : Sast.t) : substitution  =
 
       let (new_props, constraints) = List.fold_left (fun ctx prop -> mapper ctx prop props1) ([],[]) props2 in
       let full_props = new_props @ props1 in
-      let str_eq = fun a b -> ((Pervasives.compare a b) = 0) in
+      let always_sub = (key2, TObjAccess(full_props, key2)) in
       let obj_subs = 
         if str_eq key1 key2
         then 
-          [(key1, TObjAccess(full_props, key1))]
+          [always_sub]
         else
-          failwith "WEIRD CASE DIFFERENT KEYS"
+          [(key1, TVar(key2)); always_sub]
       in
-      print_string ("OBJ SUBS\n" ^ (Sast.string_of_subs obj_subs));
+      print_string ("=====> " ^ (Sast.string_of_subs obj_subs));
       let subs = unify constraints in
       subs @ obj_subs
   | (TNum, TNum) | (TChar, TChar) | (TBool, TBool) -> 

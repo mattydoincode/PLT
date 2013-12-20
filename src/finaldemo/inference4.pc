@@ -1,22 +1,10 @@
 
 f = (o) -> { 
-	x = o.id;
-	return numToString(o.id) ^ o.name; 
+	x = o.id.a;
+	return numToString(o.id.b) ^ o.name; 
 };
 
 /*
-
-
-'Ad  'AN
-'Ab  TObjAccess(id:'Ac)
-TFunc('Ac -> 'Ad)  TFunc(TNum -> TList(TChar))
-'Ae  TFunc('Ab -> 'AN)
-
-
-
-'Ab  TObjAccess(id:'Ac)
-'Ab  'Ac
-'Ac  TObjAccess(name:'Ae)
 
 
 */
