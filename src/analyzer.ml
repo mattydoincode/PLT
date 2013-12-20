@@ -525,13 +525,12 @@ let rec unify_one (a : Sast.t) (b : Sast.t) : substitution  =
       let obj_subs = 
         if str_eq key1 key2
         then 
-          [(key1, TObjAccess(full_props, key1)); (key2, TObjAccess(full_props, key1))]
+          [(key1, TObjAccess(full_props, key1))]
         else
           failwith "WEIRD CASE DIFFERENT KEYS"
       in
+      print_string ("OBJ SUBS\n" ^ (Sast.string_of_subs obj_subs));
       let subs = unify constraints in
-      print_string ("\nSUBS\n" ^ (Sast.string_of_subs subs) ^ "\n");
-      print_string ("\nOBJ SUBS\n" ^ (Sast.string_of_subs obj_subs) ^ "\n");
       subs @ obj_subs
   | (TNum, TNum) | (TChar, TChar) | (TBool, TBool) -> 
       []
@@ -552,6 +551,7 @@ and unify (s : (Sast.t * Sast.t) list) : substitution =
   | [] -> []
   | (x, y) :: tl ->
       let t2 = unify tl in
+      print_string ("\nCURRENT SUBS\n" ^ (Sast.string_of_subs t2));
       let t1 = unify_one (apply t2 x) (apply t2 y) in
       (* if t1 just returned like "heyo bitch" be like aight*)
       t1 @ t2
