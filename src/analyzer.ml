@@ -555,7 +555,24 @@ and unify (s : (Sast.t * Sast.t) list) : substitution =
       let t2 = unify tl in
       let t1 = unify_one (apply t2 x) (apply t2 y) in
       (* if t1 just returned like "heyo bitch" be like aight*)
-      t1 @ t2
+      fixObjAccess t2 t1
+
+and fixObjAccess (oldSubs: substitution) (newSubs : substitution) : substitution = 
+  let checkIfObjAccess = fun (str, ty) -> match ty with
+    | TObjAccess(props, key) -> true
+    | _ -> false
+  in
+  let listOfObjAccesses = List.filter checkIfObjAccess newSubs in
+  let flagBad = fun (objAccList, (str, ty)) -> 
+      List.length (List.filter (fun (props,key) -> (Pervasives.compare key str) = 0) objAccList ) = 0
+  in
+  let newOldSubs = List.filter flagBad oldSubs in 
+  newSubs @ newOldSubs
+
+
+
+
+
 
 (*************************
 ****** INFER *************
