@@ -561,9 +561,12 @@ and fixObjAccess (oldSubs: substitution) (newSubs : substitution) : substitution
     | TObjAccess(props, key) -> true
     | _ -> false
   in
-  let listOfObjAccesses = List.filter checkIfObjAccess newSubs in
-  let flagBad = fun (objAccList, (str, ty)) -> 
-      List.length (List.filter (fun (props,key) -> (Pervasives.compare key str) = 0) objAccList ) = 0
+  let listOfObjAccessSubs = List.filter checkIfObjAccess newSubs in
+  let flagBad = fun (str, _) -> 
+      (List.length (List.filter (fun (st,ty) -> match ty with
+        | TObjAccess(props, key) -> ((Pervasives.compare key str) = 0)
+        | _ -> false
+      ) listOfObjAccessSubs )) = 0
   in
   let newOldSubs = List.filter flagBad oldSubs in 
   newSubs @ newOldSubs
