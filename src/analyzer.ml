@@ -454,7 +454,7 @@ let rec subst (s : Sast.t) (x : string) (typ : Sast.t) : Sast.t =
   | TObj(props) -> TObj(List.map (fun prop -> (fst prop, subst s x (snd prop))) props)
   | TObjAccess(props, key) -> 
     if (str_eq key x) 
-    then s
+    then TObjAccess(List.map (fun prop -> (fst prop, subst s x (snd prop))) props, key)
     else TObjAccess(List.map (fun prop -> (fst prop, subst s x (snd prop))) props, key)
   | TNum -> typ
   | TChar -> typ
@@ -560,6 +560,7 @@ and unify (s : (Sast.t * Sast.t) list) : substitution =
       let t2 = unify tl in
       let t1 = unify_one (apply t2 x) (apply t2 y) in
       (* if t1 just returned like "heyo bitch" be like aight*)
+      print_string ("\nCURRENT SUBS\n" ^ (Sast.string_of_subs t2) ^ "\n");
       fixObjAccess t2 t1
 
 
@@ -575,12 +576,10 @@ and fixObjAccess (oldSubs: substitution) (newSubs : substitution) : substitution
         | _ -> false
       ) listOfObjAccessSubs )) = 0
   in
-  let newOldSubs = List.filter flagBad oldSubs in 
-  let almostDone = newSubs @ newOldSubs in
+  let newOldSubs = List.filter flagBad oldSubs in
   let oaTypes = List.map (fun (str, ty) -> (match ty with TObjAccess(p,k) -> (p,k) | _ -> ([],"")) ) listOfObjAccessSubs in
-
-  List.fold_left (fun subsList oaType -> List.map (fun sub -> (fst sub, replaceOA oaType (snd sub))) subsList) almostDone oaTypes
-
+  let newnewOldSubs = List.fold_left (fun subsList oaType -> List.map (fun sub -> (fst sub, (replaceOA oaType (snd sub)))) subsList) newOldSubs oaTypes in
+  newSubs @ newnewOldSubs
 
 and replaceOA (props, key)  (ty: Sast.t) : Sast.t =
   match ty with
@@ -589,9 +588,17 @@ and replaceOA (props, key)  (ty: Sast.t) : Sast.t =
   | TList(y) -> TList(replaceOA (props,key) y)
   | TObj(tprops) -> TObj(List.map (fun prop -> (fst prop, replaceOA (props,key) (snd prop))) tprops)
   | TObjAccess(tprops, tkey) -> 
+    print_string ("\nObj Comparison Is Happening: " ^ key ^ " and " ^ tkey ^ "\n");
+    
     if (str_eq key tkey) 
-    then TObjAccess(props,key)
-    else TObjAccess(List.map (fun prop -> (fst prop, replaceOA (props,key) (snd prop))) tprops, tkey)
+    then (
+      print_string ("\nThey are the same! : " ^ (Sast.string_of_type (TObjAccess(props,key))));
+      TObjAccess(props,key)
+    )
+    else (
+      print_string ("\nRecursing with: " ^ (Sast.string_of_type (TObjAccess(props,key))));
+      TObjAccess(List.map (fun prop -> (fst prop, replaceOA (props,key) (snd prop))) tprops, tkey)
+    )
   | TNum -> ty
   | TChar -> ty
   | TBool -> ty
