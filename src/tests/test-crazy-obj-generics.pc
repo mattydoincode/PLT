@@ -1,0 +1,15 @@
+f = (o) -> { 
+	x = o.id.a;
+	return numToString(o.id.b) ^ o.name; 
+};
+
+//should work!
+myObj = {
+	id: {
+		a: 5,
+		b: 10
+	},
+	name: "heyo"
+};
+
+print(f(myObj));

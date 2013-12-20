@@ -335,7 +335,7 @@ let rec collect_expr (e : Sast.aExpr) : (Sast.t * Sast.t) list =
         let oType = type_of oExpr in
         (match oType with
         | TVar(s) -> (oType, TObjAccess([(name, ty)], s)) :: collect_expr oExpr
-        | _ -> failwith "Internal error, should never happen: ObjAccess not TVar.")
+        | _ -> (oType, TObjAccess([(name, ty)], (string_of_type oType))) :: collect_expr oExpr)
     | AListAccess(lExpr, iExpr, return_type) ->
         let idx_type = type_of iExpr in
         let list_type = type_of lExpr in
@@ -515,9 +515,6 @@ let rec unify_one (a : Sast.t) (b : Sast.t) : substitution  =
   | (TList(x), TList(y)) ->
       unify_one x y
   | (TObjAccess(props1, key1), TObjAccess(props2, key2)) ->
-      print_string "\nOMG OBJ ACCESS!\n";
-      print_string (Sast.string_of_type a);
-      print_string ((Sast.string_of_type b) ^ "\n");
 
       (* context = props * constraints *)
       let mapper = fun context prop1 allProps2  -> 
@@ -536,7 +533,6 @@ let rec unify_one (a : Sast.t) (b : Sast.t) : substitution  =
         else
           [(key1, TVar(key2)); always_sub]
       in
-      print_string ("=====>\n" ^ (Sast.string_of_subs obj_subs));
       let subs = unify constraints in
       subs @ obj_subs
   | (TNum, TNum) | (TChar, TChar) | (TBool, TBool) -> 
@@ -560,7 +556,6 @@ and unify (s : (Sast.t * Sast.t) list) : substitution =
       let t2 = unify tl in
       let t1 = unify_one (apply t2 x) (apply t2 y) in
       (* if t1 just returned like "heyo bitch" be like aight*)
-      print_string ("\nCURRENT SUBS\n" ^ (Sast.string_of_subs t2) ^ "\n");
       fixObjAccess t2 t1
 
 and fixObjAccess (oldSubs: substitution) (newSubs : substitution) : substitution = 
@@ -575,9 +570,7 @@ and fixObjAccess (oldSubs: substitution) (newSubs : substitution) : substitution
         | _ -> false
       ) listOfObjAccessSubs )) = 0
   in
-  print_string ("\nCURRENT OBJ SUBS\n" ^ (Sast.string_of_subs listOfObjAccessSubs) ^ "\n");
   let newOldSubs = List.filter flagBad oldSubs in
-  print_string ("\nCURRENT OLD SUBS\n" ^ (Sast.string_of_subs newOldSubs) ^ "\n");
 
   let oaTypes = List.map (fun (str, ty) -> (match ty with TObjAccess(p,k) -> (p,k) | _ -> ([],"")) ) listOfObjAccessSubs in
   let newnewOldSubs = List.fold_left (fun subsList oaType -> List.map (fun sub -> (fst sub, (replaceOA oaType (snd sub)))) subsList) (newSubs @ newOldSubs) (List.rev oaTypes) in
@@ -590,16 +583,12 @@ and replaceOA (props, key)  (ty: Sast.t) : Sast.t =
   | TList(y) -> TList(replaceOA (props,key) y)
   | TObj(tprops) -> TObj(List.map (fun prop -> (fst prop, replaceOA (props,key) (snd prop))) tprops)
   | TObjAccess(tprops, tkey) -> 
-    print_string ("\nObj Comparison Is Happening: " ^ key ^ " and " ^ tkey ^ "\n");
     
     if (str_eq key tkey) 
     then (
-      print_string ("\nThey are the same! : " ^ (Sast.string_of_type (TObjAccess(props,key))));
       TObjAccess(props,key)
     )
     else (
-      print_string ("\nRecursing ON: " ^ (Sast.string_of_type (TObjAccess(tprops,tkey))));
-      print_string ("\nRecursing WITH: " ^ (Sast.string_of_type (TObjAccess(props,key))));
       TObjAccess(List.map (fun prop -> (fst prop, replaceOA (props,key) (snd prop))) tprops, tkey)
     )
   | TNum -> ty
