@@ -31,6 +31,13 @@ let rec find_variable (scope : symbol_table) (name : string) : Sast.t option =
     | Some(p) -> find_variable p name
     | _ -> None
 
+let find_prop (prop : string * Sast.t) (props : (string * Sast.t) list) : (string * Sast.t) option =
+  try
+    let found = List.find (fun prop2 -> (fst prop) = (fst prop2)) props in
+    Some(found)
+  with Not_found ->
+    None
+
 let code1 = ref (Char.code 'A')
 let code2 = ref (Char.code 'A')
 
@@ -324,7 +331,7 @@ let rec collect_expr (e : Sast.aExpr) : (Sast.t * Sast.t) list =
         param_constraints @ collect_expr fExpr @ [(myCreatedType, ftype)]
     | AObjAccess(oExpr, name, ty) -> 
         let oType = type_of oExpr in
-        (oType, TObjAccess(name, ty)) :: collect_expr oExpr
+        (oType, TObjAccess([(name, ty)])) :: collect_expr oExpr
     | AListAccess(lExpr, iExpr, return_type) ->
         let idx_type = type_of iExpr in
         let list_type = type_of lExpr in
@@ -441,7 +448,7 @@ let rec subst (s : Sast.t) (x : string) (typ : Sast.t) : Sast.t =
   | TFunc(params, y) -> TFunc(List.map (fun param -> subst s x param) params, subst s x y)
   | TList(y) -> TList(subst s x y)
   | TObj(props) -> TObj(List.map (fun prop -> (fst prop, subst s x (snd prop))) props)
-  | TObjAccess(name, y) -> TObjAccess(name, subst s x y)
+  | TObjAccess(props) -> TObjAccess(List.map (fun prop -> (fst prop, subst s x (snd prop))) props)
   | TNum -> typ
   | TChar -> typ
   | TBool -> typ
@@ -463,7 +470,7 @@ let rec copy_type (typ : Sast.t) (table : symbol_table) : Sast.t =
   | TFunc(params, y) -> TFunc(List.map (fun p -> copy_type p table) params, copy_type y table)
   | TList(y) -> TList(copy_type y table)
   | TObj(props) -> TObj(List.map (fun prop -> (fst prop, copy_type (snd prop) table)) props)
-  | TObjAccess(name, y) -> TObjAccess(name, copy_type y table)
+  | TObjAccess(props) -> TObjAccess(List.map (fun prop -> (fst prop, copy_type (snd prop) table)) props)
   | TNum -> typ
   | TChar -> typ
   | TBool -> typ
@@ -490,28 +497,55 @@ let rec unify_one (a : Sast.t) (b : Sast.t) : substitution =
       | _ -> failwith "Internal error, should never happen: copying TFunc failed.")
   | (TObj(props1), TObj(props2)) ->
       let mapper = fun prop1 props2 -> 
+        match (find_prop prop1 props2) with
+        | Some(found) -> ((snd prop1), (snd found))
+        | None -> unify_failed a b ("Object missing property '" ^ fst prop1 ^ "'.\n")
+      in
+      let _ = (List.map (fun prop2 -> mapper prop2 props1) props2) in
+      unify (List.map (fun prop1 -> mapper prop1 props2) props1)
+  | (TList(x), TList(y)) ->
+      unify_one x y
+  | (TObjAccess(props1), TObjAccess(props2)) ->
+      print_string "\nOMG FUCK 2\n";
+      print_string (Sast.string_of_type a);
+      print_string (Sast.string_of_type b);
+
+      (*context = newProps * substitutions *)
+      let mapper = fun context prop1 allProps2  -> 
+        match (find_prop prop1 allProps2) with
+        | Some(found) -> (fst context, ((snd prop1), (snd found)) :: (snd context))
+        | None -> (prop1 :: (fst context), snd context)
+      in
+
+      (* merge names *)
+      let newStuff = List.fold_left (fun ctx prop -> mapper ctx prop props1) ([],[]) props2 in
+      let subs = unify (snd newStuff) in
+      let obj_subs = [(a, TObjAccess((fst newStuff) @ props1));(b, TObjAccess((fst newStuff) @ props1))] in
+
+
+
+      print_string ("\nSUBS\n" ^ (Sast.string_of_subs subs) ^ "\n");
+      print_string ("\nOBJ SUBS\n" ^ (String.concat "\n" (List.map (fun (g, h) -> Sast.string_of_type g ^ " " ^ Sast.string_of_type h) obj_subs)) ^ "\n");
+      []
+
+      (*
+        'Ab  TObjAccess(id:'Ac)
+        'Ab  TObjAccess(name:'Ae)
+        TObjAccess(id:TNum)   TObjAccess(name:'Ae) 
+      *)
+  | (TNum, TNum) | (TChar, TChar) | (TBool, TBool) -> 
+      []
+  | (TVar(x), z) | (z, TVar(x)) ->
+      [(x, z)]
+  | (TObj(props), TObjAccess(accessProps)) | (TObjAccess(accessProps), TObj(props)) ->
+      let mapper = fun prop1 props2 -> 
         try
           let found = List.find (fun prop2 -> (fst prop1) = (fst prop2)) props2 in
           ((snd prop1), (snd found))
         with Not_found ->
           unify_failed a b ("Object missing property '" ^ fst prop1 ^ "'.\n")
       in
-      let _ = (List.map (fun prop2 -> mapper prop2 props1) props2) in
-      unify (List.map (fun prop1 -> mapper prop1 props2) props1)
-  | (TList(x), TList(y)) | (TObjAccess(_, x), TObjAccess(_, y)) ->
-      unify_one x y
-  | (TNum, TNum) | (TChar, TChar) | (TBool, TBool) -> 
-      []
-  | (TVar(x), z) | (z, TVar(x)) ->
-      [(x, z)]
-  | (TObj(props), TObjAccess(name, y)) | (TObjAccess(name, y), TObj(props)) ->
-      (try
-        let found = List.find (fun cProp -> (fst cProp) = name) props in
-        unify_one y (snd found)
-      with Not_found -> 
-        unify_failed a b ("Object missing property '" ^ name ^ "'.\n"))
-  | (TObjAccess(_, y), z) | (z, TObjAccess(_, y)) ->
-      unify_one y z
+      unify (List.map (fun accessProp -> mapper accessProp props) accessProps)
   | (_, _) -> unify_failed a b ""
 
 (* unify a list of pairs *)
@@ -522,10 +556,6 @@ and unify (s : (Sast.t * Sast.t) list) : substitution =
       let t2 = unify tl in
       let t1 = unify_one (apply t2 x) (apply t2 y) in
       t1 @ t2
-
-
-
-
 
 (*************************
 ****** INFER *************

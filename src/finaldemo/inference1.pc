@@ -6,6 +6,7 @@ o1 = {
 
 o2 = {
 	id: "my_unique_key",
+	name: "hey",
 	email: "alden@quimby.com"
 };
 

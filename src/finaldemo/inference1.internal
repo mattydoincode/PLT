@@ -8,6 +8,7 @@ TChar             = 'AQ
 
 'Ah               = 'AS
 'Ag               = TObjAccess(id:'Ah)
+'Ag               = TObjAccess(foo:'Ax)
 'Ai               = TFunc('Ag -> 'AS)
 
 TFunc('AO -> 'Aj) = 'Ai
