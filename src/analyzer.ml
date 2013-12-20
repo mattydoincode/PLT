@@ -331,10 +331,9 @@ let rec collect_expr (e : Sast.aExpr) : (Sast.t * Sast.t) list =
         param_constraints @ collect_expr fExpr @ [(myCreatedType, ftype)]
     | AObjAccess(oExpr, name, ty) -> 
         let oType = type_of oExpr in
-        match oType with
+        (match oType with
         | TVar(s) -> (oType, TObjAccess([(name, ty)], s)) :: collect_expr oExpr
-        | _ -> failwith "Internal error, should never happen: ObjAccess not TVar."
-        
+        | _ -> failwith "Internal error, should never happen: ObjAccess not TVar.")
     | AListAccess(lExpr, iExpr, return_type) ->
         let idx_type = type_of iExpr in
         let list_type = type_of lExpr in
@@ -526,13 +525,13 @@ let rec unify_one (a : Sast.t) (b : Sast.t) : substitution  =
       let obj_subs = 
         if str_eq key1 key2
         then 
-          [(key1, TObjAccess(full_props, key1)); (key2, TObjAccess(full_props, key1))] in
+          [(key1, TObjAccess(full_props, key1)); (key2, TObjAccess(full_props, key1))]
         else
           failwith "WEIRD CASE DIFFERENT KEYS"
       in
       let subs = unify constraints in
       print_string ("\nSUBS\n" ^ (Sast.string_of_subs subs) ^ "\n");
-      print_string ("\nOBJ SUBS\n" ^ (String.concat "\n" (List.map (fun (g, h) -> Sast.string_of_type g ^ " " ^ Sast.string_of_type h) obj_subs)) ^ "\n");
+      print_string ("\nOBJ SUBS\n" ^ (Sast.string_of_subs obj_subs) ^ "\n");
       subs @ obj_subs
   | (TNum, TNum) | (TChar, TChar) | (TBool, TBool) -> 
       []
