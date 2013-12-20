@@ -450,7 +450,10 @@ let rec subst (s : Sast.t) (x : string) (typ : Sast.t) : Sast.t =
   | TFunc(params, y) -> TFunc(List.map (fun param -> subst s x param) params, subst s x y)
   | TList(y) -> TList(subst s x y)
   | TObj(props) -> TObj(List.map (fun prop -> (fst prop, subst s x (snd prop))) props)
-  | TObjAccess(props, key) -> TObjAccess(List.map (fun prop -> (fst prop, subst s x (snd prop))) props, key)
+  | TObjAccess(props, key) -> 
+    if (str_eq key x) 
+    then s
+    else TObjAccess(List.map (fun prop -> (fst prop, subst s x (snd prop))) props, key)
   | TNum -> typ
   | TChar -> typ
   | TBool -> typ
