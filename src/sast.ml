@@ -10,7 +10,7 @@ type t =
   | TFunc of t list * t
   | TList of t
   | TObj of (string * t) list
-  | TObjAccess of (string * t) list
+  | TObjAccess of (string * t) list * string
   | TNum
   | TChar
   | TBool
@@ -57,7 +57,7 @@ let rec string_of_type = function
   | TFunc(tlist, t) -> "TFunc(" ^ String.concat "," (List.map string_of_type tlist) ^ " -> " ^ string_of_type t ^ ")"
   | TList(t) -> "TList(" ^ string_of_type t ^ ")"
   | TObj(props) -> "TObj(" ^ String.concat ", " (List.map (fun (s, t) -> s ^ ":" ^ string_of_type t) props) ^ ")"
-  | TObjAccess(props) -> "TObjAccess(" ^ String.concat ", " (List.map (fun (s, t) -> s ^ ":" ^ string_of_type t) props) ^ ")"
+  | TObjAccess(props, s) -> "TObjAccess(" ^ String.concat ", " (List.map (fun (s, t) -> s ^ ":" ^ string_of_type t) props) ^ ". " ^ s ^ ")"
   | TNum -> "TNum"
   | TChar -> "TChar"
   | TBool -> "TBool"
