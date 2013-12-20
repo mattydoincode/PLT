@@ -576,9 +576,12 @@ and fixObjAccess (oldSubs: substitution) (newSubs : substitution) : substitution
         | _ -> false
       ) listOfObjAccessSubs )) = 0
   in
+  print_string ("\nCURRENT OBJ SUBS\n" ^ (Sast.string_of_subs listOfObjAccessSubs) ^ "\n");
   let newOldSubs = List.filter flagBad oldSubs in
+  print_string ("\nCURRENT OLD SUBS\n" ^ (Sast.string_of_subs newOldSubs) ^ "\n");
+
   let oaTypes = List.map (fun (str, ty) -> (match ty with TObjAccess(p,k) -> (p,k) | _ -> ([],"")) ) listOfObjAccessSubs in
-  let newnewOldSubs = List.fold_left (fun subsList oaType -> List.map (fun sub -> (fst sub, (replaceOA oaType (snd sub)))) subsList) newOldSubs oaTypes in
+  let newnewOldSubs = List.fold_left (fun subsList oaType -> List.map (fun sub -> (fst sub, (replaceOA oaType (snd sub)))) subsList) (newSubs @ newOldSubs) (List.rev oaTypes) in
   newSubs @ newnewOldSubs
 
 and replaceOA (props, key)  (ty: Sast.t) : Sast.t =
@@ -596,7 +599,8 @@ and replaceOA (props, key)  (ty: Sast.t) : Sast.t =
       TObjAccess(props,key)
     )
     else (
-      print_string ("\nRecursing with: " ^ (Sast.string_of_type (TObjAccess(props,key))));
+      print_string ("\nRecursing ON: " ^ (Sast.string_of_type (TObjAccess(tprops,tkey))));
+      print_string ("\nRecursing WITH: " ^ (Sast.string_of_type (TObjAccess(props,key))));
       TObjAccess(List.map (fun prop -> (fst prop, replaceOA (props,key) (snd prop))) tprops, tkey)
     )
   | TNum -> ty
