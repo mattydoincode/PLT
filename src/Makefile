@@ -3,8 +3,9 @@ OBJS = ast.cmo sast.cmo parser.cmo scanner.cmo analyzer.cmo javagen.cmo pc.cmo
 SRCS = $(wildcard *.*)
 JAVA_SRCS = $(shell find java -name '*')
 TESTS := $(shell find tests -name '*.pc' -o -name "*.out")
+DEMOS = $(shell find finaldemo *.pc -name '*')
 
-TARFILES = Makefile $(SRCS) $(JAVA_SRCS) $(TESTS)
+TARFILES = Makefile $(SRCS) $(JAVA_SRCS) $(TESTS) $(DEMOS)
 
 pc : $(OBJS)
 	ocamlc -g -o pc $(OBJS)
