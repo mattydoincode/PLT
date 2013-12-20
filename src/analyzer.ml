@@ -508,10 +508,6 @@ let rec unify_one (a : Sast.t) (b : Sast.t) : substitution  =
   | (TList(x), TList(y)) ->
       unify_one x y
   | (TObjAccess(props1, key1), TObjAccess(props2, key2)) ->
-      print_string "\nOMG OBJ ACCESS!\n";
-      print_string (Sast.string_of_type a);
-      print_string (Sast.string_of_type b);
-
       (* context = props * constraints *)
       let mapper = fun context prop1 allProps2  -> 
         match find_prop prop1 allProps2 with
@@ -529,7 +525,6 @@ let rec unify_one (a : Sast.t) (b : Sast.t) : substitution  =
         else
           failwith "WEIRD CASE DIFFERENT KEYS"
       in
-      print_string ("OBJ SUBS\n" ^ (Sast.string_of_subs obj_subs));
       let subs = unify constraints in
       subs @ obj_subs
   | (TNum, TNum) | (TChar, TChar) | (TBool, TBool) -> 
@@ -551,7 +546,6 @@ and unify (s : (Sast.t * Sast.t) list) : substitution =
   | [] -> []
   | (x, y) :: tl ->
       let t2 = unify tl in
-      print_string ("\nCURRENT SUBS\n" ^ (Sast.string_of_subs t2));
       let t1 = unify_one (apply t2 x) (apply t2 y) in
       (* if t1 just returned like "heyo bitch" be like aight*)
       fixObjAccess t2 t1
