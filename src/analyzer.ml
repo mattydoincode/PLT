@@ -483,7 +483,7 @@ let unify_failed (a : Sast.t) (b : Sast.t) (msg : string) =
   failwith msg
 
 (* unify one pair *)
-let rec unify_one (a : Sast.t) (b : Sast.t) : substitution =
+let rec unify_one (a : Sast.t) (b : Sast.t) : substitution  =
   match (a, b) with
   | (TVar(x), TVar(y)) -> 
       if x = y then [] else [(x, b)]
@@ -553,6 +553,7 @@ and unify (s : (Sast.t * Sast.t) list) : substitution =
   | (x, y) :: tl ->
       let t2 = unify tl in
       let t1 = unify_one (apply t2 x) (apply t2 y) in
+      (* if t1 just returned like "heyo bitch" be like aight*)
       t1 @ t2
 
 (*************************
