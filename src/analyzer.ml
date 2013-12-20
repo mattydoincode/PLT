@@ -460,6 +460,8 @@ let rec subst (s : Sast.t) (x : string) (typ : Sast.t) : Sast.t =
   | TChar -> typ
   | TBool -> typ
 
+
+
 (* apply a substitution to t right to left *)
 let apply (s : substitution) (typ : Sast.t) : Sast.t =
   List.fold_right (fun (x, e) -> subst e x) s typ
@@ -560,6 +562,7 @@ and unify (s : (Sast.t * Sast.t) list) : substitution =
       (* if t1 just returned like "heyo bitch" be like aight*)
       fixObjAccess t2 t1
 
+
 and fixObjAccess (oldSubs: substitution) (newSubs : substitution) : substitution = 
   let checkIfObjAccess = fun (str, ty) -> match ty with
     | TObjAccess(props, key) -> true
@@ -573,12 +576,25 @@ and fixObjAccess (oldSubs: substitution) (newSubs : substitution) : substitution
       ) listOfObjAccessSubs )) = 0
   in
   let newOldSubs = List.filter flagBad oldSubs in 
-  newSubs @ newOldSubs
+  let almostDone = newSubs @ newOldSubs in
+  let oaTypes = List.map (fun (str, ty) -> (match ty with TObjAccess(p,k) -> (p,k) | _ -> ([],"")) ) listOfObjAccessSubs in
+
+  List.fold_left (fun subsList oaType -> List.map (fun sub -> (fst sub, replaceOA oaType (snd sub))) subsList) almostDone oaTypes
 
 
-
-
-
+and replaceOA (props, key)  (ty: Sast.t) : Sast.t =
+  match ty with
+  | TVar(name) -> ty
+  | TFunc(params, y) -> TFunc(List.map (fun param -> replaceOA (props,key) param) params, replaceOA (props,key) y)
+  | TList(y) -> TList(replaceOA (props,key) y)
+  | TObj(tprops) -> TObj(List.map (fun prop -> (fst prop, replaceOA (props,key) (snd prop))) tprops)
+  | TObjAccess(tprops, tkey) -> 
+    if (str_eq key tkey) 
+    then TObjAccess(props,key)
+    else TObjAccess(List.map (fun prop -> (fst prop, replaceOA (props,key) (snd prop))) tprops, tkey)
+  | TNum -> ty
+  | TChar -> ty
+  | TBool -> ty
 
 (*************************
 ****** INFER *************
