@@ -531,7 +531,7 @@ let rec unify_one (a : Sast.t) (b : Sast.t) : substitution  =
         else
           [(key1, TVar(key2)); always_sub]
       in
-      print_string ("=====> " ^ (Sast.string_of_subs obj_subs));
+      print_string ("=====>\n" ^ (Sast.string_of_subs obj_subs));
       let subs = unify constraints in
       subs @ obj_subs
   | (TNum, TNum) | (TChar, TChar) | (TBool, TBool) -> 
@@ -555,6 +555,7 @@ and unify (s : (Sast.t * Sast.t) list) : substitution =
       let t2 = unify tl in
       let t1 = unify_one (apply t2 x) (apply t2 y) in
       (* if t1 just returned like "heyo bitch" be like aight*)
+      print_string ((Sast.string_of_subs t2) ^ "\n");
       fixObjAccess t2 t1
 
 and fixObjAccess (oldSubs: substitution) (newSubs : substitution) : substitution = 
