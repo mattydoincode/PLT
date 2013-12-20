@@ -331,7 +331,10 @@ let rec collect_expr (e : Sast.aExpr) : (Sast.t * Sast.t) list =
         param_constraints @ collect_expr fExpr @ [(myCreatedType, ftype)]
     | AObjAccess(oExpr, name, ty) -> 
         let oType = type_of oExpr in
-        (oType, TObjAccess([(name, ty)])) :: collect_expr oExpr
+        match oType with
+        | TVar(s) -> (oType, TObjAccess([(name, ty)], s)) :: collect_expr oExpr
+        | _ -> failwith "Internal error, should never happen: ObjAccess not TVar."
+        
     | AListAccess(lExpr, iExpr, return_type) ->
         let idx_type = type_of iExpr in
         let list_type = type_of lExpr in
@@ -448,7 +451,7 @@ let rec subst (s : Sast.t) (x : string) (typ : Sast.t) : Sast.t =
   | TFunc(params, y) -> TFunc(List.map (fun param -> subst s x param) params, subst s x y)
   | TList(y) -> TList(subst s x y)
   | TObj(props) -> TObj(List.map (fun prop -> (fst prop, subst s x (snd prop))) props)
-  | TObjAccess(props) -> TObjAccess(List.map (fun prop -> (fst prop, subst s x (snd prop))) props)
+  | TObjAccess(props, key) -> TObjAccess(List.map (fun prop -> (fst prop, subst s x (snd prop))) props, key)
   | TNum -> typ
   | TChar -> typ
   | TBool -> typ
@@ -470,7 +473,7 @@ let rec copy_type (typ : Sast.t) (table : symbol_table) : Sast.t =
   | TFunc(params, y) -> TFunc(List.map (fun p -> copy_type p table) params, copy_type y table)
   | TList(y) -> TList(copy_type y table)
   | TObj(props) -> TObj(List.map (fun prop -> (fst prop, copy_type (snd prop) table)) props)
-  | TObjAccess(props) -> TObjAccess(List.map (fun prop -> (fst prop, copy_type (snd prop) table)) props)
+  | TObjAccess(props, key) -> TObjAccess(List.map (fun prop -> (fst prop, copy_type (snd prop) table)) props, key)
   | TNum -> typ
   | TChar -> typ
   | TBool -> typ
@@ -505,45 +508,41 @@ let rec unify_one (a : Sast.t) (b : Sast.t) : substitution =
       unify (List.map (fun prop1 -> mapper prop1 props2) props1)
   | (TList(x), TList(y)) ->
       unify_one x y
-  | (TObjAccess(props1), TObjAccess(props2)) ->
-      print_string "\nOMG FUCK 2\n";
+  | (TObjAccess(props1, key1), TObjAccess(props2, key2)) ->
+      print_string "\nOMG OBJ ACCESS!\n";
       print_string (Sast.string_of_type a);
       print_string (Sast.string_of_type b);
 
-      (*context = newProps * substitutions *)
+      (* context = props * constraints *)
       let mapper = fun context prop1 allProps2  -> 
-        match (find_prop prop1 allProps2) with
+        match find_prop prop1 allProps2 with
         | Some(found) -> (fst context, ((snd prop1), (snd found)) :: (snd context))
         | None -> (prop1 :: (fst context), snd context)
       in
 
-      (* merge names *)
-      let newStuff = List.fold_left (fun ctx prop -> mapper ctx prop props1) ([],[]) props2 in
-      let subs = unify (snd newStuff) in
-      let obj_subs = [(a, TObjAccess((fst newStuff) @ props1));(b, TObjAccess((fst newStuff) @ props1))] in
-
-
-
+      let (new_props, constraints) = List.fold_left (fun ctx prop -> mapper ctx prop props1) ([],[]) props2 in
+      let full_props = new_props @ props1 in
+      let str_eq = fun a b -> ((Pervasives.compare a b) = 0) in
+      let obj_subs = 
+        if str_eq key1 key2
+        then 
+          [(key1, TObjAccess(full_props, key1)); (key2, TObjAccess(full_props, key1))] in
+        else
+          failwith "WEIRD CASE DIFFERENT KEYS"
+      in
+      let subs = unify constraints in
       print_string ("\nSUBS\n" ^ (Sast.string_of_subs subs) ^ "\n");
       print_string ("\nOBJ SUBS\n" ^ (String.concat "\n" (List.map (fun (g, h) -> Sast.string_of_type g ^ " " ^ Sast.string_of_type h) obj_subs)) ^ "\n");
-      []
-
-      (*
-        'Ab  TObjAccess(id:'Ac)
-        'Ab  TObjAccess(name:'Ae)
-        TObjAccess(id:TNum)   TObjAccess(name:'Ae) 
-      *)
+      subs @ obj_subs
   | (TNum, TNum) | (TChar, TChar) | (TBool, TBool) -> 
       []
   | (TVar(x), z) | (z, TVar(x)) ->
       [(x, z)]
-  | (TObj(props), TObjAccess(accessProps)) | (TObjAccess(accessProps), TObj(props)) ->
+  | (TObj(props), TObjAccess(accessProps, _)) | (TObjAccess(accessProps, _), TObj(props)) ->
       let mapper = fun prop1 props2 -> 
-        try
-          let found = List.find (fun prop2 -> (fst prop1) = (fst prop2)) props2 in
-          ((snd prop1), (snd found))
-        with Not_found ->
-          unify_failed a b ("Object missing property '" ^ fst prop1 ^ "'.\n")
+        match find_prop prop1 props2 with
+        | Some(found) -> ((snd prop1), (snd found))
+        | None -> unify_failed a b ("Object missing property '" ^ fst prop1 ^ "'.\n")
       in
       unify (List.map (fun accessProp -> mapper accessProp props) accessProps)
   | (_, _) -> unify_failed a b ""
