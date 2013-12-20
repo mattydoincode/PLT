@@ -553,7 +553,6 @@ and unify (s : (Sast.t * Sast.t) list) : substitution =
   | [] -> []
   | (x, y) :: tl ->
       let t2 = unify tl in
-      print_string ("\nCURRENT SUBS\n" ^ (Sast.string_of_subs t2));
       let t1 = unify_one (apply t2 x) (apply t2 y) in
       (* if t1 just returned like "heyo bitch" be like aight*)
       fixObjAccess t2 t1
