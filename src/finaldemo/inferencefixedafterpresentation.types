@@ -1,0 +1,3 @@
+f ==> TFunc(TObjAccess(name:TList(TChar), id:TObjAccess(a:TFunc( -> TList(TChar)), b:TNum)) -> TList(TChar))
+x ==> TList(TChar)
+myObj ==> TObj(id:TObj(a:TFunc( -> TList(TChar)), b:TNum), name:TList(TChar))
